@@ -1,5 +1,9 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import useEmblaCarousel from "embla-carousel-react";
 import imgLucasOil from "../imports/Logo/2b3b51fcf919d93d1e4b2d82d6eaebe4c78c981e.png";
+import heroTruck from "../assets/hero_truck.jpg";
+import heroFuel from "../assets/hero_fuel_treatment.jpg";
+import heroTransmission from "../assets/hero_transmission_fix.jpg";
 import {
   Search,
   Package,
@@ -1030,6 +1034,202 @@ function CollateralPreviewModal({
   );
 }
 
+// ─── Marketing Banner Carousel ──────────────────────────────────────────────────
+
+interface BannerSlide {
+  image: string;
+  eyebrow: string;
+  title: string;
+  subtitle: string;
+  cta: string;
+  view: View;
+}
+
+const BANNER_SLIDES: BannerSlide[] = [
+  {
+    image: heroTruck,
+    eyebrow: "New for 2026",
+    title: "Heavy-Duty Product Catalog",
+    subtitle:
+      "The full Lucas Oil lineup, engineered to keep your fleets running strong.",
+    cta: "Browse Catalog",
+    view: "catalog",
+  },
+  {
+    image: heroFuel,
+    eyebrow: "Distributor Promotions",
+    title: "Q1 Fuel Treatment Program",
+    subtitle:
+      "Volume pricing on our best-selling fuel treatments is now live for your account.",
+    cta: "View Orders",
+    view: "orders",
+  },
+  {
+    image: heroTransmission,
+    eyebrow: "Partner Support",
+    title: "We're Here to Help",
+    subtitle:
+      "Open a case and our distributor support team will get right back to you.",
+    cta: "Open a Case",
+    view: "new-case",
+  },
+];
+
+function SlideImage({ src, alt }: { src: string; alt: string }) {
+  return (
+    <div className="relative min-h-[220px] sm:min-h-[260px] overflow-hidden">
+      <img
+        src={src}
+        alt={alt}
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      {/* Brand red/blue gradient overlay for legibility */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/55 to-black/25 md:via-primary/70 md:to-transparent"
+      />
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 bg-gradient-to-t from-[var(--blue-dark)]/70 via-[var(--blue-dark)]/10 to-transparent"
+      />
+    </div>
+  );
+}
+
+function MarketingBannerCarousel({
+  onNav,
+}: {
+  onNav: (v: View) => void;
+}) {
+  const [emblaRef, emblaApi] = useEmblaCarousel({
+    loop: true,
+    align: "start",
+  });
+  const [selected, setSelected] = useState(0);
+
+  const scrollPrev = useCallback(
+    () => emblaApi?.scrollPrev(),
+    [emblaApi],
+  );
+  const scrollNext = useCallback(
+    () => emblaApi?.scrollNext(),
+    [emblaApi],
+  );
+  const scrollTo = useCallback(
+    (i: number) => emblaApi?.scrollTo(i),
+    [emblaApi],
+  );
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    const onSelect = () =>
+      setSelected(emblaApi.selectedScrollSnap());
+    onSelect();
+    emblaApi.on("select", onSelect);
+    emblaApi.on("reInit", onSelect);
+    return () => {
+      emblaApi.off("select", onSelect);
+      emblaApi.off("reInit", onSelect);
+    };
+  }, [emblaApi]);
+
+  // Auto-advance every 6s; pause on hover.
+  const [paused, setPaused] = useState(false);
+  useEffect(() => {
+    if (!emblaApi || paused) return;
+    const id = setInterval(() => emblaApi.scrollNext(), 6000);
+    return () => clearInterval(id);
+  }, [emblaApi, paused]);
+
+  return (
+    <section
+      className="w-full border-b border-border"
+      aria-roledescription="carousel"
+      aria-label="Distributor announcements"
+      onMouseEnter={() => setPaused(true)}
+      onMouseLeave={() => setPaused(false)}
+    >
+      <div className="relative w-full">
+        <div className="overflow-hidden" ref={emblaRef}>
+          <div className="flex ml-0">
+            {BANNER_SLIDES.map((slide, i) => (
+              <div
+                key={slide.title}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`${i + 1} of ${BANNER_SLIDES.length}`}
+                className="min-w-0 shrink-0 grow-0 pl-0 basis-full"
+              >
+                <div className="relative min-h-[220px] sm:min-h-[260px] overflow-hidden pb-10">
+                  <SlideImage src={slide.image} alt={slide.title} />
+                  <div className="absolute inset-0 flex items-center">
+                    <div className="max-w-7xl mx-auto w-full px-4 sm:px-6">
+                      <div className="max-w-xl">
+                        <div className="text-xs font-semibold uppercase tracking-[0.14em] text-white/80 mb-2">
+                          {slide.eyebrow}
+                        </div>
+                        <h2 className="text-2xl sm:text-3xl font-bold text-white leading-tight">
+                          {slide.title}
+                        </h2>
+                        <p className="text-sm sm:text-base text-white/85 mt-2 max-w-md">
+                          {slide.subtitle}
+                        </p>
+                        <button
+                          onClick={() => onNav(slide.view)}
+                          className="mt-5 inline-flex items-center gap-1.5 bg-primary hover:bg-[var(--primary-dark)] text-primary-foreground font-semibold text-sm px-5 py-2.5 rounded-lg transition-colors"
+                        >
+                          {slide.cta}
+                          <ChevronRight size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Prev / Next */}
+        <button
+          type="button"
+          onClick={scrollPrev}
+          aria-label="Previous slide"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/35 hover:bg-black/55 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+        >
+          <ChevronLeft size={18} />
+        </button>
+        <button
+          type="button"
+          onClick={scrollNext}
+          aria-label="Next slide"
+          className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-black/35 hover:bg-black/55 text-white flex items-center justify-center backdrop-blur-sm transition-colors"
+        >
+          <ChevronRight size={18} />
+        </button>
+
+        {/* Dots */}
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full bg-black/35 backdrop-blur-sm px-3 py-2">
+          {BANNER_SLIDES.map((slide, i) => (
+            <button
+              key={slide.title}
+              type="button"
+              onClick={() => scrollTo(i)}
+              aria-label={`Go to slide ${i + 1}`}
+              aria-current={selected === i}
+              className={`h-2 rounded-full transition-all ${
+                selected === i
+                  ? "w-6 bg-white"
+                  : "w-2 bg-white/70 hover:bg-white"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
 function Dashboard({
@@ -1071,7 +1271,9 @@ function Dashboard({
   );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <>
+      <MarketingBannerCarousel onNav={onNav} />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
       <div>
         <h1 className="text-2xl font-semibold text-foreground">
           Welcome, <span className="text-[#111]">Reno WD</span>
@@ -1391,7 +1593,8 @@ function Dashboard({
           />
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
 
