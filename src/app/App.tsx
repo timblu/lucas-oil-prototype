@@ -31,6 +31,8 @@ import {
   Hash,
   Star,
   Layers,
+  ChevronLeft,
+  Info,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -45,14 +47,20 @@ type View =
   | "cases"
   | "new-case"
   | "case-detail"
-  | "account";
+  | "account"
+  | "tracking";
 
 interface Order {
   id: string;
   date: string;
   po: string;
   shipTo: string;
-  status: "Received" | "Picked" | "Shipping" | "Out for Delivery" | "Delivered";
+  status:
+    | "Received"
+    | "Picked"
+    | "Shipping"
+    | "Out for Delivery"
+    | "Delivered";
   total: number;
 }
 
@@ -87,6 +95,7 @@ interface Case {
   subject: string;
   status: "Open" | "In Progress" | "Resolved" | "Closed";
   lastUpdated: string;
+  orderId?: string;
 }
 
 interface Message {
@@ -173,38 +182,158 @@ const ORDER_ITEMS: OrderItem[] = [
 
 const TRACKING_EVENTS: Record<string, TrackingEvent[]> = {
   "SO-10041": [
-    { timestamp: "03/14/26 2:18 PM", location: "Dallas, TX", description: "Delivered", done: true },
-    { timestamp: "03/14/26 7:45 AM", location: "Dallas, TX", description: "Out for delivery", done: true },
-    { timestamp: "03/14/26 2:30 AM", location: "Dallas, TX", description: "Arrived at local delivery facility", done: true },
-    { timestamp: "03/13/26 9:15 PM", location: "Fort Worth, TX", description: "Departed UPS hub", done: true },
-    { timestamp: "03/13/26 4:50 PM", location: "Fort Worth, TX", description: "Arrived at UPS hub", done: true },
-    { timestamp: "03/13/26 8:00 AM", location: "Corona, CA", description: "Shipment picked up", done: true },
+    {
+      timestamp: "03/14/26 2:18 PM",
+      location: "Dallas, TX",
+      description: "Delivered",
+      done: true,
+    },
+    {
+      timestamp: "03/14/26 7:45 AM",
+      location: "Dallas, TX",
+      description: "Out for delivery",
+      done: true,
+    },
+    {
+      timestamp: "03/14/26 2:30 AM",
+      location: "Dallas, TX",
+      description: "Arrived at local delivery facility",
+      done: true,
+    },
+    {
+      timestamp: "03/13/26 9:15 PM",
+      location: "Fort Worth, TX",
+      description: "Departed UPS hub",
+      done: true,
+    },
+    {
+      timestamp: "03/13/26 4:50 PM",
+      location: "Fort Worth, TX",
+      description: "Arrived at UPS hub",
+      done: true,
+    },
+    {
+      timestamp: "03/13/26 8:00 AM",
+      location: "Corona, CA",
+      description: "Shipment picked up",
+      done: true,
+    },
   ],
   "SO-10042": [
-    { timestamp: "03/21/26 6:02 AM", location: "Reno, NV", description: "Out for delivery", done: true },
-    { timestamp: "03/21/26 1:15 AM", location: "Reno, NV", description: "Arrived at local delivery facility", done: true },
-    { timestamp: "03/20/26 3:12 AM", location: "Salt Lake City, UT", description: "Departed UPS hub", done: true },
-    { timestamp: "03/19/26 9:30 PM", location: "Salt Lake City, UT", description: "Arrived at UPS hub", done: true },
-    { timestamp: "03/19/26 2:00 PM", location: "Corona, CA", description: "Shipment picked up", done: true },
-    { timestamp: "03/22/26 (est.)", location: "Reno, NV", description: "Scheduled delivery", done: false },
+    {
+      timestamp: "03/21/26 6:02 AM",
+      location: "Reno, NV",
+      description: "Out for delivery",
+      done: true,
+    },
+    {
+      timestamp: "03/21/26 1:15 AM",
+      location: "Reno, NV",
+      description: "Arrived at local delivery facility",
+      done: true,
+    },
+    {
+      timestamp: "03/20/26 3:12 AM",
+      location: "Salt Lake City, UT",
+      description: "Departed UPS hub",
+      done: true,
+    },
+    {
+      timestamp: "03/19/26 9:30 PM",
+      location: "Salt Lake City, UT",
+      description: "Arrived at UPS hub",
+      done: true,
+    },
+    {
+      timestamp: "03/19/26 2:00 PM",
+      location: "Corona, CA",
+      description: "Shipment picked up",
+      done: true,
+    },
+    {
+      timestamp: "03/22/26 (est.)",
+      location: "Reno, NV",
+      description: "Scheduled delivery",
+      done: false,
+    },
   ],
   "SO-10043": [
-    { timestamp: "03/20/26 11:40 PM", location: "Phoenix, AZ", description: "Departed UPS hub — in transit to Tampa", done: true },
-    { timestamp: "03/20/26 3:55 PM", location: "Phoenix, AZ", description: "Arrived at UPS hub", done: true },
-    { timestamp: "03/19/26 10:00 AM", location: "Corona, CA", description: "Shipment picked up", done: true },
-    { timestamp: "03/22/26 (est.)", location: "Tampa, FL", description: "Scheduled delivery", done: false },
+    {
+      timestamp: "03/20/26 11:40 PM",
+      location: "Phoenix, AZ",
+      description: "Departed UPS hub — in transit to Tampa",
+      done: true,
+    },
+    {
+      timestamp: "03/20/26 3:55 PM",
+      location: "Phoenix, AZ",
+      description: "Arrived at UPS hub",
+      done: true,
+    },
+    {
+      timestamp: "03/19/26 10:00 AM",
+      location: "Corona, CA",
+      description: "Shipment picked up",
+      done: true,
+    },
+    {
+      timestamp: "03/22/26 (est.)",
+      location: "Tampa, FL",
+      description: "Scheduled delivery",
+      done: false,
+    },
   ],
   "SO-10044": [
-    { timestamp: "03/19/26 3:44 PM", location: "Boise, ID", description: "Delivered", done: true },
-    { timestamp: "03/19/26 8:10 AM", location: "Boise, ID", description: "Out for delivery", done: true },
-    { timestamp: "03/19/26 12:30 AM", location: "Boise, ID", description: "Arrived at local delivery facility", done: true },
-    { timestamp: "03/18/26 6:20 PM", location: "Portland, OR", description: "Departed UPS hub", done: true },
-    { timestamp: "03/18/26 11:05 AM", location: "Portland, OR", description: "Arrived at UPS hub", done: true },
-    { timestamp: "03/18/26 7:00 AM", location: "Corona, CA", description: "Shipment picked up", done: true },
+    {
+      timestamp: "03/19/26 3:44 PM",
+      location: "Boise, ID",
+      description: "Delivered",
+      done: true,
+    },
+    {
+      timestamp: "03/19/26 8:10 AM",
+      location: "Boise, ID",
+      description: "Out for delivery",
+      done: true,
+    },
+    {
+      timestamp: "03/19/26 12:30 AM",
+      location: "Boise, ID",
+      description: "Arrived at local delivery facility",
+      done: true,
+    },
+    {
+      timestamp: "03/18/26 6:20 PM",
+      location: "Portland, OR",
+      description: "Departed UPS hub",
+      done: true,
+    },
+    {
+      timestamp: "03/18/26 11:05 AM",
+      location: "Portland, OR",
+      description: "Arrived at UPS hub",
+      done: true,
+    },
+    {
+      timestamp: "03/18/26 7:00 AM",
+      location: "Corona, CA",
+      description: "Shipment picked up",
+      done: true,
+    },
   ],
   "SO-10045": [
-    { timestamp: "03/23/26 8:15 AM", location: "Corona, CA", description: "Shipment picked up", done: true },
-    { timestamp: "03/24/26 (est.)", location: "Denver, CO", description: "Scheduled delivery", done: false },
+    {
+      timestamp: "03/23/26 8:15 AM",
+      location: "Corona, CA",
+      description: "Shipment picked up",
+      done: true,
+    },
+    {
+      timestamp: "03/24/26 (est.)",
+      location: "Denver, CO",
+      description: "Scheduled delivery",
+      done: false,
+    },
   ],
 };
 
@@ -288,12 +417,14 @@ const CASES: Case[] = [
     subject: "Damaged case on delivery",
     status: "Open",
     lastUpdated: "03/22/26",
+    orderId: "SO-10041",
   },
   {
     id: "CS-2039",
-    subject: "Missing item on SO-10038",
+    subject: "Missing item — short-shipped 2 cases",
     status: "In Progress",
     lastUpdated: "03/21/26",
+    orderId: "SO-10042",
   },
   {
     id: "CS-2031",
@@ -356,48 +487,78 @@ const COLLATERAL = [
     title: "2026 Product Catalog",
     type: "PDF",
     size: "4.2 MB",
+    pages: 48,
     icon: <BookOpen size={20} />,
     updated: "01/15/26",
+    description:
+      "Full distributor product catalog covering the complete 2026 lineup — motor oils, gear lubes, additives, and specialty fluids. Includes item numbers, case quantities, and suggested retail pricing.",
+    previewColor: "bg-primary",
+    previewLabel: "PRODUCT CATALOG 2026",
   },
   {
     id: "2",
     title: "Hi-Perf Motor Oil Line Sheet",
     type: "PDF",
     size: "1.1 MB",
+    pages: 2,
     icon: <FileDown size={20} />,
     updated: "02/03/26",
+    description:
+      "Two-page sell sheet for the high-performance motor oil range. Designed for counter sales and trade events. Covers viscosity grades, approvals (API, ILSAC), and key differentiators.",
+    previewColor: "bg-foreground",
+    previewLabel: "HI-PERF MOTOR OIL",
   },
   {
     id: "3",
     title: "Lucas Oil Brand Standards",
     type: "PDF",
     size: "8.7 MB",
+    pages: 32,
     icon: <Star size={20} />,
     updated: "12/10/25",
+    description:
+      "Official brand guidelines for all distributor co-marketing use. Includes logo usage rules, color palette, typography, photography direction, and approved tagline variations.",
+    previewColor: "bg-primary",
+    previewLabel: "BRAND STANDARDS",
   },
   {
     id: "4",
     title: "Additive Product Sell Sheet",
     type: "PDF",
     size: "980 KB",
+    pages: 2,
     icon: <Tag size={20} />,
     updated: "03/01/26",
+    description:
+      "Counter-ready two-page overview of the additive lineup including fuel treatments, engine oil supplements, and transmission conditioners. Features OEM-approved callouts and typical use cases.",
+    previewColor: "bg-foreground",
+    previewLabel: "ADDITIVE LINE",
   },
   {
     id: "5",
     title: "Trade Show Booth Graphics",
     type: "ZIP",
     size: "22 MB",
+    pages: null,
     icon: <Image size={20} />,
     updated: "02/20/26",
+    description:
+      "Print-ready booth graphics package for trade shows and distributor events. Includes 10×10 and 10×20 backwall artwork, banner stands, table throws, and product spotlight panels at 300 dpi.",
+    previewColor: "bg-muted",
+    previewLabel: "BOOTH GRAPHICS",
   },
   {
     id: "6",
     title: "MSDS / SDS Sheet Bundle",
     type: "ZIP",
     size: "6.3 MB",
+    pages: null,
     icon: <Layers size={20} />,
     updated: "03/10/26",
+    description:
+      "Compliance bundle containing Safety Data Sheets for the full product range. Required for retail shelf placement and commercial accounts. Updated to GHS/HazCom 2012 format.",
+    previewColor: "bg-muted",
+    previewLabel: "SDS BUNDLE",
   },
 ];
 
@@ -430,7 +591,8 @@ function StatusBadge({ status }: { status: string }) {
     Received: "bg-[#E4E4E4] text-[#555] ring-1 ring-[#ccc]",
     Picked: "bg-[#E4E4E4] text-[#333] ring-1 ring-[#ccc]",
     Shipping: "bg-[#E4E4E4] text-[#111] ring-1 ring-[#ccc]",
-    "Out for Delivery": "bg-[#111] text-white ring-1 ring-[#111]",
+    "Out for Delivery":
+      "bg-[#111] text-white ring-1 ring-[#111]",
     Delivered: "bg-white text-[#111] ring-1 ring-[#bbb]",
     Open: "bg-[#111] text-white ring-1 ring-[#111]",
     "In Progress": "bg-[#555] text-white ring-1 ring-[#555]",
@@ -622,8 +784,8 @@ function TopNav({
 // ─── Login Page ───────────────────────────────────────────────────────────────
 
 function LoginPage({ onLogin }: { onLogin: () => void }) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("demo@lucasoil.com");
+  const [password, setPassword] = useState("lucas2026");
   const [loading, setLoading] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
@@ -665,7 +827,9 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                onClick={() => { if (!email) setEmail("demo@lucasoil.com"); }}
+                onClick={() => {
+                  if (!email) setEmail("demo@lucasoil.com");
+                }}
                 placeholder="you@distributor.com"
                 className="w-full bg-[#EBEBEB] border border-[rgba(0,0,0,0.1)] rounded-lg px-3.5 py-2.5 text-[#111] placeholder-[#aaa] text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
               />
@@ -686,14 +850,18 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                onClick={() => { if (!password) setPassword("lucas2026"); }}
+                onClick={() => {
+                  if (!password) setPassword("lucas2026");
+                }}
                 placeholder="••••••••"
                 className="w-full bg-[#EBEBEB] border border-[rgba(0,0,0,0.1)] rounded-lg px-3.5 py-2.5 text-[#111] placeholder-[#aaa] text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
               />
             </div>
             <button
               type="submit"
-              disabled={loading || !email.trim() || !password.trim()}
+              disabled={
+                loading || !email.trim() || !password.trim()
+              }
               className="w-full bg-primary hover:bg-[var(--primary-dark)] disabled:opacity-50 text-primary-foreground font-semibold py-2.5 rounded-lg transition-colors mt-2 flex items-center justify-center gap-2"
             >
               {loading ? (
@@ -716,6 +884,152 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
   );
 }
 
+// ─── Collateral Preview Modal ─────────────────────────────────────────────────
+
+function CollateralPreviewModal({
+  item,
+  onClose,
+}: {
+  item: (typeof COLLATERAL)[number];
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const isZip = item.type === "ZIP";
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-foreground/40 backdrop-blur-sm" />
+
+      {/* Panel */}
+      <div
+        className="relative bg-card border border-border rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Mock document preview */}
+        <div
+          className={`${item.previewColor} px-8 pt-10 pb-8 flex flex-col gap-4`}
+        >
+          {/* Simulated document header */}
+          <div className="flex items-start justify-between">
+            <div className="space-y-2 flex-1">
+              <div
+                className={`h-2 w-16 rounded-full ${item.previewColor === "bg-muted" ? "bg-border" : "bg-primary-foreground/30"}`}
+              />
+              <div
+                className={`h-4 w-48 rounded-full ${item.previewColor === "bg-muted" ? "bg-foreground/15" : "bg-primary-foreground/70"}`}
+              />
+              <div
+                className={`h-2 w-32 rounded-full ${item.previewColor === "bg-muted" ? "bg-border" : "bg-primary-foreground/30"}`}
+              />
+            </div>
+            <div
+              className={`w-10 h-10 rounded-lg flex items-center justify-center shrink-0 ${item.previewColor === "bg-muted" ? "bg-border" : "bg-primary-foreground/20"}`}
+            >
+              {item.icon}
+            </div>
+          </div>
+          {/* Simulated body lines */}
+          <div className="space-y-1.5 pt-2">
+            {[80, 95, 70, 88, 60].map((w, i) => (
+              <div
+                key={i}
+                className={`h-1.5 rounded-full ${item.previewColor === "bg-muted" ? "bg-border" : "bg-primary-foreground/20"}`}
+                style={{ width: `${w}%` }}
+              />
+            ))}
+          </div>
+          {/* Simulated grid of content blocks */}
+          <div className="grid grid-cols-3 gap-2 pt-1">
+            {[1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className={`h-14 rounded-lg ${item.previewColor === "bg-muted" ? "bg-border/60" : "bg-primary-foreground/15"}`}
+              />
+            ))}
+          </div>
+          {/* Document label badge */}
+          <div className="flex items-center gap-2 pt-1">
+            <span
+              className={`text-xs font-semibold tracking-widest uppercase ${item.previewColor === "bg-muted" ? "text-muted-foreground" : "text-primary-foreground/60"}`}
+            >
+              {item.previewLabel}
+            </span>
+          </div>
+        </div>
+
+        {/* Info + actions */}
+        <div className="px-6 py-5 space-y-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-base font-medium text-foreground">
+                {item.title}
+              </h2>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
+                  {item.type}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  {item.size}
+                </span>
+                {item.pages && (
+                  <>
+                    <span className="text-muted-foreground/40">
+                      ·
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {item.pages} pages
+                    </span>
+                  </>
+                )}
+                <span className="text-muted-foreground/40">
+                  ·
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Updated {item.updated}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="text-muted-foreground hover:text-foreground transition-colors shrink-0 mt-0.5"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {item.description}
+          </p>
+
+          <div className="flex items-center gap-3 pt-1">
+            <button className="flex items-center gap-2 bg-primary hover:bg-[var(--primary-dark)] text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
+              <Download size={14} />
+              {isZip ? "Download ZIP" : "Download PDF"}
+            </button>
+            <button
+              onClick={onClose}
+              className="text-sm text-muted-foreground hover:text-foreground px-4 py-2.5 transition-colors"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
 function Dashboard({
@@ -728,6 +1042,9 @@ function Dashboard({
   onCase: (id: string) => void;
 }) {
   const recentOrders = ORDERS.slice(0, 3);
+  const [previewItem, setPreviewItem] = useState<
+    (typeof COLLATERAL)[number] | null
+  >(null);
   const openCases = CASES.filter(
     (c) => c.status === "Open" || c.status === "In Progress",
   ).slice(0, 3);
@@ -739,10 +1056,19 @@ function Dashboard({
     ORDERS.find((o) => o.status === "Received") ??
     ORDERS[0];
 
-  const steps = ["Received", "Picked", "Shipping", "Out for Delivery", "Delivered"] as const;
-  const stepIdx = Math.max(0, steps.indexOf(
-    featuredOrder.status as (typeof steps)[number],
-  ));
+  const steps = [
+    "Received",
+    "Picked",
+    "Shipping",
+    "Out for Delivery",
+    "Delivered",
+  ] as const;
+  const stepIdx = Math.max(
+    0,
+    steps.indexOf(
+      featuredOrder.status as (typeof steps)[number],
+    ),
+  );
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
@@ -817,7 +1143,10 @@ function Dashboard({
                       }`}
                     >
                       {done ? (
-                        <Check size={13} className="text-white" />
+                        <Check
+                          size={13}
+                          className="text-white"
+                        />
                       ) : active ? (
                         <div className="w-2.5 h-2.5 rounded-full bg-[#555]" />
                       ) : (
@@ -866,70 +1195,79 @@ function Dashboard({
       </button>
 
       {/* Quick tiles */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         <button
           onClick={() => onNav("orders")}
-          className="bg-card border border-border rounded-xl p-5 text-left hover:border-[#555]/30 hover:shadow-md transition-all group"
+          className="bg-card border border-border rounded-xl px-5 py-4 text-left hover:shadow-md transition-all group flex items-center gap-4"
         >
-          <div className="w-10 h-10 rounded-lg bg-[#111]/8 flex items-center justify-center mb-3 group-hover:bg-[#111]/15 transition-colors">
-            <Truck size={20} className="text-[#111]" />
+          <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
+            <Truck size={20} className="text-foreground" />
           </div>
-          <div className="text-2xl font-bold text-foreground mono">
-            {ORDERS.length}
-          </div>
-          <div className="text-sm text-muted-foreground mt-0.5">
-            Recent Orders
+          <div>
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
+              Recent Orders
+            </div>
+            <div className="text-2xl font-semibold text-foreground">
+              {ORDERS.length}
+            </div>
           </div>
         </button>
 
         <button
           onClick={() => onNav("cases")}
-          className="bg-card border border-border rounded-xl p-5 text-left hover:border-[#555]/30 hover:shadow-md transition-all group"
+          className="bg-card border border-border rounded-xl px-5 py-4 text-left hover:shadow-md transition-all group flex items-center gap-4"
         >
-          <div className="w-10 h-10 rounded-lg bg-[#E4E4E4] flex items-center justify-center mb-3 group-hover:bg-[#DCDCDC] transition-colors">
-            <FileText size={20} className="text-[#555]" />
+          <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
+            <FileText size={20} className="text-foreground" />
           </div>
-          <div className="text-2xl font-bold text-foreground mono">
-            {
-              CASES.filter(
-                (c) =>
-                  c.status === "Open" ||
-                  c.status === "In Progress",
-              ).length
-            }
-          </div>
-          <div className="text-sm text-muted-foreground mt-0.5">
-            Open Cases
+          <div>
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
+              Open Cases
+            </div>
+            <div className="text-2xl font-semibold text-foreground">
+              {
+                CASES.filter(
+                  (c) =>
+                    c.status === "Open" ||
+                    c.status === "In Progress",
+                ).length
+              }
+            </div>
           </div>
         </button>
 
-        <button
-          onClick={() => onNav("catalog")}
-          className="bg-card border border-border rounded-xl p-5 text-left hover:border-[#555]/30 hover:shadow-md transition-all group"
-        >
-          <div className="w-10 h-10 rounded-lg bg-[#E4E4E4] flex items-center justify-center mb-3 group-hover:bg-[#DCDCDC] transition-colors">
-            <Package size={20} className="text-[#555]" />
+        <div className="bg-card border border-border rounded-xl px-5 py-4 flex items-center gap-4">
+          <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0">
+            <Phone size={20} className="text-foreground" />
           </div>
-          <div className="text-2xl font-bold text-foreground mono">
-            {PRODUCTS.length}
-          </div>
-          <div className="text-sm text-muted-foreground mt-0.5">
-            Product Catalog
-          </div>
-        </button>
-
-        <div className="bg-card border border-border rounded-xl p-5">
-          <div className="w-10 h-10 rounded-lg bg-[#E4E4E4] flex items-center justify-center mb-3">
-            <Phone size={20} className="text-[#555]" />
-          </div>
-          <div className="text-base font-semibold text-foreground mono">
-            800-342-2512
-          </div>
-          <div className="text-sm text-muted-foreground mt-0.5">
-            Contact Us
+          <div>
+            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
+              Contact Us
+            </div>
+            <div className="text-base font-semibold text-foreground">
+              800-342-2512
+            </div>
           </div>
         </div>
+        <button
+        onClick={() => onNav("new-case")}
+        className="bg-primary text-primary-foreground rounded-xl px-5 py-4 text-left hover:bg-[var(--primary-dark)] transition-all group flex items-center gap-4"
+      >
+        <div className="w-11 h-11 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0 group-hover:bg-primary-foreground/25 transition-colors">
+          <Plus size={20} className="text-primary-foreground" />
+        </div>
+        <div>
+          <div className="text-xs font-medium text-primary-foreground/70 uppercase tracking-wider mb-0.5">
+            Support
+          </div>
+          <div className="text-base font-semibold text-primary-foreground">
+            Open a New Case
+          </div>
+        </div>
+      </button>
       </div>
+
+      
 
       {/* Recent Orders + Open Cases */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -1026,6 +1364,7 @@ function Dashboard({
           {COLLATERAL.map((item) => (
             <button
               key={item.id}
+              onClick={() => setPreviewItem(item)}
               className="bg-card border border-border rounded-lg p-4 flex flex-col items-start gap-3 hover:border-[#555]/25 hover:shadow-sm transition-all group text-left"
             >
               <div className="w-9 h-9 rounded-md bg-[#111]/8 flex items-center justify-center text-[#111] group-hover:bg-[#111]/15 transition-colors shrink-0">
@@ -1040,11 +1379,17 @@ function Dashboard({
                 </div>
               </div>
               <div className="mt-auto flex items-center gap-1 text-[#111] text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                <Download size={11} /> Download
+                <Download size={11} /> Preview
               </div>
             </button>
           ))}
         </div>
+        {previewItem && (
+          <CollateralPreviewModal
+            item={previewItem}
+            onClose={() => setPreviewItem(null)}
+          />
+        )}
       </div>
     </div>
   );
@@ -1095,11 +1440,16 @@ function OrdersList({
             onChange={(e) => setStatusFilter(e.target.value)}
             className="appearance-none bg-card border border-border rounded-lg pl-3 pr-8 py-2 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20"
           >
-            {["All", "Received", "Picked", "Shipping", "Out for Delivery", "Delivered"].map(
-              (s) => (
-                <option key={s}>{s}</option>
-              ),
-            )}
+            {[
+              "All",
+              "Received",
+              "Picked",
+              "Shipping",
+              "Out for Delivery",
+              "Delivered",
+            ].map((s) => (
+              <option key={s}>{s}</option>
+            ))}
           </select>
           <ChevronDown
             size={13}
@@ -1177,14 +1527,137 @@ function OrdersList({
   );
 }
 
+// ─── Tracking Placeholder ─────────────────────────────────────────────────────
+
+function TrackingPlaceholder({
+  trackingNumber,
+  carrier,
+  onBack,
+}: {
+  trackingNumber: string;
+  carrier: string;
+  onBack: () => void;
+}) {
+  const steps = [
+    {
+      label: "Order picked up",
+      date: "Mar 18, 2026",
+      done: true,
+    },
+    {
+      label: "In transit — Cincinnati, OH",
+      date: "Mar 19, 2026",
+      done: true,
+    },
+    {
+      label: "Out for delivery",
+      date: "Mar 21, 2026",
+      done: true,
+    },
+    { label: "Delivered", date: "Mar 22, 2026", done: false },
+  ];
+
+  return (
+    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
+      <button
+        onClick={onBack}
+        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <ChevronLeft size={16} /> Back to order
+      </button>
+
+      {/* Header card */}
+      <div className="bg-card border border-border rounded-xl p-6 space-y-1">
+        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          Shipment tracking
+        </p>
+        <div className="flex items-baseline justify-between gap-4 flex-wrap">
+          <h1 className="text-xl font-medium text-foreground">
+            {carrier}
+          </h1>
+          <span className="mono text-sm text-blue font-medium">
+            {trackingNumber}
+          </span>
+        </div>
+        <div className="flex items-center gap-2 pt-2">
+          <span className="inline-flex items-center gap-1.5 bg-blue-light text-blue-dark text-xs font-medium px-2.5 py-1 rounded-full">
+            <span className="w-1.5 h-1.5 rounded-full bg-blue" />
+            Out for delivery
+          </span>
+          <span className="text-xs text-muted-foreground">
+            Est. delivery Mar 22, 2026
+          </span>
+        </div>
+      </div>
+
+      {/* Timeline */}
+      <div className="bg-card border border-border rounded-xl p-6">
+        <h2 className="text-sm font-medium text-foreground mb-5">
+          Tracking history
+        </h2>
+        <div className="space-y-0">
+          {steps.map((step, i) => (
+            <div key={i} className="flex gap-4">
+              <div className="flex flex-col items-center">
+                <div
+                  className={`w-3 h-3 rounded-full border-2 mt-0.5 shrink-0 ${
+                    step.done
+                      ? "bg-blue border-blue"
+                      : "bg-card border-border"
+                  }`}
+                />
+                {i < steps.length - 1 && (
+                  <div
+                    className={`w-0.5 flex-1 my-1 ${step.done ? "bg-blue-muted" : "bg-border"}`}
+                  />
+                )}
+              </div>
+              <div
+                className={`pb-5 ${i === steps.length - 1 ? "pb-0" : ""}`}
+              >
+                <p
+                  className={`text-sm font-medium ${step.done ? "text-foreground" : "text-muted-foreground"}`}
+                >
+                  {step.label}
+                </p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {step.date}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Placeholder notice */}
+      <div className="bg-muted border border-border rounded-xl px-5 py-4 flex items-start gap-3">
+        <Info
+          size={15}
+          className="text-muted-foreground shrink-0 mt-0.5"
+        />
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          This is a placeholder tracking page. In production,
+          live shipment data from {carrier} will display here.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 // ─── Order Detail ─────────────────────────────────────────────────────────────
 
 function OrderDetail({
   orderId,
   onBack,
+  onTrack,
+  onOpenCase,
+  onCase,
 }: {
   orderId: string;
   onBack: () => void;
+  onTrack: () => void;
+  onOpenCase: (orderId: string) => void;
+  onCase: (caseId: string) => void;
 }) {
   const order =
     ORDERS.find((o) => o.id === orderId) ?? ORDERS[1];
@@ -1197,7 +1670,13 @@ function OrderDetail({
   const shipping = 54.0;
   const total = subtotal + tax + shipping;
 
-  const steps = ["Received", "Picked", "Shipping", "Out for Delivery", "Delivered"];
+  const steps = [
+    "Received",
+    "Picked",
+    "Shipping",
+    "Out for Delivery",
+    "Delivered",
+  ];
   const stepIdx = Math.max(0, steps.indexOf(order.status));
 
   return (
@@ -1215,7 +1694,8 @@ function OrderDetail({
             <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 font-semibold">
               Tracking
             </div>
-            {order.status === "Received" || order.status === "Picked" ? (
+            {order.status === "Received" ||
+            order.status === "Picked" ? (
               <div className="flex items-center gap-2 mt-1">
                 <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground bg-muted px-2.5 py-1 rounded-full">
                   <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground/40" />
@@ -1227,22 +1707,23 @@ function OrderDetail({
                 <span className="text-sm font-medium text-foreground">
                   UPS
                 </span>
-                <a
-                  href="https://www.ups.com/track?tracknum=1Z999AA10123456784"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mono text-sm text-[#111] font-medium underline decoration-dotted underline-offset-2 hover:text-primary transition-colors"
+                <button
+                  onClick={onTrack}
+                  className="mono text-sm text-blue font-medium underline decoration-dotted underline-offset-2 hover:text-blue-dark transition-colors"
                 >
                   1Z999AA10123456784
-                </a>
+                </button>
               </div>
             )}
-            {order.status !== "Received" && order.status !== "Picked" && (
-              <div className="text-xs text-muted-foreground mt-1">
-                Est. delivery:{" "}
-                <span className="text-foreground font-medium">03/22/26</span>
-              </div>
-            )}
+            {order.status !== "Received" &&
+              order.status !== "Picked" && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  Est. delivery:{" "}
+                  <span className="text-foreground font-medium">
+                    03/22/26
+                  </span>
+                </div>
+              )}
           </div>
           <StatusBadge status={order.status} />
         </div>
@@ -1298,7 +1779,8 @@ function OrderDetail({
           if (!events) {
             return (
               <p className="text-xs text-muted-foreground mt-5 italic">
-                Tracking updates will appear once the shipment is picked up.
+                Tracking updates will appear once the shipment
+                is picked up.
               </p>
             );
           }
@@ -1312,15 +1794,22 @@ function OrderDetail({
                 <div className="absolute left-[7px] top-2 bottom-2 w-px bg-border" />
                 <div className="space-y-4">
                   {events.map((ev, idx) => (
-                    <div key={idx} className="flex items-start gap-4 relative">
-                      <div className={`mt-0.5 w-3.5 h-3.5 rounded-full border-2 shrink-0 z-10 ${
-                        ev.done
-                          ? "bg-[#111] border-[#111]"
-                          : "bg-card border-border"
-                      }`} />
+                    <div
+                      key={idx}
+                      className="flex items-start gap-4 relative"
+                    >
+                      <div
+                        className={`mt-0.5 w-3.5 h-3.5 rounded-full border-2 shrink-0 z-10 ${
+                          ev.done
+                            ? "bg-[#111] border-[#111]"
+                            : "bg-card border-border"
+                        }`}
+                      />
                       <div className="min-w-0 flex-1">
                         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-                          <span className={`text-sm font-medium ${ev.done ? "text-foreground" : "text-muted-foreground"}`}>
+                          <span
+                            className={`text-sm font-medium ${ev.done ? "text-foreground" : "text-muted-foreground"}`}
+                          >
                             {ev.description}
                           </span>
                           {!ev.done && (
@@ -1452,6 +1941,53 @@ function OrderDetail({
             </div>
           </div>
         </Card>
+      </div>
+
+      {/* Linked cases */}
+      {(() => {
+        const linked = CASES.filter((c) => c.orderId === order.id);
+        if (linked.length === 0) return null;
+        return (
+          <div className="mt-5">
+            <Card>
+              <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
+                <FileText size={15} className="text-muted-foreground" />
+                <h2 className="font-semibold text-sm">Support Cases</h2>
+                <span className="ml-auto text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full">{linked.length}</span>
+              </div>
+              <div className="divide-y divide-border">
+                {linked.map((c) => (
+                  <button
+                    key={c.id}
+                    onClick={() => onCase(c.id)}
+                    className="w-full flex items-center gap-4 px-5 py-3.5 text-left hover:bg-muted transition-colors group"
+                  >
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-foreground truncate">{c.subject}</div>
+                      <div className="text-xs text-muted-foreground mt-0.5">{c.id} · Updated {c.lastUpdated}</div>
+                    </div>
+                    <StatusBadge status={c.status} />
+                    <ChevronRight size={14} className="text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </button>
+                ))}
+              </div>
+            </Card>
+          </div>
+        );
+      })()}
+
+      {/* Open a case for this order */}
+      <div className="mt-5 flex items-center justify-between bg-card border border-border rounded-xl px-5 py-4">
+        <div>
+          <div className="text-sm font-medium text-foreground">Issue with this order?</div>
+          <div className="text-xs text-muted-foreground mt-0.5">Open a support case and we'll link it to {order.id} automatically.</div>
+        </div>
+        <button
+          onClick={() => onOpenCase(order.id)}
+          className="flex items-center gap-2 bg-primary hover:bg-[var(--primary-dark)] text-primary-foreground text-sm font-medium px-4 py-2 rounded-lg transition-colors shrink-0 ml-4"
+        >
+          <Plus size={14} /> Open a Case
+        </button>
       </div>
     </div>
   );
@@ -1785,9 +2321,11 @@ function CasesList({
 function NewCaseForm({
   onBack,
   onSubmit,
+  preselectedOrderId,
 }: {
   onBack: () => void;
   onSubmit: () => void;
+  preselectedOrderId?: string;
 }) {
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState("Order Issue");
@@ -1795,6 +2333,43 @@ function NewCaseForm({
   const [fileName, setFileName] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [orderQuery, setOrderQuery] = useState("");
+  const [selectedOrder, setSelectedOrder] =
+    useState<Order | null>(
+      preselectedOrderId
+        ? (ORDERS.find((o) => o.id === preselectedOrderId) ?? null)
+        : null
+    );
+  const [orderDropdownOpen, setOrderDropdownOpen] =
+    useState(false);
+  const orderRef = useRef<HTMLDivElement>(null);
+
+  const filteredOrders = ORDERS.filter((o) => {
+    const q = orderQuery.toLowerCase();
+    return (
+      o.id.toLowerCase().includes(q) ||
+      o.po.toLowerCase().includes(q) ||
+      o.shipTo.toLowerCase().includes(q) ||
+      o.date.toLowerCase().includes(q)
+    );
+  });
+
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        orderRef.current &&
+        !orderRef.current.contains(e.target as Node)
+      ) {
+        setOrderDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside,
+      );
+  }, []);
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     setFileName(e.target.files?.[0]?.name ?? "");
@@ -1864,6 +2439,104 @@ function NewCaseForm({
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
               />
             </div>
+          </div>
+
+          <div ref={orderRef} className="relative">
+            <label className="block text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1.5">
+              Related Order{" "}
+              <span className="text-muted-foreground/60 font-normal normal-case">
+                (optional)
+              </span>
+            </label>
+            {selectedOrder ? (
+              <div className="flex items-center justify-between bg-blue-light border border-blue/20 rounded-lg px-3.5 py-2.5">
+                <div className="flex items-center gap-3">
+                  <Package
+                    size={14}
+                    className="text-blue shrink-0"
+                  />
+                  <div>
+                    <span className="text-sm font-medium text-foreground">
+                      {selectedOrder.id}
+                    </span>
+                    <span className="text-xs text-muted-foreground ml-2">
+                      {selectedOrder.po} ·{" "}
+                      {selectedOrder.shipTo} ·{" "}
+                      {selectedOrder.date}
+                    </span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedOrder(null);
+                    setOrderQuery("");
+                  }}
+                  className="text-muted-foreground hover:text-foreground transition-colors ml-2 shrink-0"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="relative">
+                  <Search
+                    size={14}
+                    className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+                  />
+                  <input
+                    value={orderQuery}
+                    onChange={(e) => {
+                      setOrderQuery(e.target.value);
+                      setOrderDropdownOpen(true);
+                    }}
+                    onFocus={() => setOrderDropdownOpen(true)}
+                    placeholder="Search by order #, PO, or ship-to…"
+                    className="w-full bg-input-background border border-border rounded-lg pl-9 pr-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition"
+                  />
+                </div>
+                {orderDropdownOpen &&
+                  filteredOrders.length > 0 && (
+                    <div className="absolute z-20 mt-1 w-full bg-card border border-border rounded-lg shadow-lg overflow-hidden">
+                      {filteredOrders.map((o) => (
+                        <button
+                          key={o.id}
+                          type="button"
+                          onClick={() => {
+                            setSelectedOrder(o);
+                            setOrderQuery("");
+                            setOrderDropdownOpen(false);
+                          }}
+                          className="w-full flex items-center gap-3 px-3.5 py-2.5 text-left hover:bg-muted transition-colors"
+                        >
+                          <Package
+                            size={14}
+                            className="text-muted-foreground shrink-0"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <span className="text-sm font-medium text-foreground">
+                              {o.id}
+                            </span>
+                            <span className="text-xs text-muted-foreground ml-2 truncate">
+                              {o.po} · {o.shipTo}
+                            </span>
+                          </div>
+                          <span className="text-xs text-muted-foreground shrink-0">
+                            {o.date}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                {orderDropdownOpen &&
+                  orderQuery.length > 0 &&
+                  filteredOrders.length === 0 && (
+                    <div className="absolute z-20 mt-1 w-full bg-card border border-border rounded-lg shadow-lg px-3.5 py-3 text-sm text-muted-foreground">
+                      No orders match "{orderQuery}"
+                    </div>
+                  )}
+              </>
+            )}
           </div>
 
           <div>
@@ -2085,7 +2758,7 @@ function CaseDetail({
                 <div
                   className={`rounded-2xl px-4 py-2.5 text-sm leading-relaxed ${
                     msg.sender === "you"
-                      ? "bg-[#111] text-white rounded-tr-sm"
+                      ? "bg-blue text-blue-foreground rounded-tr-sm"
                       : "bg-muted text-foreground rounded-tl-sm"
                   }`}
                 >
@@ -2106,13 +2779,13 @@ function CaseDetail({
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Post a message to the agent handling your case…"
-                rows={2}
+                rows={1}
                 className="flex-1 bg-input-background border border-border rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition"
               />
               <button
                 onClick={sendMessage}
                 disabled={!draft.trim()}
-                className="flex items-center gap-1.5 bg-primary hover:bg-[var(--primary-dark)] disabled:opacity-40 text-primary-foreground px-4 py-2.5 rounded-xl font-medium text-sm transition-colors shrink-0"
+                className="flex items-center gap-1.5 bg-blue hover:bg-blue-dark disabled:opacity-40 text-blue-foreground px-4 py-2.5 rounded-xl font-medium text-sm transition-colors shrink-0"
               >
                 <Send size={14} /> Send
               </button>
@@ -2454,6 +3127,13 @@ export default function App() {
     nav("case-detail");
   }
 
+  const [caseOrderId, setCaseOrderId] = useState<string | undefined>(undefined);
+
+  function openCaseForOrder(orderId: string) {
+    setCaseOrderId(orderId);
+    nav("new-case");
+  }
+
   if (!isLoggedIn) {
     return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
   }
@@ -2475,6 +3155,17 @@ export default function App() {
           <OrderDetail
             orderId={selectedOrder}
             onBack={() => nav("orders")}
+            onTrack={() => nav("tracking")}
+            onOpenCase={openCaseForOrder}
+            onCase={openCase}
+          />
+        );
+      case "tracking":
+        return (
+          <TrackingPlaceholder
+            trackingNumber="1Z999AA10123456784"
+            carrier="UPS"
+            onBack={() => nav("order-detail")}
           />
         );
       case "catalog":
@@ -2496,8 +3187,9 @@ export default function App() {
       case "new-case":
         return (
           <NewCaseForm
-            onBack={() => nav("cases")}
-            onSubmit={() => nav("cases")}
+            onBack={() => { setCaseOrderId(undefined); nav("cases"); }}
+            onSubmit={() => { setCaseOrderId(undefined); nav("cases"); }}
+            preselectedOrderId={caseOrderId}
           />
         );
       case "case-detail":
