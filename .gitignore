@@ -1,1 +1,29 @@
+# Dependencies
 node_modules
+
+# Build output
+dist
+
+# Vite
+.vite
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea
+.vscode/*
+!.vscode/extensions.json
+
+# Large local source assets (extracted images live under src/assets)
+/LOP_*.pdf
+/*.pdf

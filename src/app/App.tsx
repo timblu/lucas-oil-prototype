@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import imgLucasOil from "../imports/Logo/2b3b51fcf919d93d1e4b2d82d6eaebe4c78c981e.png";
+import { MarketingBannerCarousel } from "./components/MarketingBannerCarousel";
 import {
   Search,
   Package,
@@ -3209,6 +3210,12 @@ export default function App() {
   return (
     <div className="min-h-screen bg-background">
       <TopNav view={view} onNav={nav} />
+      {view === "dashboard" ? (
+        <MarketingBannerCarousel
+          onNav={(v) => nav(v)}
+          onProduct={openProduct}
+        />
+      ) : null}
       <main>{renderView()}</main>
       <SupportChat />
     </div>
