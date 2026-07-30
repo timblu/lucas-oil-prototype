@@ -4,9 +4,18 @@ export type MarketingSlideKind =
   | "new-product"
   | "promotion"
   | "training"
-  | "catalog";
+  | "catalog"
+  | "orders"
+  | "resources";
 
-export type MarketingNavView = "catalog";
+/** Portal views the carousel can deep-link into (no new pages). */
+export type MarketingNavView =
+  | "catalog"
+  | "orders"
+  | "knowledge-hub"
+  | "product-videos"
+  | "marketing-collateral"
+  | "cases";
 
 export type MarketingSlideAction =
   | { type: "nav"; view: MarketingNavView }
@@ -36,10 +45,10 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
   {
     id: "catalog-2026",
     kind: "catalog",
-    badge: "Catalog",
-    title: "2026 Full Product Catalog",
+    badge: "Product catalog",
+    title: "2026 Full Line — pricing & inventory",
     description:
-      "Complete distributor lineup — motor oils, gear lubes, additives, and specialty fluids. Item numbers, case quantities, and suggested retail pricing.",
+      "Look up item numbers, case quantities, distributor pricing, and real-time stock levels across motor oils, gear lubes, additives, and specialty fluids.",
     ctaLabel: "Browse catalog",
     action: { type: "nav", view: "catalog" },
     theme: "primary",
@@ -49,13 +58,28 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     imageAlt: "Lucas Oil full line product catalog cover",
   },
   {
+    id: "shipment-tracking",
+    kind: "orders",
+    badge: "Order status",
+    title: "Track open orders & deliveries",
+    description:
+      "View PO history, shipment progress, and carrier tracking for every order on your account. SO-10042 is out for delivery to Reno today.",
+    ctaLabel: "View your orders",
+    action: { type: "nav", view: "orders" },
+    theme: "dark",
+    imageLayout: "hero",
+    backgroundKey: "carouselBgMachinery",
+    productKey: "productOilStabilizer",
+    imageAlt: "Lucas Oil Heavy Duty Oil Stabilizer product group",
+  },
+  {
     id: "new-synthetic-5w30",
     kind: "new-product",
-    badge: "New Product",
-    title: "Synthetic 5W-30 Motor Oil",
+    badge: "New product",
+    title: "Synthetic 5W-30 now in stock",
     description:
-      "Full synthetic formulation for modern engines. API SP / ILSAC GF-6A. Now available for March 2026 allocation — check inventory before you quote.",
-    ctaLabel: "View product",
+      "API SP / ILSAC GF-6A full synthetic for modern passenger-car and light-truck applications. Check case pricing and availability before you quote your accounts.",
+    ctaLabel: "View product details",
     action: { type: "product", productId: "10203" },
     theme: "dark",
     imageLayout: "hero",
@@ -65,29 +89,14 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
       "Lucas Oil synthetic API SP motor oil lineup from the 2026 catalog",
   },
   {
-    id: "spring-counter-display",
-    kind: "promotion",
-    badge: "Promotion",
-    title: "Spring Counter Display Program",
-    description:
-      "Order 4+ cases of Hi-Perf motor oil by April 15 and receive a free counter display kit. Limited to one kit per ship-to location.",
-    ctaLabel: "Shop motor oil",
-    action: { type: "nav", view: "catalog" },
-    theme: "dark",
-    imageLayout: "hero",
-    backgroundKey: "carouselBgMachinery",
-    productKey: "productOilStabilizer",
-    imageAlt: "Lucas Oil Heavy Duty Oil Stabilizer product group",
-  },
-  {
     id: "additive-training",
     kind: "training",
     badge: "Product training",
-    title: "Additive Counter Training — 15 min",
+    title: "Counter staff training videos",
     description:
-      "Quick module for counter staff: fuel treatments, oil supplements, and transmission conditioners. OEM callouts and typical use cases for retail accounts.",
-    ctaLabel: "Explore additives",
-    action: { type: "nav", view: "catalog" },
+      "15-minute modules on fuel treatments, oil supplements, and transmission conditioners — OEM callouts and typical retail use cases your team can share at the counter.",
+    ctaLabel: "Watch product videos",
+    action: { type: "nav", view: "product-videos" },
     theme: "dark",
     imageLayout: "hero",
     backgroundKey: "carouselBgFuelPump",
@@ -95,21 +104,48 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     imageAlt: "Lucas Oil fuel treatment bottle",
   },
   {
-    id: "hi-perf-line-sheet",
-    kind: "catalog",
-    badge: "Sell sheet",
-    title: "Hi-Perf Motor Oil Line Sheet",
+    id: "marketing-collateral",
+    kind: "promotion",
+    badge: "Marketing",
+    title: "Sell sheets, catalogs & booth graphics",
     description:
-      "Two-page sell sheet for trade events and counter sales. Viscosity grades, API/ILSAC approvals, and key differentiators — also in Marketing Collateral below.",
-    ctaLabel: "View on lucasoil.com",
-    action: {
-      type: "external",
-      url: "https://www.lucasoil.com/catalogs/",
-    },
+      "Download the 2026 catalog PDF, Hi-Perf line sheet, brand standards, and trade-show artwork. Request printed copies shipped to your distributor account.",
+    ctaLabel: "View marketing collateral",
+    action: { type: "nav", view: "marketing-collateral" },
     theme: "primary",
     imageLayout: "hero",
     backgroundKey: "carouselBgOilPour",
     productKey: "productHiPerf",
     imageAlt: "European synthetic motor oil spread from the Lucas Oil catalog",
+  },
+  {
+    id: "knowledge-hub",
+    kind: "resources",
+    badge: "Technical resources",
+    title: "Specs, bulletins & SDS lookup",
+    description:
+      "Application notes, OEM approvals, formulation updates, and safety data sheets — everything your inside sales and warehouse teams need in one place.",
+    ctaLabel: "Open knowledge hub",
+    action: { type: "nav", view: "knowledge-hub" },
+    theme: "neutral",
+    imageLayout: "hero",
+    backgroundKey: "carouselBgGears",
+    productKey: "productCatalog",
+    imageAlt: "Lucas Oil technical documentation",
+  },
+  {
+    id: "spring-counter-display",
+    kind: "promotion",
+    badge: "Spring program",
+    title: "Free counter display — order by April 15",
+    description:
+      "Order 4+ cases of Hi-Perf motor oil and receive a counter display kit at no charge. One kit per ship-to. Questions? Open a case with your rep.",
+    ctaLabel: "Get help with your order",
+    action: { type: "nav", view: "cases" },
+    theme: "dark",
+    imageLayout: "hero",
+    backgroundKey: "carouselBgMachinery",
+    productKey: "productOilStabilizer",
+    imageAlt: "Lucas Oil Hi-Perf motor oil counter display",
   },
 ];

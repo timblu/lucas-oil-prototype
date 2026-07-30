@@ -2,10 +2,13 @@ import { useState, useRef, useEffect } from "react";
 import imgLucasOil from "../imports/Logo/lucas-oil-badge.png";
 import imgLucasOil2x from "../imports/Logo/lucas-oil-badge@2x.png";
 import { MarketingBannerCarousel } from "./components/MarketingBannerCarousel";
+import { ProductInfoVideoGrid } from "./components/ProductInfoVideoGrid";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "./components/ui/dropdown-menu";
 import { MARKETING_BANNER_IMAGES } from "./data/marketingBannerImages";
@@ -42,6 +45,8 @@ import {
   Star,
   Layers,
   Mail,
+  Play,
+  MessagesSquare,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -58,6 +63,7 @@ type View =
   | "case-detail"
   | "account"
   | "knowledge-hub"
+  | "product-videos"
   | "marketing-collateral";
 
 interface Order {
@@ -147,6 +153,20 @@ interface Message {
 }
 
 // ─── Seed Data ─────────────────────────────────────────────────────────────
+
+const DISTRIBUTOR_ACCOUNT = {
+  shortName: "Reno WD",
+  legalName: "Reno Wholesale Distributors",
+  accountNumber: "WD-2941",
+  territory: "Western US",
+  repName: "Marcus Chen",
+  repPhone: "800-342-2512 x204",
+  repEmail: "m.chen@lucasoil.com",
+  primaryContact: "J. Miller",
+  contactEmail: "j.miller@renowo.com",
+  shipToAddress: "1200 Distribution Dr, Reno NV 89502",
+  billToAddress: "PO Box 4410, Reno NV 89505",
+} as const;
 
 const ORDERS: Order[] = [
   {
@@ -823,7 +843,7 @@ function TopNav({
                   JM
                 </div>
                 <span className="text-sm text-[#777] hidden sm:block">
-                  Reno WD
+                  {DISTRIBUTOR_ACCOUNT.shortName}
                 </span>
                 <ChevronDown
                   size={14}
@@ -831,7 +851,17 @@ function TopNav({
                 />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44">
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel className="font-normal">
+                <div className="font-semibold text-foreground">
+                  {DISTRIBUTOR_ACCOUNT.legalName}
+                </div>
+                <div className="text-xs text-muted-foreground font-normal mt-0.5">
+                  #{DISTRIBUTOR_ACCOUNT.accountNumber} ·{" "}
+                  {DISTRIBUTOR_ACCOUNT.territory}
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onNav("account")}>
                 <User size={16} />
                 Account
@@ -1108,11 +1138,12 @@ function CollateralPreviewModal({
 
 const KNOWLEDGE_HUB_ITEMS = [
   {
-    id: "catalog",
-    title: "Product Catalog",
-    description: "Browse SKUs, specs, and case pack details for the full lineup.",
-    icon: <LayoutGrid size={20} />,
-    action: "catalog" as const,
+    id: "videos",
+    title: "Product Videos",
+    description:
+      "Product demos, how-tos, and training from the Lucas Oil YouTube channel.",
+    icon: <Play size={20} />,
+    action: "product-videos" as const,
   },
   {
     id: "bulletins",
@@ -1247,7 +1278,27 @@ function KnowledgeHubPage({
           </div>
         )}
       </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8">
+        <ProductInfoVideoGrid
+          limit={6}
+          onViewAll={() => onNav("product-videos")}
+        />
+      </div>
     </>
+  );
+}
+
+function ProductVideosPage({ onBack }: { onBack: () => void }) {
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <PageHeader
+        title="Product Videos"
+        back="Knowledge Hub"
+        onBack={onBack}
+      />
+      <ProductInfoVideoGrid />
+    </div>
   );
 }
 
@@ -1396,10 +1447,13 @@ function Dashboard({
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-8">
       <div>
         <h1 className="text-2xl font-semibold text-foreground">
-          Welcome, <span className="text-[#111]">Reno WD</span>
+          Welcome,{" "}
+          <span className="text-[#111]">
+            {DISTRIBUTOR_ACCOUNT.shortName}
+          </span>
         </h1>
         <p className="text-muted-foreground text-sm mt-0.5">
-          Your distributor dashboard — Monday, March 25, 2026
+          Monday, March 25, 2026
         </p>
       </div>
 
@@ -1540,7 +1594,7 @@ function Dashboard({
           className="bg-card border border-border rounded-xl px-5 py-4 text-left hover:shadow-md transition-all group flex items-center gap-4"
         >
           <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
-            <FileText size={20} className="text-foreground" />
+            <MessagesSquare size={20} className="text-foreground" />
           </div>
           <div>
             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
@@ -1558,35 +1612,41 @@ function Dashboard({
           </div>
         </button>
 
-        <div className="bg-card border border-border rounded-xl px-5 py-4 flex items-center gap-4">
-          <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0">
+        <a
+          href={`tel:${DISTRIBUTOR_ACCOUNT.repPhone.replace(/\s/g, "")}`}
+          className="bg-card border border-border rounded-xl px-5 py-4 text-left hover:shadow-md transition-all group flex items-center gap-4"
+        >
+          <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
             <Phone size={20} className="text-foreground" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
-              Contact Us
+              Your Rep
             </div>
-            <div className="text-base font-semibold text-foreground">
-              800-342-2512
+            <div className="text-base font-semibold text-foreground truncate">
+              {DISTRIBUTOR_ACCOUNT.repName}
+            </div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              {DISTRIBUTOR_ACCOUNT.repPhone}
             </div>
           </div>
-        </div>
+        </a>
         <button
-        onClick={() => onNav("new-case")}
-        className="bg-primary text-primary-foreground rounded-xl px-5 py-4 text-left hover:bg-[var(--primary-dark)] transition-all group flex items-center gap-4"
-      >
-        <div className="w-11 h-11 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0 group-hover:bg-primary-foreground/25 transition-colors">
-          <Plus size={20} className="text-primary-foreground" />
-        </div>
-        <div>
-          <div className="text-xs font-medium text-primary-foreground/70 uppercase tracking-wider mb-0.5">
-            Support
+          onClick={() => onNav("new-case")}
+          className="bg-primary text-primary-foreground rounded-xl px-5 py-4 text-left hover:bg-[var(--primary-dark)] transition-all group flex items-center gap-4"
+        >
+          <div className="w-11 h-11 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0 group-hover:bg-primary-foreground/25 transition-colors">
+            <Plus size={20} className="text-primary-foreground" />
           </div>
-          <div className="text-base font-semibold text-primary-foreground">
-            Open a New Case
+          <div>
+            <div className="text-xs font-medium text-primary-foreground/70 uppercase tracking-wider mb-0.5">
+              Support
+            </div>
+            <div className="text-base font-semibold text-primary-foreground">
+              Open a New Case
+            </div>
           </div>
-        </div>
-      </button>
+        </button>
       </div>
 
       
@@ -1670,7 +1730,7 @@ function Dashboard({
         </Card>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <button
           type="button"
           onClick={() => onNav("knowledge-hub")}
@@ -1689,6 +1749,27 @@ function Dashboard({
           </div>
           <span className="flex items-center gap-1 text-sm font-medium text-[#111] mt-auto">
             Open hub <ChevronRight size={16} />
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onNav("catalog")}
+          className="bg-card border border-border rounded-xl px-6 py-10 text-left hover:shadow-md hover:border-[#999]/40 transition-all group flex flex-col gap-4 min-h-[180px]"
+        >
+          <div className="w-12 h-12 rounded-xl bg-[#111]/8 flex items-center justify-center text-[#111] group-hover:bg-[#111]/15 transition-colors">
+            <Package size={26} />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-foreground">
+              Product Catalog
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1.5 leading-snug">
+              Browse the full lineup, pricing, and inventory levels
+            </p>
+          </div>
+          <span className="flex items-center gap-1 text-sm font-medium text-[#111] mt-auto">
+            Browse catalog <ChevronRight size={16} />
           </span>
         </button>
 
@@ -3223,24 +3304,30 @@ function AccountPage() {
             </div>
             <div>
               <div className="font-semibold text-foreground">
-                Reno Wholesale Distributors
+                {DISTRIBUTOR_ACCOUNT.legalName}
               </div>
               <div className="text-sm text-muted-foreground">
-                Account #WD-2941
+                Account #{DISTRIBUTOR_ACCOUNT.accountNumber}
               </div>
             </div>
           </div>
           <div className="space-y-2 text-sm">
             {[
-              { label: "Territory", value: "Western US" },
-              { label: "Lucas Oil Rep", value: "Marcus Chen" },
+              {
+                label: "Territory",
+                value: DISTRIBUTOR_ACCOUNT.territory,
+              },
+              {
+                label: "Lucas Oil Rep",
+                value: DISTRIBUTOR_ACCOUNT.repName,
+              },
               {
                 label: "Rep Phone",
-                value: "800-342-2512 x204",
+                value: DISTRIBUTOR_ACCOUNT.repPhone,
               },
               {
                 label: "Rep Email",
-                value: "m.chen@lucasoil.com",
+                value: DISTRIBUTOR_ACCOUNT.repEmail,
               },
             ].map((r) => (
               <div
@@ -3264,15 +3351,21 @@ function AccountPage() {
           </div>
           <div className="space-y-2 text-sm">
             {[
-              { label: "Primary Contact", value: "J. Miller" },
-              { label: "Email", value: "j.miller@renowo.com" },
+              {
+                label: "Primary Contact",
+                value: DISTRIBUTOR_ACCOUNT.primaryContact,
+              },
+              {
+                label: "Email",
+                value: DISTRIBUTOR_ACCOUNT.contactEmail,
+              },
               {
                 label: "Ship-to Address",
-                value: "1200 Distribution Dr, Reno NV 89502",
+                value: DISTRIBUTOR_ACCOUNT.shipToAddress,
               },
               {
                 label: "Bill-to Address",
-                value: "PO Box 4410, Reno NV 89505",
+                value: DISTRIBUTOR_ACCOUNT.billToAddress,
               },
             ].map((r) => (
               <div
@@ -3451,6 +3544,10 @@ export default function App() {
             onBack={() => nav("dashboard")}
             onNav={nav}
           />
+        );
+      case "product-videos":
+        return (
+          <ProductVideosPage onBack={() => nav("knowledge-hub")} />
         );
       case "marketing-collateral":
         return (
