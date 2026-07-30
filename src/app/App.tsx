@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type ReactNode } from "react";
 import imgLucasOil from "../imports/Logo/lucas-oil-badge.png";
 import imgLucasOil2x from "../imports/Logo/lucas-oil-badge@2x.png";
 import { MarketingBannerCarousel } from "./components/MarketingBannerCarousel";
@@ -923,7 +923,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
                   if (!email) setEmail("demo@lucasoil.com");
                 }}
                 placeholder="you@distributor.com"
-                className="w-full bg-[#EBEBEB] border border-[rgba(0,0,0,0.1)] rounded-lg px-3.5 py-2.5 text-[#111] placeholder-[#aaa] text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
+                className="w-full bg-[#EBEBEB] border border-[rgba(0,0,0,0.1)] rounded-lg px-3.5 py-2.5 text-[#111] placeholder-[#aaa] text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 transition"
               />
             </div>
             <div>
@@ -946,7 +946,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
                   if (!password) setPassword("lucas2026");
                 }}
                 placeholder="••••••••"
-                className="w-full bg-[#EBEBEB] border border-[rgba(0,0,0,0.1)] rounded-lg px-3.5 py-2.5 text-[#111] placeholder-[#aaa] text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
+                className="w-full bg-[#EBEBEB] border border-[rgba(0,0,0,0.1)] rounded-lg px-3.5 py-2.5 text-[#111] placeholder-[#aaa] text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 transition"
               />
             </div>
             <button
@@ -1408,6 +1408,75 @@ function MarketingCollateralPage({
 
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
+function DashboardResourceCard({
+  title,
+  description,
+  cta,
+  icon,
+  image,
+  imagePosition = "center",
+  onClick,
+}: {
+  title: string;
+  description: string;
+  cta: string;
+  icon: ReactNode;
+  image: string;
+  imagePosition?: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="relative overflow-hidden rounded-2xl text-left min-h-[240px] flex flex-col justify-end group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111]/30 focus-visible:ring-offset-2 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
+    >
+      <img
+        src={image}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+        style={{ objectPosition: imagePosition }}
+      />
+      <div
+        className="absolute inset-0 bg-[#0a1628]/40 mix-blend-multiply"
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/70 to-black/25"
+        aria-hidden
+      />
+      <div
+        className="absolute top-0 left-6 right-6 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+        aria-hidden
+      />
+
+      <div className="absolute top-6 left-6 z-10 w-11 h-11 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white group-hover:bg-white/25 group-hover:scale-105 transition-all duration-300">
+        {icon}
+      </div>
+
+      <div className="relative z-10 p-6 flex flex-col gap-3">
+        <div>
+          <h2 className="text-xl font-semibold text-white tracking-tight">
+            {title}
+          </h2>
+          <p className="text-sm text-white/75 mt-1 leading-snug line-clamp-2">
+            {description}
+          </p>
+        </div>
+
+        <span className="flex items-center gap-1.5 text-sm font-medium text-white mt-1 w-fit rounded-full bg-white/10 backdrop-blur-sm border border-white/15 px-3.5 py-1.5 group-hover:bg-white group-hover:text-[#111] transition-all duration-300">
+          {cta}
+          <ChevronRight
+            size={16}
+            className="group-hover:translate-x-0.5 transition-transform"
+          />
+        </span>
+      </div>
+    </button>
+  );
+}
+
 function Dashboard({
   onNav,
   onOrder,
@@ -1731,68 +1800,31 @@ function Dashboard({
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <button
-          type="button"
+        <DashboardResourceCard
+          title="Knowledge Hub"
+          description="Product specs, training, and technical resources"
+          cta="Open hub"
+          icon={<BookOpen size={22} />}
+          image={MARKETING_BANNER_IMAGES.carouselBgGears}
           onClick={() => onNav("knowledge-hub")}
-          className="bg-card border border-border rounded-xl px-6 py-10 text-left hover:shadow-md hover:border-[#999]/40 transition-all group flex flex-col gap-4 min-h-[180px]"
-        >
-          <div className="w-12 h-12 rounded-xl bg-[#111]/8 flex items-center justify-center text-[#111] group-hover:bg-[#111]/15 transition-colors">
-            <BookOpen size={26} />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">
-              Knowledge Hub
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1.5 leading-snug">
-              Product specs, training, and technical resources
-            </p>
-          </div>
-          <span className="flex items-center gap-1 text-sm font-medium text-[#111] mt-auto">
-            Open hub <ChevronRight size={16} />
-          </span>
-        </button>
-
-        <button
-          type="button"
+        />
+        <DashboardResourceCard
+          title="Product Catalog"
+          description="Browse the full lineup, pricing, and inventory levels"
+          cta="Browse catalog"
+          icon={<Package size={22} />}
+          image={MARKETING_BANNER_IMAGES.productCatalog}
+          imagePosition="top center"
           onClick={() => onNav("catalog")}
-          className="bg-card border border-border rounded-xl px-6 py-10 text-left hover:shadow-md hover:border-[#999]/40 transition-all group flex flex-col gap-4 min-h-[180px]"
-        >
-          <div className="w-12 h-12 rounded-xl bg-[#111]/8 flex items-center justify-center text-[#111] group-hover:bg-[#111]/15 transition-colors">
-            <Package size={26} />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">
-              Product Catalog
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1.5 leading-snug">
-              Browse the full lineup, pricing, and inventory levels
-            </p>
-          </div>
-          <span className="flex items-center gap-1 text-sm font-medium text-[#111] mt-auto">
-            Browse catalog <ChevronRight size={16} />
-          </span>
-        </button>
-
-        <button
-          type="button"
+        />
+        <DashboardResourceCard
+          title="Marketing Collateral"
+          description="Catalogs, line sheets, brand assets, and booth graphics"
+          cta="View downloads"
+          icon={<Download size={22} />}
+          image={MARKETING_BANNER_IMAGES.productHiPerf}
           onClick={() => onNav("marketing-collateral")}
-          className="bg-card border border-border rounded-xl px-6 py-10 text-left hover:shadow-md hover:border-[#999]/40 transition-all group flex flex-col gap-4 min-h-[180px]"
-        >
-          <div className="w-12 h-12 rounded-xl bg-[#111]/8 flex items-center justify-center text-[#111] group-hover:bg-[#111]/15 transition-colors">
-            <Download size={26} />
-          </div>
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">
-              Marketing Collateral
-            </h2>
-            <p className="text-sm text-muted-foreground mt-1.5 leading-snug">
-              Catalogs, line sheets, brand assets, and booth graphics
-            </p>
-          </div>
-          <span className="flex items-center gap-1 text-sm font-medium text-[#111] mt-auto">
-            View downloads <ChevronRight size={16} />
-          </span>
-        </button>
+        />
       </div>
     </div>
   );
@@ -1834,14 +1866,14 @@ function OrdersList({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search orders…"
-            className="w-full pl-9 pr-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
+            className="w-full pl-9 pr-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring/40"
           />
         </div>
         <div className="relative">
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="appearance-none bg-card border border-border rounded-lg pl-3 pr-8 py-2 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/20"
+            className="appearance-none bg-card border border-border rounded-lg pl-3 pr-8 py-2 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring/20"
           >
             {[
               "All",
@@ -2320,7 +2352,7 @@ function Catalog({
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search catalog…"
-            className="w-full pl-9 pr-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
+            className="w-full pl-9 pr-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring/40"
           />
         </div>
         <div className="flex items-center gap-2 flex-wrap">
@@ -2538,7 +2570,7 @@ function CasesList({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search cases…"
-          className="w-full pl-9 pr-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40"
+          className="w-full pl-9 pr-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring/40"
         />
       </div>
 
@@ -2713,7 +2745,7 @@ function NewCaseForm({
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Brief summary of your issue…"
               required
-              className="w-full bg-input-background border border-border rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition"
+              className="w-full bg-input-background border border-border rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring/40 transition"
             />
           </div>
 
@@ -2725,7 +2757,7 @@ function NewCaseForm({
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="w-full appearance-none bg-input-background border border-border rounded-lg px-3.5 py-2.5 text-sm pr-9 focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition cursor-pointer"
+                className="w-full appearance-none bg-input-background border border-border rounded-lg px-3.5 py-2.5 text-sm pr-9 focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring/40 transition cursor-pointer"
               >
                 {categories.map((c) => (
                   <option key={c}>{c}</option>
@@ -2789,7 +2821,7 @@ function NewCaseForm({
                     }}
                     onFocus={() => setOrderDropdownOpen(true)}
                     placeholder="Search by order #, PO, or ship-to…"
-                    className="w-full bg-input-background border border-border rounded-lg pl-9 pr-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition"
+                    className="w-full bg-input-background border border-border rounded-lg pl-9 pr-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring/40 transition"
                   />
                 </div>
                 {orderDropdownOpen &&
@@ -2845,7 +2877,7 @@ function NewCaseForm({
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe the issue in detail — include order numbers, item numbers, or lot numbers if applicable…"
               rows={5}
-              className="w-full bg-input-background border border-border rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition resize-none"
+              className="w-full bg-input-background border border-border rounded-lg px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring/40 transition resize-none"
             />
           </div>
 
@@ -2958,6 +2990,45 @@ function CaseDetail({
   const isActive =
     c.status === "Open" || c.status === "In Progress";
 
+  const caseFields = [
+    {
+      label: "Date Opened",
+      value: c.lastUpdated,
+      mono: true,
+      icon: <Calendar size={14} />,
+    },
+    {
+      label: "Category",
+      value:
+        caseId === "CS-2039"
+          ? "Order Issue — Quantity"
+          : "Order Issue",
+      icon: <Tag size={14} />,
+    },
+    {
+      label: "Contact",
+      value: "J. Miller — Reno WD",
+      icon: <User size={14} />,
+    },
+    {
+      label: "Case Owner",
+      value: "A. Reyes (Lucas Support)",
+      icon: <MessageCircle size={14} />,
+    },
+    {
+      label: "Related Order",
+      value: caseId === "CS-2039" ? "SO-10042" : "—",
+      mono: true,
+      icon: <Hash size={14} />,
+    },
+    {
+      label: "Last Updated",
+      value: c.lastUpdated,
+      mono: true,
+      icon: <Clock size={14} />,
+    },
+  ];
+
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <PageHeader
@@ -2983,32 +3054,21 @@ function CaseDetail({
             </span>
           </div>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 border-t border-border pt-4">
-          {[
-            { label: "Date Opened", value: c.lastUpdated },
-            {
-              label: "Type / Category",
-              value:
-                caseId === "CS-2039"
-                  ? "Order Issue — Quantity"
-                  : "Order Issue",
-            },
-            { label: "Contact", value: "J. Miller — Reno WD" },
-            {
-              label: "Case Owner / Agent",
-              value: "A. Reyes (Lucas Support)",
-            },
-            {
-              label: "Related Order #",
-              value: caseId === "CS-2039" ? "SO-10042" : "—",
-            },
-            { label: "Last Updated", value: c.lastUpdated },
-          ].map((f) => (
-            <div key={f.label}>
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 border-t border-border pt-5">
+          {caseFields.map((f) => (
+            <div
+              key={f.label}
+              className="relative bg-muted/40 rounded-lg px-4 py-3 min-w-0"
+            >
+              <div className="absolute top-3 right-3 text-muted-foreground/40">
+                {f.icon}
+              </div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1.5 pr-6">
                 {f.label}
               </div>
-              <div className="mono text-xs font-medium text-foreground">
+              <div
+                className={`text-sm font-medium text-foreground ${f.mono ? "mono" : ""}`}
+              >
                 {f.value}
               </div>
             </div>
@@ -3077,7 +3137,7 @@ function CaseDetail({
                 onKeyDown={handleKeyDown}
                 placeholder="Post a message to the agent handling your case…"
                 rows={1}
-                className="flex-1 bg-input-background border border-border rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition"
+                className="flex-1 bg-input-background border border-border rounded-xl px-4 py-2.5 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring/40 transition"
               />
               <button
                 onClick={sendMessage}
@@ -3270,7 +3330,7 @@ function SupportChat() {
               onKeyDown={handleKeyDown}
               placeholder="Message support…"
               rows={1}
-              className="flex-1 bg-[#F2F2F2] border border-border rounded-lg px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-primary/20 transition"
+              className="flex-1 bg-[#F2F2F2] border border-border rounded-lg px-3 py-2 text-xs resize-none focus:outline-none focus:ring-2 focus:ring-ring/20 transition"
               style={{ minHeight: 34, maxHeight: 80 }}
             />
             <button
@@ -3289,97 +3349,128 @@ function SupportChat() {
 
 // ─── Account Page ─────────────────────────────────────────────────────────────
 
+function AccountDetailRow({
+  label,
+  value,
+  icon,
+  href,
+  mono = false,
+}: {
+  label: string;
+  value: string;
+  icon?: ReactNode;
+  href?: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="flex items-start gap-3 py-3.5">
+      {icon ? (
+        <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground shrink-0">
+          {icon}
+        </div>
+      ) : null}
+      <div className="min-w-0 flex-1">
+        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+          {label}
+        </div>
+        {href ? (
+          <a
+            href={href}
+            className={`text-sm font-medium text-foreground hover:underline ${mono ? "mono" : ""}`}
+          >
+            {value}
+          </a>
+        ) : (
+          <div
+            className={`text-sm font-medium text-foreground leading-snug ${mono ? "mono" : ""}`}
+          >
+            {value}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function AccountPage() {
   return (
-    <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <PageHeader title="Account" />
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <Card className="p-5">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            Distributor
-          </div>
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl bg-[#111]/10 flex items-center justify-center">
+        <Card className="p-6">
+          <div className="flex items-center gap-3 pb-5 mb-1 border-b border-border">
+            <div className="w-12 h-12 rounded-xl bg-[#111]/8 flex items-center justify-center shrink-0">
               <User size={22} className="text-[#111]" />
             </div>
-            <div>
-              <div className="font-semibold text-foreground">
+            <div className="min-w-0">
+              <div className="font-semibold text-foreground leading-snug">
                 {DISTRIBUTOR_ACCOUNT.legalName}
               </div>
-              <div className="text-sm text-muted-foreground">
+              <div className="text-sm text-muted-foreground mt-0.5 mono">
                 Account #{DISTRIBUTOR_ACCOUNT.accountNumber}
               </div>
             </div>
           </div>
-          <div className="space-y-2 text-sm">
-            {[
-              {
-                label: "Territory",
-                value: DISTRIBUTOR_ACCOUNT.territory,
-              },
-              {
-                label: "Lucas Oil Rep",
-                value: DISTRIBUTOR_ACCOUNT.repName,
-              },
-              {
-                label: "Rep Phone",
-                value: DISTRIBUTOR_ACCOUNT.repPhone,
-              },
-              {
-                label: "Rep Email",
-                value: DISTRIBUTOR_ACCOUNT.repEmail,
-              },
-            ].map((r) => (
-              <div
-                key={r.label}
-                className="flex justify-between"
-              >
-                <span className="text-muted-foreground">
-                  {r.label}
-                </span>
-                <span className="font-medium text-foreground mono text-xs">
-                  {r.value}
-                </span>
-              </div>
-            ))}
+          <div className="divide-y divide-border">
+            <AccountDetailRow
+              label="Territory"
+              value={DISTRIBUTOR_ACCOUNT.territory}
+              icon={<MapPin size={15} />}
+            />
+            <AccountDetailRow
+              label="Lucas Oil Rep"
+              value={DISTRIBUTOR_ACCOUNT.repName}
+              icon={<User size={15} />}
+            />
+            <AccountDetailRow
+              label="Rep Phone"
+              value={DISTRIBUTOR_ACCOUNT.repPhone}
+              href={`tel:${DISTRIBUTOR_ACCOUNT.repPhone.replace(/\s/g, "")}`}
+              icon={<Phone size={15} />}
+              mono
+            />
+            <AccountDetailRow
+              label="Rep Email"
+              value={DISTRIBUTOR_ACCOUNT.repEmail}
+              href={`mailto:${DISTRIBUTOR_ACCOUNT.repEmail}`}
+              icon={<Mail size={15} />}
+              mono
+            />
           </div>
         </Card>
 
-        <Card className="p-5">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
-            Contact
-          </div>
-          <div className="space-y-2 text-sm">
-            {[
-              {
-                label: "Primary Contact",
-                value: DISTRIBUTOR_ACCOUNT.primaryContact,
-              },
-              {
-                label: "Email",
-                value: DISTRIBUTOR_ACCOUNT.contactEmail,
-              },
-              {
-                label: "Ship-to Address",
-                value: DISTRIBUTOR_ACCOUNT.shipToAddress,
-              },
-              {
-                label: "Bill-to Address",
-                value: DISTRIBUTOR_ACCOUNT.billToAddress,
-              },
-            ].map((r) => (
-              <div
-                key={r.label}
-                className="flex justify-between gap-4"
-              >
-                <span className="text-muted-foreground shrink-0">
-                  {r.label}
-                </span>
-                <span className="font-medium text-foreground text-xs text-right">
-                  {r.value}
-                </span>
+        <Card className="p-6">
+          <div className="flex items-center gap-3 pb-5 mb-1 border-b border-border">
+            <div className="w-12 h-12 rounded-xl bg-[#111]/8 flex items-center justify-center shrink-0">
+              <Mail size={20} className="text-[#111]" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-semibold text-foreground leading-snug">
+                {DISTRIBUTOR_ACCOUNT.primaryContact}
               </div>
-            ))}
+              <div className="text-sm text-muted-foreground mt-0.5">
+                Primary contact
+              </div>
+            </div>
+          </div>
+          <div className="divide-y divide-border">
+            <AccountDetailRow
+              label="Email"
+              value={DISTRIBUTOR_ACCOUNT.contactEmail}
+              href={`mailto:${DISTRIBUTOR_ACCOUNT.contactEmail}`}
+              icon={<Mail size={15} />}
+              mono
+            />
+            <AccountDetailRow
+              label="Ship-to Address"
+              value={DISTRIBUTOR_ACCOUNT.shipToAddress}
+              icon={<MapPin size={15} />}
+            />
+            <AccountDetailRow
+              label="Bill-to Address"
+              value={DISTRIBUTOR_ACCOUNT.billToAddress}
+              icon={<MapPin size={15} />}
+            />
           </div>
         </Card>
 
