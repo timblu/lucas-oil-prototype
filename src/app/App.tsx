@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
-import imgLucasOil from "../imports/Logo/2b3b51fcf919d93d1e4b2d82d6eaebe4c78c981e.png";
+import imgLucasOil from "../imports/Logo/lucas-oil-badge.png";
+import imgLucasOil2x from "../imports/Logo/lucas-oil-badge@2x.png";
 import { MarketingBannerCarousel } from "./components/MarketingBannerCarousel";
+import { MARKETING_BANNER_IMAGES } from "./data/marketingBannerImages";
 import {
   Search,
   Package,
@@ -49,7 +51,9 @@ type View =
   | "new-case"
   | "case-detail"
   | "account"
-  | "tracking";
+  | "tracking"
+  | "knowledge-hub"
+  | "marketing-collateral";
 
 interface Order {
   id: string;
@@ -700,12 +704,17 @@ function Card({
 
 // ─── Lucas Oil Logo ───────────────────────────────────────────────────────────
 
-function LucasOilLogo() {
+function LucasOilLogo({ height = 32 }: { height?: number }) {
+  const width = Math.round(height * (176 / 96));
+
   return (
     <img
       src={imgLucasOil}
+      srcSet={`${imgLucasOil} 1x, ${imgLucasOil2x} 2x`}
       alt="Lucas Oil"
-      style={{ height: 28, width: "auto" }}
+      width={width}
+      height={height}
+      style={{ height, width: "auto" }}
       className="block"
     />
   );
@@ -803,12 +812,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-1.5 mb-3">
-            <img
-              src={imgLucasOil}
-              alt="Lucas Oil"
-              style={{ height: 36, width: "auto" }}
-              className="block"
-            />
+            <LucasOilLogo height={48} />
           </div>
           <p className="text-[#888] text-sm tracking-wide uppercase">
             Distributor Portal
@@ -1031,6 +1035,203 @@ function CollateralPreviewModal({
   );
 }
 
+// ─── Knowledge Hub & Marketing Collateral ─────────────────────────────────────
+
+const KNOWLEDGE_HUB_ITEMS = [
+  {
+    id: "catalog",
+    title: "Product Catalog",
+    description: "Browse SKUs, specs, and case pack details for the full lineup.",
+    icon: <LayoutGrid size={20} />,
+    action: "catalog" as const,
+  },
+  {
+    id: "bulletins",
+    title: "Technical Bulletins",
+    description: "Application notes, OEM approvals, and formulation updates.",
+    icon: <FileText size={20} />,
+    action: null,
+  },
+  {
+    id: "training",
+    title: "Distributor Training",
+    description: "Counter sales guides, product positioning, and onboarding modules.",
+    icon: <BookOpen size={20} />,
+    action: null,
+  },
+  {
+    id: "sds",
+    title: "SDS / Safety Data",
+    description: "Searchable safety data sheets by product and SKU.",
+    icon: <Layers size={20} />,
+    action: null,
+  },
+];
+
+function KnowledgeHubPage({
+  onBack,
+  onNav,
+}: {
+  onBack: () => void;
+  onNav: (v: View) => void;
+}) {
+  const [search, setSearch] = useState("");
+  const filtered = KNOWLEDGE_HUB_ITEMS.filter((item) => {
+    const q = search.trim().toLowerCase();
+    if (!q) return true;
+    return (
+      item.title.toLowerCase().includes(q) ||
+      item.description.toLowerCase().includes(q) ||
+      item.id.includes(q)
+    );
+  });
+
+  return (
+    <>
+      <section
+        aria-label="Knowledge Hub"
+        className="relative w-full min-h-[280px] sm:min-h-[300px] md:min-h-[340px] overflow-hidden border-b border-border"
+      >
+        <img
+          src={MARKETING_BANNER_IMAGES.productCatalog}
+          alt=""
+          aria-hidden
+          className="absolute inset-0 h-full w-full object-cover object-center"
+        />
+        <div
+          className="absolute inset-0 bg-[#0a1628]/55 mix-blend-multiply"
+          aria-hidden
+        />
+        <div
+          className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/25"
+          aria-hidden
+        />
+
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex flex-col justify-center min-h-[inherit]">
+          <button
+            type="button"
+            onClick={onBack}
+            className="flex items-center gap-1.5 text-sm text-white/80 hover:text-white transition-colors group w-fit mb-6"
+          >
+            <ArrowLeft
+              size={15}
+              className="group-hover:-translate-x-0.5 transition-transform"
+            />
+            Back to Dashboard
+          </button>
+
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-white max-w-2xl">
+            Knowledge Hub
+          </h1>
+          <p className="mt-2 text-sm sm:text-base text-white/85 max-w-xl leading-relaxed">
+            Product specs, training, and technical resources for your team.
+          </p>
+
+          <div className="relative mt-6 sm:mt-8 w-full">
+            <Search
+              size={18}
+              className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none"
+            />
+            <input
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search resources, bulletins, training…"
+              aria-label="Search knowledge hub resources"
+              className="w-full pl-11 pr-4 py-3 sm:py-3.5 bg-white text-foreground border border-white/20 rounded-xl text-sm sm:text-base shadow-lg focus:outline-none focus:ring-2 focus:ring-white/40 focus:border-white/50 placeholder:text-muted-foreground"
+            />
+          </div>
+        </div>
+      </section>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        {filtered.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center py-12">
+            No resources match your search.
+          </p>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {filtered.map((item) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => item.action && onNav(item.action)}
+                className="bg-card border border-border rounded-xl p-5 text-left hover:shadow-md hover:border-[#999]/40 transition-all group flex gap-4"
+              >
+                <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors text-foreground">
+                  {item.icon}
+                </div>
+                <div className="min-w-0">
+                  <div className="font-semibold text-foreground">
+                    {item.title}
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1 leading-snug">
+                    {item.description}
+                  </div>
+                </div>
+                <ChevronRight
+                  size={18}
+                  className="text-muted-foreground shrink-0 self-center opacity-0 group-hover:opacity-100 transition-opacity"
+                />
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    </>
+  );
+}
+
+function MarketingCollateralPage({ onBack }: { onBack: () => void }) {
+  const [previewItem, setPreviewItem] = useState<
+    (typeof COLLATERAL)[number] | null
+  >(null);
+
+  return (
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <PageHeader
+        title="Marketing Collateral"
+        back="Back to Dashboard"
+        onBack={onBack}
+      />
+      <p className="text-sm text-muted-foreground -mt-4 mb-6">
+        Downloads available to your distributor account
+      </p>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+        {COLLATERAL.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setPreviewItem(item)}
+            className="bg-card border border-border rounded-lg p-4 flex flex-col items-start gap-3 hover:border-[#555]/25 hover:shadow-sm transition-all group text-left"
+          >
+            <div className="w-9 h-9 rounded-md bg-[#111]/8 flex items-center justify-center text-[#111] group-hover:bg-[#111]/15 transition-colors shrink-0">
+              {item.icon}
+            </div>
+            <div>
+              <div className="text-xs font-semibold text-foreground leading-tight">
+                {item.title}
+              </div>
+              <div className="text-xs text-muted-foreground mt-1">
+                {item.type} · {item.size}
+              </div>
+            </div>
+            <div className="mt-auto flex items-center gap-1 text-[#111] text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+              <Download size={11} /> Preview
+            </div>
+          </button>
+        ))}
+      </div>
+      {previewItem && (
+        <CollateralPreviewModal
+          item={previewItem}
+          onClose={() => setPreviewItem(null)}
+        />
+      )}
+    </div>
+  );
+}
+
 // ─── Dashboard ────────────────────────────────────────────────────────────────
 
 function Dashboard({
@@ -1043,9 +1244,6 @@ function Dashboard({
   onCase: (id: string) => void;
 }) {
   const recentOrders = ORDERS.slice(0, 3);
-  const [previewItem, setPreviewItem] = useState<
-    (typeof COLLATERAL)[number] | null
-  >(null);
   const openCases = CASES.filter(
     (c) => c.status === "Open" || c.status === "In Progress",
   ).slice(0, 3);
@@ -1349,48 +1547,48 @@ function Dashboard({
         </Card>
       </div>
 
-      {/* Marketing Collateral */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <button
+          type="button"
+          onClick={() => onNav("knowledge-hub")}
+          className="bg-card border border-border rounded-xl px-6 py-10 text-left hover:shadow-md hover:border-[#999]/40 transition-all group flex flex-col gap-4 min-h-[180px]"
+        >
+          <div className="w-12 h-12 rounded-xl bg-[#111]/8 flex items-center justify-center text-[#111] group-hover:bg-[#111]/15 transition-colors">
+            <BookOpen size={26} />
+          </div>
           <div>
-            <h2 className="font-semibold text-base">
-              Marketing Collateral
+            <h2 className="text-xl font-semibold text-foreground">
+              Knowledge Hub
             </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Downloads available to your distributor account
+            <p className="text-sm text-muted-foreground mt-1.5 leading-snug">
+              Product specs, training, and technical resources
             </p>
           </div>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {COLLATERAL.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setPreviewItem(item)}
-              className="bg-card border border-border rounded-lg p-4 flex flex-col items-start gap-3 hover:border-[#555]/25 hover:shadow-sm transition-all group text-left"
-            >
-              <div className="w-9 h-9 rounded-md bg-[#111]/8 flex items-center justify-center text-[#111] group-hover:bg-[#111]/15 transition-colors shrink-0">
-                {item.icon}
-              </div>
-              <div>
-                <div className="text-xs font-semibold text-foreground leading-tight">
-                  {item.title}
-                </div>
-                <div className="text-xs text-muted-foreground mt-1">
-                  {item.type} · {item.size}
-                </div>
-              </div>
-              <div className="mt-auto flex items-center gap-1 text-[#111] text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                <Download size={11} /> Preview
-              </div>
-            </button>
-          ))}
-        </div>
-        {previewItem && (
-          <CollateralPreviewModal
-            item={previewItem}
-            onClose={() => setPreviewItem(null)}
-          />
-        )}
+          <span className="flex items-center gap-1 text-sm font-medium text-[#111] mt-auto">
+            Open hub <ChevronRight size={16} />
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onNav("marketing-collateral")}
+          className="bg-card border border-border rounded-xl px-6 py-10 text-left hover:shadow-md hover:border-[#999]/40 transition-all group flex flex-col gap-4 min-h-[180px]"
+        >
+          <div className="w-12 h-12 rounded-xl bg-[#111]/8 flex items-center justify-center text-[#111] group-hover:bg-[#111]/15 transition-colors">
+            <Download size={26} />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-foreground">
+              Marketing Collateral
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1.5 leading-snug">
+              Catalogs, line sheets, brand assets, and booth graphics
+            </p>
+          </div>
+          <span className="flex items-center gap-1 text-sm font-medium text-[#111] mt-auto">
+            View downloads <ChevronRight size={16} />
+          </span>
+        </button>
       </div>
     </div>
   );
@@ -3202,6 +3400,17 @@ export default function App() {
         );
       case "account":
         return <AccountPage />;
+      case "knowledge-hub":
+        return (
+          <KnowledgeHubPage
+            onBack={() => nav("dashboard")}
+            onNav={nav}
+          />
+        );
+      case "marketing-collateral":
+        return (
+          <MarketingCollateralPage onBack={() => nav("dashboard")} />
+        );
       default:
         return null;
     }

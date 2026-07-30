@@ -179,10 +179,23 @@
     line-height: 1.5;
   }
 
-  button {
+  button:not(:disabled) {
     font-size: var(--text-base);
     font-weight: var(--font-weight-medium);
     line-height: 1.5;
+    cursor: pointer;
+  }
+
+  [role="button"]:not(:disabled):not([aria-disabled="true"]),
+  select:not(:disabled),
+  a[href],
+  summary,
+  label[for] {
+    cursor: pointer;
+  }
+
+  [data-slot="button"]:not(:disabled) {
+    cursor: pointer;
   }
 
   input {
