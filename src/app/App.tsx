@@ -36,6 +36,7 @@ import {
   Layers,
   ChevronLeft,
   Info,
+  Mail,
 } from "lucide-react";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -894,9 +895,11 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
 function CollateralPreviewModal({
   item,
   onClose,
+  onRequestPrinted,
 }: {
   item: (typeof COLLATERAL)[number];
   onClose: () => void;
+  onRequestPrinted?: (itemTitle: string) => void;
 }) {
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -1017,11 +1020,21 @@ function CollateralPreviewModal({
             {item.description}
           </p>
 
-          <div className="flex items-center gap-3 pt-1">
+          <div className="flex flex-wrap items-center gap-3 pt-1">
             <button className="flex items-center gap-2 bg-primary hover:bg-[var(--primary-dark)] text-primary-foreground text-sm font-medium px-5 py-2.5 rounded-lg transition-colors">
               <Download size={14} />
               {isZip ? "Download ZIP" : "Download PDF"}
             </button>
+            {onRequestPrinted && (
+              <button
+                type="button"
+                onClick={() => onRequestPrinted(item.title)}
+                className="flex items-center gap-2 border border-border hover:border-[#555]/25 hover:bg-muted text-foreground text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
+              >
+                <Send size={14} />
+                Request printed copies
+              </button>
+            )}
             <button
               onClick={onClose}
               className="text-sm text-muted-foreground hover:text-foreground px-4 py-2.5 transition-colors"
@@ -1182,7 +1195,13 @@ function KnowledgeHubPage({
   );
 }
 
-function MarketingCollateralPage({ onBack }: { onBack: () => void }) {
+function MarketingCollateralPage({
+  onBack,
+  onRequestCollateral,
+}: {
+  onBack: () => void;
+  onRequestCollateral: (itemTitle?: string) => void;
+}) {
   const [previewItem, setPreviewItem] = useState<
     (typeof COLLATERAL)[number] | null
   >(null);
@@ -1197,6 +1216,50 @@ function MarketingCollateralPage({ onBack }: { onBack: () => void }) {
       <p className="text-sm text-muted-foreground -mt-4 mb-6">
         Downloads available to your distributor account
       </p>
+
+      <div className="bg-card border border-border rounded-xl p-5 mb-8 flex flex-col lg:flex-row lg:items-center gap-5">
+        <div className="flex items-start gap-4 flex-1 min-w-0">
+          <div className="w-11 h-11 rounded-xl bg-[#111]/8 flex items-center justify-center shrink-0">
+            <Package size={20} className="text-[#111]" />
+          </div>
+          <div className="min-w-0">
+            <h2 className="font-semibold text-foreground">
+              Order printed collateral
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+              Files below are digital downloads. For printed catalogs, sell
+              sheets, booth graphics, and signage, contact the marketing team or
+              submit a request — we&apos;ll ship to your distributor account
+              address.
+            </p>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm">
+              <a
+                href="mailto:marketing@lucasoil.com?subject=Marketing%20collateral%20order"
+                className="flex items-center gap-1.5 text-[#111] font-medium hover:underline"
+              >
+                <Mail size={14} />
+                marketing@lucasoil.com
+              </a>
+              <span className="text-muted-foreground/40 hidden sm:inline">
+                ·
+              </span>
+              <span className="flex items-center gap-1.5 text-muted-foreground">
+                <Phone size={14} />
+                800-342-2512 x310
+              </span>
+            </div>
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => onRequestCollateral()}
+          className="flex items-center justify-center gap-2 bg-primary hover:bg-[var(--primary-dark)] text-primary-foreground text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors shrink-0"
+        >
+          <Send size={15} />
+          Request collateral
+        </button>
+      </div>
+
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {COLLATERAL.map((item) => (
           <button
@@ -1226,6 +1289,10 @@ function MarketingCollateralPage({ onBack }: { onBack: () => void }) {
         <CollateralPreviewModal
           item={previewItem}
           onClose={() => setPreviewItem(null)}
+          onRequestPrinted={(title) => {
+            setPreviewItem(null);
+            onRequestCollateral(title);
+          }}
         />
       )}
     </div>
@@ -2521,14 +2588,24 @@ function NewCaseForm({
   onBack,
   onSubmit,
   preselectedOrderId,
+  prefilledSubject,
+  prefilledCategory,
+  prefilledDescription,
 }: {
   onBack: () => void;
   onSubmit: () => void;
   preselectedOrderId?: string;
+  prefilledSubject?: string;
+  prefilledCategory?: string;
+  prefilledDescription?: string;
 }) {
-  const [subject, setSubject] = useState("");
-  const [category, setCategory] = useState("Order Issue");
-  const [description, setDescription] = useState("");
+  const [subject, setSubject] = useState(prefilledSubject ?? "");
+  const [category, setCategory] = useState(
+    prefilledCategory ?? "Order Issue",
+  );
+  const [description, setDescription] = useState(
+    prefilledDescription ?? "",
+  );
   const [fileName, setFileName] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -3327,10 +3404,38 @@ export default function App() {
   }
 
   const [caseOrderId, setCaseOrderId] = useState<string | undefined>(undefined);
+  const [casePrefill, setCasePrefill] = useState<
+    | {
+        subject?: string;
+        category?: string;
+        description?: string;
+      }
+    | undefined
+  >(undefined);
 
   function openCaseForOrder(orderId: string) {
+    setCasePrefill(undefined);
     setCaseOrderId(orderId);
     nav("new-case");
+  }
+
+  function openMarketingCollateralRequest(itemTitle?: string) {
+    setCaseOrderId(undefined);
+    setCasePrefill({
+      subject: itemTitle
+        ? `Order: ${itemTitle}`
+        : "Marketing collateral order request",
+      category: "Marketing Collateral",
+      description: itemTitle
+        ? `I'd like to order printed copies of:\n\n- ${itemTitle}\n\nQuantity:\nShip-to address:\n`
+        : "Please list the materials you need, quantities, and ship-to address.",
+    });
+    nav("new-case");
+  }
+
+  function clearCaseFormState() {
+    setCaseOrderId(undefined);
+    setCasePrefill(undefined);
   }
 
   if (!isLoggedIn) {
@@ -3386,9 +3491,18 @@ export default function App() {
       case "new-case":
         return (
           <NewCaseForm
-            onBack={() => { setCaseOrderId(undefined); nav("cases"); }}
-            onSubmit={() => { setCaseOrderId(undefined); nav("cases"); }}
+            onBack={() => {
+              clearCaseFormState();
+              nav(casePrefill ? "marketing-collateral" : "cases");
+            }}
+            onSubmit={() => {
+              clearCaseFormState();
+              nav("cases");
+            }}
             preselectedOrderId={caseOrderId}
+            prefilledSubject={casePrefill?.subject}
+            prefilledCategory={casePrefill?.category}
+            prefilledDescription={casePrefill?.description}
           />
         );
       case "case-detail":
@@ -3409,7 +3523,10 @@ export default function App() {
         );
       case "marketing-collateral":
         return (
-          <MarketingCollateralPage onBack={() => nav("dashboard")} />
+          <MarketingCollateralPage
+            onBack={() => nav("dashboard")}
+            onRequestCollateral={openMarketingCollateralRequest}
+          />
         );
       default:
         return null;

@@ -1,5 +1,4 @@
 import type { MarketingBannerImageKey } from "./marketingBannerImages";
-import { DEFAULT_HERO_BACKGROUND_KEY } from "./marketingBannerImages";
 
 export type MarketingSlideKind =
   | "new-product"
@@ -45,7 +44,7 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     action: { type: "nav", view: "catalog" },
     theme: "primary",
     imageLayout: "hero",
-    backgroundKey: DEFAULT_HERO_BACKGROUND_KEY,
+    backgroundKey: "carouselBgGears",
     productKey: "productCatalog",
     imageAlt: "Lucas Oil full line product catalog cover",
   },
@@ -60,7 +59,7 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     action: { type: "product", productId: "10203" },
     theme: "dark",
     imageLayout: "hero",
-    backgroundKey: DEFAULT_HERO_BACKGROUND_KEY,
+    backgroundKey: "carouselBgOilPour",
     productKey: "productSynthetic5w30",
     imageAlt:
       "Lucas Oil synthetic API SP motor oil lineup from the 2026 catalog",
@@ -76,7 +75,7 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     action: { type: "nav", view: "catalog" },
     theme: "dark",
     imageLayout: "hero",
-    backgroundKey: DEFAULT_HERO_BACKGROUND_KEY,
+    backgroundKey: "carouselBgMachinery",
     productKey: "productOilStabilizer",
     imageAlt: "Lucas Oil Heavy Duty Oil Stabilizer product group",
   },
@@ -91,7 +90,7 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     action: { type: "nav", view: "catalog" },
     theme: "dark",
     imageLayout: "hero",
-    backgroundKey: DEFAULT_HERO_BACKGROUND_KEY,
+    backgroundKey: "carouselBgFuelPump",
     productKey: "productFuelTreatment",
     imageAlt: "Lucas Oil fuel treatment bottle",
   },
@@ -109,7 +108,7 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     },
     theme: "primary",
     imageLayout: "hero",
-    backgroundKey: DEFAULT_HERO_BACKGROUND_KEY,
+    backgroundKey: "carouselBgOilPour",
     productKey: "productHiPerf",
     imageAlt: "European synthetic motor oil spread from the Lucas Oil catalog",
   },
