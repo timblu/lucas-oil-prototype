@@ -2,6 +2,12 @@ import { useState, useRef, useEffect } from "react";
 import imgLucasOil from "../imports/Logo/lucas-oil-badge.png";
 import imgLucasOil2x from "../imports/Logo/lucas-oil-badge@2x.png";
 import { MarketingBannerCarousel } from "./components/MarketingBannerCarousel";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "./components/ui/dropdown-menu";
 import { MARKETING_BANNER_IMAGES } from "./data/marketingBannerImages";
 import {
   Search,
@@ -20,6 +26,7 @@ import {
   Filter,
   X,
   User,
+  LogOut,
   MessageCircle,
   LayoutGrid,
   ChevronDown,
@@ -34,8 +41,6 @@ import {
   Hash,
   Star,
   Layers,
-  ChevronLeft,
-  Info,
   Mail,
 } from "lucide-react";
 
@@ -52,7 +57,6 @@ type View =
   | "new-case"
   | "case-detail"
   | "account"
-  | "tracking"
   | "knowledge-hub"
   | "marketing-collateral";
 
@@ -83,6 +87,36 @@ interface TrackingEvent {
   description: string;
   done: boolean;
 }
+
+type Carrier = "UPS" | "FedEx" | "USPS";
+
+const CARRIER_HOME_URLS: Record<Carrier, string> = {
+  UPS: "https://www.ups.com/",
+  FedEx: "https://www.fedex.com/",
+  USPS: "https://www.usps.com/",
+};
+
+const ORDER_SHIPMENTS: Record<
+  string,
+  { carrier: Carrier; trackingNumber: string }
+> = {
+  "SO-10041": {
+    carrier: "UPS",
+    trackingNumber: "1Z999AA10123456784",
+  },
+  "SO-10042": {
+    carrier: "UPS",
+    trackingNumber: "1Z999AA10123456784",
+  },
+  "SO-10043": {
+    carrier: "UPS",
+    trackingNumber: "1Z999AA10123456784",
+  },
+  "SO-10044": {
+    carrier: "UPS",
+    trackingNumber: "1Z999AA10123456784",
+  },
+};
 
 interface Product {
   id: string;
@@ -726,15 +760,16 @@ function LucasOilLogo({ height = 32 }: { height?: number }) {
 function TopNav({
   view,
   onNav,
+  onSignOut,
 }: {
   view: View;
   onNav: (v: View) => void;
+  onSignOut: () => void;
 }) {
   const links: { label: string; view: View }[] = [
     { label: "Orders", view: "orders" },
     { label: "Catalog", view: "catalog" },
     { label: "Cases", view: "cases" },
-    { label: "Account", view: "account" },
   ];
   const activeGroup = (v: View) => {
     if (v === "orders" || v === "order-detail") return "orders";
@@ -778,14 +813,35 @@ function TopNav({
           })}
         </nav>
         <div className="ml-auto flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-[#E4E4E4] flex items-center justify-center text-xs font-semibold text-[#444]">
-              JM
-            </div>
-            <span className="text-sm text-[#777] hidden sm:block">
-              Reno WD
-            </span>
-          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                type="button"
+                className="flex items-center gap-2 rounded-md px-2 py-1.5 hover:bg-[#F2F2F2] transition-colors outline-none focus-visible:ring-2 focus-visible:ring-[#111]/20"
+              >
+                <div className="w-7 h-7 rounded-full bg-[#E4E4E4] flex items-center justify-center text-xs font-semibold text-[#444]">
+                  JM
+                </div>
+                <span className="text-sm text-[#777] hidden sm:block">
+                  Reno WD
+                </span>
+                <ChevronDown
+                  size={14}
+                  className="text-[#999] hidden sm:block"
+                />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44">
+              <DropdownMenuItem onClick={() => onNav("account")}>
+                <User size={16} />
+                Account
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={onSignOut}>
+                <LogOut size={16} />
+                Sign out
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
     </header>
@@ -1793,140 +1849,22 @@ function OrdersList({
   );
 }
 
-// ─── Tracking Placeholder ─────────────────────────────────────────────────────
-
-function TrackingPlaceholder({
-  trackingNumber,
-  carrier,
-  onBack,
-}: {
-  trackingNumber: string;
-  carrier: string;
-  onBack: () => void;
-}) {
-  const steps = [
-    {
-      label: "Order picked up",
-      date: "Mar 18, 2026",
-      done: true,
-    },
-    {
-      label: "In transit — Cincinnati, OH",
-      date: "Mar 19, 2026",
-      done: true,
-    },
-    {
-      label: "Out for delivery",
-      date: "Mar 21, 2026",
-      done: true,
-    },
-    { label: "Delivered", date: "Mar 22, 2026", done: false },
-  ];
-
-  return (
-    <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
-      <button
-        onClick={onBack}
-        className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
-      >
-        <ChevronLeft size={16} /> Back to order
-      </button>
-
-      {/* Header card */}
-      <div className="bg-card border border-border rounded-xl p-6 space-y-1">
-        <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          Shipment tracking
-        </p>
-        <div className="flex items-baseline justify-between gap-4 flex-wrap">
-          <h1 className="text-xl font-medium text-foreground">
-            {carrier}
-          </h1>
-          <span className="mono text-sm text-blue font-medium">
-            {trackingNumber}
-          </span>
-        </div>
-        <div className="flex items-center gap-2 pt-2">
-          <span className="inline-flex items-center gap-1.5 bg-blue-light text-blue-dark text-xs font-medium px-2.5 py-1 rounded-full">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue" />
-            Out for delivery
-          </span>
-          <span className="text-xs text-muted-foreground">
-            Est. delivery Mar 22, 2026
-          </span>
-        </div>
-      </div>
-
-      {/* Timeline */}
-      <div className="bg-card border border-border rounded-xl p-6">
-        <h2 className="text-sm font-medium text-foreground mb-5">
-          Tracking history
-        </h2>
-        <div className="space-y-0">
-          {steps.map((step, i) => (
-            <div key={i} className="flex gap-4">
-              <div className="flex flex-col items-center">
-                <div
-                  className={`w-3 h-3 rounded-full border-2 mt-0.5 shrink-0 ${
-                    step.done
-                      ? "bg-blue border-blue"
-                      : "bg-card border-border"
-                  }`}
-                />
-                {i < steps.length - 1 && (
-                  <div
-                    className={`w-0.5 flex-1 my-1 ${step.done ? "bg-blue-muted" : "bg-border"}`}
-                  />
-                )}
-              </div>
-              <div
-                className={`pb-5 ${i === steps.length - 1 ? "pb-0" : ""}`}
-              >
-                <p
-                  className={`text-sm font-medium ${step.done ? "text-foreground" : "text-muted-foreground"}`}
-                >
-                  {step.label}
-                </p>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  {step.date}
-                </p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Placeholder notice */}
-      <div className="bg-muted border border-border rounded-xl px-5 py-4 flex items-start gap-3">
-        <Info
-          size={15}
-          className="text-muted-foreground shrink-0 mt-0.5"
-        />
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          This is a placeholder tracking page. In production,
-          live shipment data from {carrier} will display here.
-        </p>
-      </div>
-    </div>
-  );
-}
-
 // ─── Order Detail ─────────────────────────────────────────────────────────────
 
 function OrderDetail({
   orderId,
   onBack,
-  onTrack,
   onOpenCase,
   onCase,
 }: {
   orderId: string;
   onBack: () => void;
-  onTrack: () => void;
   onOpenCase: (orderId: string) => void;
   onCase: (caseId: string) => void;
 }) {
   const order =
     ORDERS.find((o) => o.id === orderId) ?? ORDERS[1];
+  const shipment = ORDER_SHIPMENTS[order.id];
   const items = ORDER_ITEMS;
   const subtotal = items.reduce(
     (s, i) => s + i.qty * i.unitPrice,
@@ -1968,19 +1906,21 @@ function OrderDetail({
                   Tracking pending — not yet shipped
                 </span>
               </div>
-            ) : (
+            ) : shipment ? (
               <div className="flex items-center gap-3">
                 <span className="text-sm font-medium text-foreground">
-                  UPS
+                  {shipment.carrier}
                 </span>
-                <button
-                  onClick={onTrack}
+                <a
+                  href={CARRIER_HOME_URLS[shipment.carrier]}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="mono text-sm text-blue font-medium underline decoration-dotted underline-offset-2 hover:text-blue-dark transition-colors"
                 >
-                  1Z999AA10123456784
-                </button>
+                  {shipment.trackingNumber}
+                </a>
               </div>
-            )}
+            ) : null}
             {order.status !== "Received" &&
               order.status !== "Picked" && (
                 <div className="text-xs text-muted-foreground mt-1">
@@ -3459,17 +3399,8 @@ export default function App() {
           <OrderDetail
             orderId={selectedOrder}
             onBack={() => nav("orders")}
-            onTrack={() => nav("tracking")}
             onOpenCase={openCaseForOrder}
             onCase={openCase}
-          />
-        );
-      case "tracking":
-        return (
-          <TrackingPlaceholder
-            trackingNumber="1Z999AA10123456784"
-            carrier="UPS"
-            onBack={() => nav("order-detail")}
           />
         );
       case "catalog":
@@ -3535,7 +3466,11 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-background">
-      <TopNav view={view} onNav={nav} />
+      <TopNav
+        view={view}
+        onNav={nav}
+        onSignOut={() => setIsLoggedIn(false)}
+      />
       {view === "dashboard" ? (
         <MarketingBannerCarousel
           onNav={(v) => nav(v)}
