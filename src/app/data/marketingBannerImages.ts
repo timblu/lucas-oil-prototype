@@ -11,7 +11,7 @@ import carouselBgMachinery from "../../assets/marketing-banners/carousel-bg-mach
 import carouselBgOilPour from "../../assets/marketing-banners/carousel-bg-oil-pour.jpg";
 import fuelTreatmentHero from "../../assets/marketing-banners/fuel-treatment-hero.png";
 import oilStabilizerHero from "../../assets/marketing-banners/oil-stabilizer-hero.png";
-import syntheticMotorOilSpread from "../../assets/marketing-banners/pdf-page-22.jpg";
+import syntheticMotorOilSpread from "../../assets/marketing-banners/motor-oil-hero.png";
 import hiPerfSpread from "../../assets/marketing-banners/pdf-page-23.jpg";
 
 export const MARKETING_BANNER_IMAGES = {
