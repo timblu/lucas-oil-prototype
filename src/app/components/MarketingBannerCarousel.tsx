@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useNavigate } from "react-router-dom";
 import Autoplay from "embla-carousel-autoplay";
 
 import {
@@ -11,6 +12,7 @@ import {
   type MarketingSlide,
   type MarketingSlideAction,
 } from "../data/marketingSlides";
+import { ROUTES } from "../routes";
 import {
   Carousel,
   CarouselContent,
@@ -21,6 +23,15 @@ import {
 } from "./ui/carousel";
 import { Button } from "./ui/button";
 import { cn } from "./ui/utils";
+
+const MARKETING_NAV_ROUTES: Record<MarketingNavView, string> = {
+  catalog: ROUTES.catalog,
+  orders: ROUTES.orders,
+  "knowledge-hub": ROUTES.knowledgeHub,
+  "product-videos": ROUTES.productVideos,
+  "marketing-collateral": ROUTES.marketingCollateral,
+  cases: ROUTES.cases,
+};
 
 const themeClasses: Record<
   MarketingSlide["theme"],
@@ -209,15 +220,10 @@ function SlideCopy({
   );
 }
 
-type MarketingBannerCarouselProps = {
-  onNav: (view: MarketingNavView) => void;
-  onProduct: (productId: string) => void;
-};
-
-export function MarketingBannerCarousel({
-  onNav,
-  onProduct,
-}: MarketingBannerCarouselProps) {
+export function MarketingBannerCarousel() {
+  const navigate = useNavigate();
+  const onNav = (view: MarketingNavView) => navigate(MARKETING_NAV_ROUTES[view]);
+  const onProduct = (productId: string) => navigate(ROUTES.product(productId));
   const [api, setApi] = React.useState<CarouselApi>();
   const [activeIndex, setActiveIndex] = React.useState(0);
   const [reduceMotion, setReduceMotion] = React.useState(false);
