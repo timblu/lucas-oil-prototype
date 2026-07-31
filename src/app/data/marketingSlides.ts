@@ -130,8 +130,8 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     theme: "neutral",
     imageLayout: "hero",
     backgroundKey: "carouselBgGears",
-    productKey: "productCatalog",
-    imageAlt: "Lucas Oil technical documentation",
+    productKey: "productOilStabilizer",
+    imageAlt: "Lucas Oil Heavy Duty Oil Stabilizer product group",
   },
   {
     id: "spring-counter-display",
