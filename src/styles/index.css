@@ -1,5 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
-@import '../../node_modules/@make-kits/design-system-tokens/dist/style.css';
-@import './globals.css';
+@import './tokens.css';
 @import './tailwind.css';
 @import './theme.css';

@@ -1,11 +1,11 @@
+# Lucas Oil Distributor Portal
 
-  # B2B Distributor Portal
+B2B distributor portal prototype for order management, product catalog, support cases, and marketing collateral.
 
-  This is a code bundle for B2B Distributor Portal. The original project is available at https://www.figma.com/design/MY3LXriCfoZOd5MMk4GDNN/B2B-Distributor-Portal.
+## Running the code
 
-  ## Running the code
+Run `npm install` to install dependencies.
 
-  Run `npm i` to install the dependencies.
+Run `npm run dev` to start the development server.
 
-  Run `npm run dev` to start the development server.
-  
+Run `npm run build` to create a production build.

@@ -1,6 +1,14 @@
-import { useState, useRef, useEffect, type ReactNode } from "react";
-import imgLucasOil from "../imports/Logo/lucas-oil-badge.png";
-import imgLucasOil2x from "../imports/Logo/lucas-oil-badge@2x.png";
+import {
+  useState,
+  useRef,
+  useEffect,
+  type ReactNode,
+  type FormEvent,
+  type ChangeEvent,
+  type KeyboardEvent,
+} from "react";
+import imgLucasOil from "../assets/logo/lucas-oil-badge.png";
+import imgLucasOil2x from "../assets/logo/lucas-oil-badge@2x.png";
 import { MarketingBannerCarousel } from "./components/MarketingBannerCarousel";
 import { ProductInfoVideoGrid } from "./components/ProductInfoVideoGrid";
 import {
@@ -703,7 +711,7 @@ function PageHeader({
   title: string;
   back?: string;
   onBack?: () => void;
-  action?: React.ReactNode;
+  action?: ReactNode;
 }) {
   return (
     <div className="flex items-center justify-between mb-6">
@@ -745,7 +753,7 @@ function Card({
   children,
   className = "",
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
 }) {
   return (
@@ -885,7 +893,7 @@ function LoginPage({ onLogin }: { onLogin: () => void }) {
   const [password, setPassword] = useState("lucas2026");
   const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setLoading(true);
     setTimeout(() => {
@@ -2700,11 +2708,11 @@ function NewCaseForm({
       );
   }, []);
 
-  function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
+  function handleFile(e: ChangeEvent<HTMLInputElement>) {
     setFileName(e.target.files?.[0]?.name ?? "");
   }
 
-  function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: FormEvent) {
     e.preventDefault();
     if (!subject.trim()) return;
     setSubmitting(true);
@@ -2980,7 +2988,7 @@ function CaseDetail({
     setDraft("");
   }
 
-  function handleKeyDown(e: React.KeyboardEvent) {
+  function handleKeyDown(e: KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -3222,7 +3230,7 @@ function SupportChat() {
     }, 1800);
   }
 
-  function handleKeyDown(e: React.KeyboardEvent) {
+  function handleKeyDown(e: KeyboardEvent) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       send();

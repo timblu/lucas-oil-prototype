@@ -6,7 +6,7 @@ Hero carousel uses **two layers per slide**: a shared industrial background plus
 
 | File | Spec |
 |------|------|
-| `industrial-gears-bg.jpg` | ~2400×900 (16:6), JPG/WebP, machinery/industrial scene, **no product**, blue grade optional (CSS tint applied in app) |
+| `carousel-bg-gears.jpg` | ~2400×900 (16:6), JPG/WebP, machinery/industrial scene, **no product**, blue grade optional (CSS tint applied in app) |
 
 Replace this file to change the scene for all slides, or set a per-slide `backgroundKey` in `marketingSlides.ts`.
 
