@@ -29,7 +29,10 @@ export default function CatalogPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <PageHeader title="Product Catalog" />
+      {/* Route stays /catalog internally; content model remains product-grid-only
+          this pass (Phase 1 minimum viable) pending confirmation of SDS sheets/
+          videos/docs content types — see PRD Section 6. */}
+      <PageHeader title="Resource Center" />
 
       <div className="flex items-center gap-3 mb-6 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
@@ -40,7 +43,7 @@ export default function CatalogPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search catalog…"
+            placeholder="Search resources…"
             className="w-full pl-9 pr-3 py-2 bg-card border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring/40"
           />
         </div>

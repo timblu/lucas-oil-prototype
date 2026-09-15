@@ -1,16 +1,15 @@
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { Check, ChevronRight, FileText, MapPin, Plus } from "lucide-react";
+import { Check, ChevronRight, FileText, MapPin } from "lucide-react";
 import { Card } from "../../components/shared/Card";
 import { PageHeader } from "../../components/shared/PageHeader";
 import { StatusBadge } from "../../components/shared/StatusBadge";
 import {
-  CARRIER_HOME_URLS,
   ORDERS,
   ORDER_ITEMS,
   ORDER_SHIPMENTS,
   TRACKING_EVENTS,
 } from "../../data/orders";
-import { CASES } from "../../data/cases";
+import { INVOICES } from "../../data/invoices";
 import { fmt } from "../../lib/format";
 import { ROUTES } from "../../routes";
 
@@ -64,14 +63,10 @@ export default function OrderDetailPage() {
                 <span className="text-sm font-medium text-foreground">
                   {shipment.carrier}
                 </span>
-                <a
-                  href={CARRIER_HOME_URLS[shipment.carrier]}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mono text-sm text-blue font-medium underline decoration-dotted underline-offset-2 hover:text-blue-dark transition-colors"
-                >
+                {/* Plain text only — never a hyperlink (no carrier homepage link) */}
+                <span className="mono text-sm font-medium text-foreground">
                   {shipment.trackingNumber}
-                </a>
+                </span>
               </div>
             ) : null}
             {order.status !== "Received" && order.status !== "Picked" && (
@@ -282,69 +277,31 @@ export default function OrderDetailPage() {
         </Card>
       </div>
 
-      {/* Linked cases */}
+      {/* Related invoice — single link only (cardinality unconfirmed with Zach; defaulting to one) */}
       {(() => {
-        const linked = CASES.filter((c) => c.orderId === order.id);
-        if (linked.length === 0) return null;
+        const relatedInvoice = INVOICES.find((inv) => inv.orderId === order.id);
+        if (!relatedInvoice) return null;
         return (
           <div className="mt-5">
-            <Card>
-              <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
-                <FileText size={15} className="text-muted-foreground" />
-                <h2 className="font-semibold text-sm">Support Cases</h2>
-                <span className="ml-auto text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                  {linked.length}
+            <button
+              onClick={() => navigate(ROUTES.invoice(relatedInvoice.id))}
+              className="w-full flex items-center gap-3 bg-card border border-border rounded-xl px-5 py-4 hover:shadow-md hover:border-[#999]/40 transition-all text-left group"
+            >
+              <FileText size={16} className="text-muted-foreground shrink-0" />
+              <span className="text-sm font-medium text-foreground">
+                Related Invoice:{" "}
+                <span className="mono text-[#111]">
+                  {relatedInvoice.invoiceNumber}
                 </span>
-              </div>
-              <div className="divide-y divide-border">
-                {linked.map((c) => (
-                  <button
-                    key={c.id}
-                    onClick={() => navigate(ROUTES.case(c.id))}
-                    className="w-full flex items-center gap-4 px-5 py-3.5 text-left hover:bg-muted transition-colors group"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium text-foreground truncate">
-                        {c.subject}
-                      </div>
-                      <div className="text-xs text-muted-foreground mt-0.5">
-                        {c.id} · Updated {c.lastUpdated}
-                      </div>
-                    </div>
-                    <StatusBadge status={c.status} />
-                    <ChevronRight
-                      size={14}
-                      className="text-muted-foreground shrink-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    />
-                  </button>
-                ))}
-              </div>
-            </Card>
+              </span>
+              <ChevronRight
+                size={14}
+                className="text-muted-foreground ml-auto group-hover:translate-x-0.5 transition-transform"
+              />
+            </button>
           </div>
         );
       })()}
-
-      {/* Open a case for this order */}
-      <div className="mt-5 flex items-center justify-between bg-card border border-border rounded-xl px-5 py-4">
-        <div>
-          <div className="text-sm font-medium text-foreground">
-            Issue with this order?
-          </div>
-          <div className="text-xs text-muted-foreground mt-0.5">
-            Open a support case and we'll link it to {order.id} automatically.
-          </div>
-        </div>
-        <button
-          onClick={() =>
-            navigate(ROUTES.newCase, {
-              state: { preselectedOrderId: order.id },
-            })
-          }
-          className="flex items-center gap-2 bg-primary hover:bg-[var(--primary-dark)] text-primary-foreground text-sm font-medium px-4 py-2 rounded-lg transition-colors shrink-0 ml-4"
-        >
-          <Plus size={14} /> Open a Case
-        </button>
-      </div>
     </div>
   );
 }

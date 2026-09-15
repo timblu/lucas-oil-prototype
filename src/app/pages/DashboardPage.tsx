@@ -4,19 +4,24 @@ import {
   BookOpen,
   Check,
   ChevronRight,
+  CreditCard,
   Download,
-  MessagesSquare,
   Package,
   Phone,
-  Plus,
+  Receipt,
   Truck,
 } from "lucide-react";
 import { Card } from "../components/shared/Card";
 import { StatusBadge } from "../components/shared/StatusBadge";
 import { MARKETING_BANNER_IMAGES } from "../data/marketingBannerImages";
-import { DISTRIBUTOR_ACCOUNT } from "../data/account";
+import {
+  ACCOUNT_SNAPSHOT,
+  CREDIT_MEMOS,
+  CUSTOMER_CONTACTS,
+  DISTRIBUTOR_ACCOUNT,
+} from "../data/account";
 import { ORDERS } from "../data/orders";
-import { CASES } from "../data/cases";
+import { INVOICES } from "../data/invoices";
 import { fmtShort } from "../lib/format";
 import { ROUTES } from "../routes";
 
@@ -92,9 +97,7 @@ function DashboardResourceCard({
 export default function DashboardPage() {
   const navigate = useNavigate();
   const recentOrders = ORDERS.slice(0, 3);
-  const openCases = CASES.filter(
-    (c) => c.status === "Open" || c.status === "In Progress",
-  ).slice(0, 3);
+  const recentInvoices = INVOICES.slice(0, 3);
 
   const featuredOrder =
     ORDERS.find((o) => o.status === "Out for Delivery") ??
@@ -255,22 +258,22 @@ export default function DashboardPage() {
         </button>
 
         <button
-          onClick={() => navigate(ROUTES.cases)}
+          onClick={() => navigate(ROUTES.account)}
           className="bg-card border border-border rounded-xl px-5 py-4 text-left hover:shadow-md transition-all group flex items-center gap-4"
         >
           <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
-            <MessagesSquare size={20} className="text-foreground" />
+            <CreditCard size={20} className="text-foreground" />
           </div>
           <div>
             <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
-              Open Cases
+              Account Snapshot
             </div>
             <div className="text-2xl font-semibold text-foreground">
-              {
-                CASES.filter(
-                  (c) => c.status === "Open" || c.status === "In Progress",
-                ).length
-              }
+              {fmtShort(ACCOUNT_SNAPSHOT.availableCredit)}
+            </div>
+            <div className="text-xs text-muted-foreground mt-0.5">
+              available of {fmtShort(ACCOUNT_SNAPSHOT.totalCreditLine)} ·{" "}
+              {CREDIT_MEMOS.length} memos · {CUSTOMER_CONTACTS.length} contacts
             </div>
           </div>
         </button>
@@ -295,24 +298,24 @@ export default function DashboardPage() {
           </div>
         </a>
         <button
-          onClick={() => navigate(ROUTES.newCase)}
+          onClick={() => navigate(ROUTES.invoices)}
           className="bg-primary text-primary-foreground rounded-xl px-5 py-4 text-left hover:bg-[var(--primary-dark)] transition-all group flex items-center gap-4"
         >
           <div className="w-11 h-11 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0 group-hover:bg-primary-foreground/25 transition-colors">
-            <Plus size={20} className="text-primary-foreground" />
+            <Receipt size={20} className="text-primary-foreground" />
           </div>
           <div>
             <div className="text-xs font-medium text-primary-foreground/70 uppercase tracking-wider mb-0.5">
-              Support
+              Billing
             </div>
             <div className="text-base font-semibold text-primary-foreground">
-              Open a New Case
+              View Invoices
             </div>
           </div>
         </button>
       </div>
 
-      {/* Recent Orders + Open Cases */}
+      {/* Recent Orders + Recent Invoices */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
@@ -352,33 +355,33 @@ export default function DashboardPage() {
 
         <Card>
           <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-            <h2 className="font-semibold text-base">Open Cases</h2>
+            <h2 className="font-semibold text-base">Recent Invoices</h2>
             <button
-              onClick={() => navigate(ROUTES.cases)}
+              onClick={() => navigate(ROUTES.invoices)}
               className="text-xs text-[#111] hover:underline font-medium flex items-center gap-1"
             >
               View all <ChevronRight size={12} />
             </button>
           </div>
           <div className="divide-y divide-border">
-            {openCases.map((c) => (
+            {recentInvoices.map((inv) => (
               <button
-                key={c.id}
-                onClick={() => navigate(ROUTES.case(c.id))}
+                key={inv.id}
+                onClick={() => navigate(ROUTES.invoice(inv.id))}
                 className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-muted/40 transition-colors text-left group"
               >
                 <div>
                   <div className="mono text-sm font-medium text-foreground group-hover:text-[#111] transition-colors">
-                    {c.id}
+                    {inv.invoiceNumber}
                   </div>
-                  <div className="text-xs text-muted-foreground mt-0.5 truncate max-w-[220px]">
-                    {c.subject}
+                  <div className="text-xs text-muted-foreground mt-0.5">
+                    {inv.orderId} · {inv.dueDate}
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
-                  <StatusBadge status={c.status} />
-                  <span className="text-xs text-muted-foreground">
-                    {c.lastUpdated}
+                  <StatusBadge status={inv.status} />
+                  <span className="mono text-sm font-semibold text-foreground">
+                    {fmtShort(inv.total)}
                   </span>
                 </div>
               </button>
@@ -397,9 +400,9 @@ export default function DashboardPage() {
           onClick={() => navigate(ROUTES.knowledgeHub)}
         />
         <DashboardResourceCard
-          title="Product Catalog"
+          title="Resource Center"
           description="Browse the full lineup, pricing, and inventory levels"
-          cta="Browse catalog"
+          cta="Browse resources"
           icon={<Package size={22} />}
           image={MARKETING_BANNER_IMAGES.productCatalog}
           imagePosition="top center"

@@ -257,18 +257,15 @@ export default function MarketingCollateralPage() {
   >(null);
 
   function requestCollateral(itemTitle?: string) {
-    navigate(ROUTES.newCase, {
-      state: {
-        backTo: ROUTES.marketingCollateral,
-        prefilledSubject: itemTitle
-          ? `Order: ${itemTitle}`
-          : "Marketing collateral order request",
-        prefilledCategory: "Marketing Collateral",
-        prefilledDescription: itemTitle
-          ? `I'd like to order printed copies of:\n\n- ${itemTitle}\n\nQuantity:\nShip-to address:\n`
-          : "Please list the materials you need, quantities, and ship-to address.",
-      },
-    });
+    const subject = itemTitle
+      ? `Order: ${itemTitle}`
+      : "Marketing collateral order request";
+    const body = itemTitle
+      ? `I'd like to order printed copies of:\n\n- ${itemTitle}\n\nQuantity:\nShip-to address:\n`
+      : "Please list the materials you need, quantities, and ship-to address.";
+    window.location.href = `mailto:marketing@lucasoil.com?subject=${encodeURIComponent(
+      subject,
+    )}&body=${encodeURIComponent(body)}`;
   }
 
   return (

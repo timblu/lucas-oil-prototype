@@ -50,7 +50,7 @@ export function SupportChat() {
           sender: "agent",
           name: "Lucas Support",
           timestamp: ts,
-          body: "Thanks for reaching out. An agent will follow up shortly. For urgent order issues you can also open a Case using the Cases tab.",
+          body: "Thanks for reaching out. An agent will follow up shortly. For urgent order issues you can also reach your Lucas Oil rep from the Account page.",
         },
       ]);
     }, 1800);

@@ -40,18 +40,22 @@ export interface Product {
   colorClass: string;
 }
 
-export interface Case {
+export interface Invoice {
   id: string;
-  subject: string;
-  status: "Open" | "In Progress" | "Resolved" | "Closed";
-  lastUpdated: string;
-  orderId?: string;
-}
-
-export interface Message {
-  id: string;
-  sender: "agent" | "you";
-  agentName?: string;
-  timestamp: string;
-  body: string;
+  invoiceNumber: string;
+  invoiceDate: string;
+  dueDate: string;
+  orderId: string;
+  poNumber: string;
+  shipTo: string;
+  carrier: Carrier;
+  trackingNumber: string;
+  status: "Paid" | "Open" | "Past Due";
+  lineItems: OrderItem[];
+  subtotal: number;
+  tax: number;
+  shipping: number;
+  total: number;
+  amountDue: number;
+  creditMemoIds?: string[];
 }

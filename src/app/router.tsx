@@ -13,9 +13,12 @@ const CatalogPage = lazy(() => import("./pages/catalog/CatalogPage"));
 const ProductDetailPage = lazy(
   () => import("./pages/catalog/ProductDetailPage"),
 );
-const CasesListPage = lazy(() => import("./pages/cases/CasesListPage"));
-const NewCasePage = lazy(() => import("./pages/cases/NewCasePage"));
-const CaseDetailPage = lazy(() => import("./pages/cases/CaseDetailPage"));
+const InvoicesListPage = lazy(
+  () => import("./pages/invoices/InvoicesListPage"),
+);
+const InvoiceDetailPage = lazy(
+  () => import("./pages/invoices/InvoiceDetailPage"),
+);
 const AccountPage = lazy(() => import("./pages/AccountPage"));
 const KnowledgeHubPage = lazy(
   () => import("./pages/knowledge/KnowledgeHubPage"),
@@ -45,9 +48,8 @@ export const router = createBrowserRouter([
               { path: "/orders/:orderId", element: <OrderDetailPage /> },
               { path: ROUTES.catalog, element: <CatalogPage /> },
               { path: "/catalog/:productId", element: <ProductDetailPage /> },
-              { path: ROUTES.cases, element: <CasesListPage /> },
-              { path: ROUTES.newCase, element: <NewCasePage /> },
-              { path: "/cases/:caseId", element: <CaseDetailPage /> },
+              { path: ROUTES.invoices, element: <InvoicesListPage /> },
+              { path: "/invoices/:invoiceId", element: <InvoiceDetailPage /> },
               { path: ROUTES.account, element: <AccountPage /> },
               { path: ROUTES.knowledgeHub, element: <KnowledgeHubPage /> },
               { path: ROUTES.productVideos, element: <ProductVideosPage /> },

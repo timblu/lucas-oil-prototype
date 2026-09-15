@@ -1,11 +1,5 @@
 import type { Carrier, Order, OrderItem, TrackingEvent } from "../types";
 
-export const CARRIER_HOME_URLS: Record<Carrier, string> = {
-  UPS: "https://www.ups.com/",
-  FedEx: "https://www.fedex.com/",
-  USPS: "https://www.usps.com/",
-};
-
 export const ORDER_SHIPMENTS: Record<
   string,
   { carrier: Carrier; trackingNumber: string }

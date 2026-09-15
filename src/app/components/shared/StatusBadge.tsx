@@ -9,6 +9,8 @@ export function StatusBadge({ status }: { status: string }) {
     "In Progress": "bg-[#555] text-white ring-1 ring-[#555]",
     Resolved: "bg-white text-[#111] ring-1 ring-[#bbb]",
     Closed: "bg-[#E4E4E4] text-[#777] ring-1 ring-[#ddd]",
+    Paid: "bg-white text-[#111] ring-1 ring-[#bbb]",
+    "Past Due": "bg-[#111] text-white ring-1 ring-[#111]",
   };
   return (
     <span

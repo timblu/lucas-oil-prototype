@@ -27,10 +27,11 @@ import { cn } from "./ui/utils";
 const MARKETING_NAV_ROUTES: Record<MarketingNavView, string> = {
   catalog: ROUTES.catalog,
   orders: ROUTES.orders,
+  invoices: ROUTES.invoices,
   "knowledge-hub": ROUTES.knowledgeHub,
   "product-videos": ROUTES.productVideos,
   "marketing-collateral": ROUTES.marketingCollateral,
-  cases: ROUTES.cases,
+  account: ROUTES.account,
 };
 
 const themeClasses: Record<

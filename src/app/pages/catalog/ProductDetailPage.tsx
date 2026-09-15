@@ -20,7 +20,7 @@ export default function ProductDetailPage() {
           onClick={() => navigate(ROUTES.catalog)}
           className="hover:text-foreground transition-colors"
         >
-          Catalog
+          Resource Center
         </button>
         <ChevronRight size={13} />
         <span className="text-foreground font-medium">Item #{p.id}</span>

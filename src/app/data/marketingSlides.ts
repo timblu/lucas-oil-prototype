@@ -12,10 +12,11 @@ export type MarketingSlideKind =
 export type MarketingNavView =
   | "catalog"
   | "orders"
+  | "invoices"
   | "knowledge-hub"
   | "product-videos"
   | "marketing-collateral"
-  | "cases";
+  | "account";
 
 export type MarketingSlideAction =
   | { type: "nav"; view: MarketingNavView }
@@ -45,11 +46,11 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
   {
     id: "catalog-2026",
     kind: "catalog",
-    badge: "Product catalog",
+    badge: "Resource Center",
     title: "2026 Full Line — pricing & inventory",
     description:
       "Look up item numbers, case quantities, distributor pricing, and real-time stock levels across motor oils, gear lubes, additives, and specialty fluids.",
-    ctaLabel: "Browse catalog",
+    ctaLabel: "Browse resources",
     action: { type: "nav", view: "catalog" },
     theme: "primary",
     imageLayout: "hero",
@@ -139,9 +140,9 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     badge: "Spring program",
     title: "Free counter display — order by April 15",
     description:
-      "Order 4+ cases of Hi-Perf motor oil and receive a counter display kit at no charge. One kit per ship-to. Questions? Open a case with your rep.",
-    ctaLabel: "Get help with your order",
-    action: { type: "nav", view: "cases" },
+      "Order 4+ cases of Hi-Perf motor oil and receive a counter display kit at no charge. One kit per ship-to. Questions? Contact your Lucas Oil rep.",
+    ctaLabel: "Contact your rep",
+    action: { type: "nav", view: "account" },
     theme: "dark",
     imageLayout: "hero",
     backgroundKey: "carouselBgMachinery",
