@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Link, NavLink } from "react-router-dom";
-import { Menu, X } from "lucide-react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { LogOut, Menu, X } from "lucide-react";
 import { LucasOilLogo } from "./shared/LucasOilLogo";
+import { useAuth } from "../auth/AuthContext";
 import { ROUTES } from "../routes";
 
 const LINKS = [
@@ -12,6 +13,14 @@ const LINKS = [
 
 export function TopNav() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  function handleSignOut() {
+    setMenuOpen(false);
+    logout();
+    navigate(ROUTES.login);
+  }
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     `px-3 py-1.5 rounded text-sm font-medium transition-colors ${
@@ -48,6 +57,17 @@ export function TopNav() {
           >
             Account
           </NavLink>
+
+          <div className="h-5 w-px bg-[rgba(0,0,0,0.12)] hidden md:block" />
+
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="hidden md:flex items-center gap-1.5 text-sm font-medium text-[#666] hover:text-[#111] transition-colors"
+          >
+            <LogOut size={14} />
+            Sign out
+          </button>
 
           {/* Hamburger / overflow menu for narrow widths */}
           <div className="md:hidden relative">
@@ -92,6 +112,15 @@ export function TopNav() {
                 >
                   Account
                 </NavLink>
+                <div className="my-1 border-t border-border" />
+                <button
+                  type="button"
+                  onClick={handleSignOut}
+                  className="flex items-center gap-2 w-full text-left px-4 py-2 text-sm font-medium text-[#444] hover:bg-[#F2F2F2] transition-colors"
+                >
+                  <LogOut size={15} />
+                  Sign out
+                </button>
               </div>
             )}
           </div>
