@@ -130,6 +130,34 @@ export default function DashboardPage() {
         </p>
       </div>
 
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <DashboardResourceCard
+          title="Knowledge Hub"
+          description="Product specs, training, and technical resources"
+          cta="Open hub"
+          icon={<BookOpen size={22} />}
+          image={MARKETING_BANNER_IMAGES.carouselBgGears}
+          onClick={() => navigate(ROUTES.knowledgeHub)}
+        />
+        <DashboardResourceCard
+          title="Resource Center"
+          description="Browse the full lineup, pricing, and inventory levels"
+          cta="Browse resources"
+          icon={<Package size={22} />}
+          image={MARKETING_BANNER_IMAGES.productCatalog}
+          imagePosition="top center"
+          onClick={() => navigate(ROUTES.catalog)}
+        />
+        <DashboardResourceCard
+          title="Marketing Collateral"
+          description="Catalogs, line sheets, brand assets, and booth graphics"
+          cta="View downloads"
+          icon={<Download size={22} />}
+          image={MARKETING_BANNER_IMAGES.productHiPerf}
+          onClick={() => navigate(ROUTES.marketingCollateral)}
+        />
+      </div>
+
       {/* Featured active order */}
       <button
         onClick={() => navigate(ROUTES.order(featuredOrder.id))}
@@ -388,34 +416,6 @@ export default function DashboardPage() {
             ))}
           </div>
         </Card>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        <DashboardResourceCard
-          title="Knowledge Hub"
-          description="Product specs, training, and technical resources"
-          cta="Open hub"
-          icon={<BookOpen size={22} />}
-          image={MARKETING_BANNER_IMAGES.carouselBgGears}
-          onClick={() => navigate(ROUTES.knowledgeHub)}
-        />
-        <DashboardResourceCard
-          title="Resource Center"
-          description="Browse the full lineup, pricing, and inventory levels"
-          cta="Browse resources"
-          icon={<Package size={22} />}
-          image={MARKETING_BANNER_IMAGES.productCatalog}
-          imagePosition="top center"
-          onClick={() => navigate(ROUTES.catalog)}
-        />
-        <DashboardResourceCard
-          title="Marketing Collateral"
-          description="Catalogs, line sheets, brand assets, and booth graphics"
-          cta="View downloads"
-          icon={<Download size={22} />}
-          image={MARKETING_BANNER_IMAGES.productHiPerf}
-          onClick={() => navigate(ROUTES.marketingCollateral)}
-        />
       </div>
     </div>
   );
