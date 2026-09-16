@@ -32,7 +32,7 @@ export default function CatalogPage() {
       {/* Route stays /catalog internally; content model remains product-grid-only
           this pass (Phase 1 minimum viable) pending confirmation of SDS sheets/
           videos/docs content types — see PRD Section 6. */}
-      <PageHeader title="Resource Center" />
+      <PageHeader title="Catalog" />
 
       <div className="flex items-center gap-3 mb-6 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-sm">

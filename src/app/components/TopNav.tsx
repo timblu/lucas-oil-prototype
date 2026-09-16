@@ -7,7 +7,7 @@ import { ROUTES } from "../routes";
 const LINKS = [
   { label: "Orders", to: ROUTES.orders },
   { label: "Invoices", to: ROUTES.invoices },
-  { label: "Resource Center", to: ROUTES.catalog },
+  { label: "Resource Center", to: ROUTES.knowledgeHub },
 ];
 
 export function TopNav() {
