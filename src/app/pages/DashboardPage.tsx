@@ -4,24 +4,22 @@ import {
   BookOpen,
   Check,
   ChevronRight,
-  CreditCard,
   Download,
   Package,
   Phone,
   Receipt,
-  Truck,
 } from "lucide-react";
 import { Card } from "../components/shared/Card";
+import { DashboardSummaryCard } from "../components/shared/DashboardSummaryCard";
 import { StatusBadge } from "../components/shared/StatusBadge";
 import { MARKETING_BANNER_IMAGES } from "../data/marketingBannerImages";
-import {
-  ACCOUNT_SNAPSHOT,
-  CREDIT_MEMOS,
-  CUSTOMER_CONTACTS,
-  DISTRIBUTOR_ACCOUNT,
-} from "../data/account";
+import { DISTRIBUTOR_ACCOUNT } from "../data/account";
 import { ORDERS } from "../data/orders";
 import { INVOICES } from "../data/invoices";
+import {
+  getActiveOrdersSummary,
+  getInvoiceSummary,
+} from "../lib/dashboardSummary";
 import { fmtShort } from "../lib/format";
 import { ROUTES } from "../routes";
 
@@ -98,6 +96,19 @@ export default function DashboardPage() {
   const navigate = useNavigate();
   const recentOrders = ORDERS.slice(0, 3);
   const recentInvoices = INVOICES.slice(0, 3);
+
+  const invoiceSummary = getInvoiceSummary(INVOICES);
+  const ordersSummary = getActiveOrdersSummary(ORDERS);
+
+  const invoiceSupporting = invoiceSummary.hasPastDue
+    ? `${invoiceSummary.pastDueCount} past due · ${invoiceSummary.openCount} open`
+    : invoiceSummary.openCount > 0
+      ? `${invoiceSummary.openCount} open`
+      : "No open invoices";
+
+  const ordersSupporting = ordersSummary.urgent
+    ? `${ordersSummary.urgent.id} · ${ordersSummary.urgent.status}`
+    : "No orders in progress";
 
   const featuredOrder =
     ORDERS.find((o) => o.status === "Out for Delivery") ??
@@ -266,81 +277,38 @@ export default function DashboardPage() {
         </div>
       </button>
 
-      {/* Quick tiles */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        <button
-          onClick={() => navigate(ROUTES.orders)}
-          className="bg-card border border-border rounded-xl px-5 py-4 text-left hover:shadow-md transition-all group flex items-center gap-4"
-        >
-          <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
-            <Truck size={20} className="text-foreground" />
-          </div>
-          <div>
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
-              Recent Orders
-            </div>
-            <div className="text-2xl font-semibold text-foreground">
-              {ORDERS.length}
-            </div>
-          </div>
-        </button>
-
-        <button
-          onClick={() => navigate(ROUTES.account)}
-          className="bg-card border border-border rounded-xl px-5 py-4 text-left hover:shadow-md transition-all group flex items-center gap-4"
-        >
-          <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
-            <CreditCard size={20} className="text-foreground" />
-          </div>
-          <div>
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
-              Account Snapshot
-            </div>
-            <div className="text-2xl font-semibold text-foreground">
-              {fmtShort(ACCOUNT_SNAPSHOT.availableCredit)}
-            </div>
-            <div className="text-xs text-muted-foreground mt-0.5">
-              available of {fmtShort(ACCOUNT_SNAPSHOT.totalCreditLine)} ·{" "}
-              {CREDIT_MEMOS.length} memos · {CUSTOMER_CONTACTS.length} contacts
-            </div>
-          </div>
-        </button>
-
-        <a
-          href={`tel:${DISTRIBUTOR_ACCOUNT.repPhone.replace(/\s/g, "")}`}
-          className="bg-card border border-border rounded-xl px-5 py-4 text-left hover:shadow-md transition-all group flex items-center gap-4"
-        >
-          <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
-            <Phone size={20} className="text-foreground" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
-              Your Rep
-            </div>
-            <div className="text-base font-semibold text-foreground truncate">
-              {DISTRIBUTOR_ACCOUNT.repName}
-            </div>
-            <div className="text-xs text-muted-foreground mt-0.5">
-              {DISTRIBUTOR_ACCOUNT.repPhone}
-            </div>
-          </div>
-        </a>
-        <button
+      {/* Summary cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <DashboardSummaryCard
+          label="Invoices"
+          primary={
+            invoiceSummary.amountDue === 0
+              ? "$0 due"
+              : `${fmtShort(invoiceSummary.amountDue)} due`
+          }
+          supporting={invoiceSupporting}
+          footer="View invoices"
+          attention={invoiceSummary.hasPastDue}
+          icon={<Receipt size={22} className="text-foreground" />}
           onClick={() => navigate(ROUTES.invoices)}
-          className="bg-primary text-primary-foreground rounded-xl px-5 py-4 text-left hover:bg-[var(--primary-dark)] transition-all group flex items-center gap-4"
-        >
-          <div className="w-11 h-11 rounded-xl bg-primary-foreground/15 flex items-center justify-center shrink-0 group-hover:bg-primary-foreground/25 transition-colors">
-            <Receipt size={20} className="text-primary-foreground" />
-          </div>
-          <div>
-            <div className="text-xs font-medium text-primary-foreground/70 uppercase tracking-wider mb-0.5">
-              Billing
-            </div>
-            <div className="text-base font-semibold text-primary-foreground">
-              View Invoices
-            </div>
-          </div>
-        </button>
+        />
+        <DashboardSummaryCard
+          label="Orders"
+          primary={`${ordersSummary.activeCount} active`}
+          supporting={ordersSupporting}
+          footer="View orders"
+          icon={<Package size={22} className="text-foreground" />}
+          onClick={() => navigate(ROUTES.orders)}
+        />
+        <DashboardSummaryCard
+          label="Your rep"
+          primary={DISTRIBUTOR_ACCOUNT.repName}
+          supporting={DISTRIBUTOR_ACCOUNT.repPhone}
+          footer="Call"
+          as="a"
+          href={`tel:${DISTRIBUTOR_ACCOUNT.repPhone.replace(/\s/g, "")}`}
+          icon={<Phone size={22} className="text-foreground" />}
+        />
       </div>
 
       {/* Recent Orders + Recent Invoices */}
