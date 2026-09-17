@@ -38,8 +38,10 @@ export function DashboardSummaryCard({
             {label}
           </div>
           <div
-            className={`text-2xl font-semibold truncate ${
-              attention ? "text-[#111]" : "text-foreground"
+            className={`text-2xl truncate ${
+              attention
+                ? "font-bold text-[#111]"
+                : "font-semibold text-foreground"
             }`}
           >
             {primary}
