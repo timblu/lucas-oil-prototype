@@ -179,8 +179,8 @@ export default function InvoiceDetailPage() {
               </tbody>
             </table>
           </div>
-          <div className="px-5 py-4 border-t border-border flex justify-end">
-            <div className="w-full max-w-[280px] space-y-1.5 text-sm">
+          <div className="px-5 py-4 border-t border-border">
+            <div className="w-full space-y-1.5 text-sm">
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal</span>
                 <span className="mono tabular-nums">{fmt(invoice.subtotal)}</span>
