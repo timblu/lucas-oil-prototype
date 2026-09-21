@@ -11,6 +11,7 @@ export function StatusBadge({ status }: { status: string }) {
     Closed: "bg-[#E4E4E4] text-[#777] ring-1 ring-[#ddd]",
     Paid: "bg-white text-[#111] ring-1 ring-[#bbb]",
     "Past Due": "bg-[#111] text-white ring-1 ring-[#111]",
+    Applied: "bg-white text-[#111] ring-1 ring-[#bbb]",
   };
   return (
     <span

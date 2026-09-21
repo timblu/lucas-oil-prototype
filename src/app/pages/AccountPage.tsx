@@ -1,7 +1,9 @@
 import type { ReactNode } from "react";
+import { useNavigate } from "react-router-dom";
 import { Building2, Mail, MapPin, Phone, User } from "lucide-react";
 import { Card } from "../components/shared/Card";
 import { PageHeader } from "../components/shared/PageHeader";
+import { StatusBadge } from "../components/shared/StatusBadge";
 import {
   ACCOUNT_SNAPSHOT,
   CREDIT_MEMOS,
@@ -9,11 +11,13 @@ import {
   DISTRIBUTOR_ACCOUNT,
 } from "../data/account";
 import { fmt } from "../lib/format";
+import { ROUTES } from "../routes";
 
-// OPEN QUESTION: PRD references a Salesforce -> Sage 100 data-provenance
-// caveat for account/credit data (which fields are authoritative in which
-// system). Left out of the UI this pass — unconfirmed with Zach as of
-// Sept 14. Revisit before this becomes more than mock data.
+// OPEN QUESTION: Financial fields (Credit Line, Available Credit, Current
+// Balance, Credit Memos) may live in Sage 100 and not yet be mapped through
+// Snowflake into Salesforce. Credit memos are transactional records (status,
+// remaining balance, related invoice) — confirm shape with Mark/Amber before
+// treating this list UI as final.
 
 // Sept 2026: Sign out moved from page-bottom into the persistent TopNav
 // header/profile area (see TopNav.tsx) so it's reachable from every page,
@@ -81,6 +85,8 @@ function ContactLinkRow({
 }
 
 export default function AccountPage() {
+  const navigate = useNavigate();
+
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
       <PageHeader title="Account" />
@@ -237,10 +243,18 @@ export default function AccountPage() {
               </div>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full">
+              <table className="w-full min-w-[760px]">
                 <thead>
                   <tr className="border-b border-border">
-                    {["Memo #", "Date", "Amount", "Reason"].map((h) => (
+                    {[
+                      "Memo #",
+                      "Date",
+                      "Amount",
+                      "Balance",
+                      "Status",
+                      "Related Invoice",
+                      "Reason",
+                    ].map((h) => (
                       <th
                         key={h}
                         className="text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground px-6 py-3"
@@ -260,7 +274,30 @@ export default function AccountPage() {
                         {m.date}
                       </td>
                       <td className="px-6 py-3.5 mono text-sm font-semibold text-foreground">
-                        {fmt(m.amount)}
+                        {fmt(m.originalAmount)}
+                      </td>
+                      <td className="px-6 py-3.5 mono text-sm font-semibold text-foreground">
+                        {fmt(m.balance)}
+                      </td>
+                      <td className="px-6 py-3.5">
+                        <StatusBadge status={m.status} />
+                      </td>
+                      <td className="px-6 py-3.5">
+                        {m.relatedInvoiceNumber ? (
+                          <button
+                            type="button"
+                            onClick={() =>
+                              navigate(ROUTES.invoice(m.relatedInvoiceNumber!))
+                            }
+                            className="mono text-sm font-medium text-foreground underline decoration-muted-foreground/40 underline-offset-2 hover:decoration-primary hover:text-primary transition-colors"
+                          >
+                            {m.relatedInvoiceNumber}
+                          </button>
+                        ) : (
+                          <span className="text-sm text-muted-foreground">
+                            —
+                          </span>
+                        )}
                       </td>
                       <td className="px-6 py-3.5 text-sm text-foreground">
                         {m.reason}

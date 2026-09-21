@@ -18,10 +18,24 @@ export const ACCOUNT_SNAPSHOT = {
   currentBalance: 4977,
 } as const;
 
+/**
+ * Credit memo shape mirrors Sage 100 → Snowflake → Salesforce expectations:
+ * remaining Balance (may differ from original amount), Applied vs Open status,
+ * optional related invoice, and a free-text reason. Mapping through Snowflake
+ * is still an open risk — treat UI as a design hypothesis until confirmed.
+ */
+export type CreditMemoStatus = "Applied" | "Open";
+
 export interface CreditMemo {
   memoNumber: string;
   date: string;
-  amount: number;
+  /** Original credit amount when the memo was posted */
+  originalAmount: number;
+  /** Remaining amount available for allocation (may be less than original) */
+  balance: number;
+  status: CreditMemoStatus;
+  /** Invoice this memo corrects, if applicable; omit for unapplied credits */
+  relatedInvoiceNumber?: string;
   reason: string;
 }
 
@@ -29,14 +43,28 @@ export const CREDIT_MEMOS: CreditMemo[] = [
   {
     memoNumber: "CM-3001",
     date: "03/20/26",
-    amount: 154.5,
-    reason: "Damaged case — INV-20042",
+    originalAmount: 154.5,
+    balance: 0,
+    status: "Applied",
+    relatedInvoiceNumber: "INV-20042",
+    reason: "Damaged case",
   },
   {
     memoNumber: "CM-3002",
     date: "02/25/26",
-    amount: 312.0,
-    reason: "Pricing correction — INV-20044",
+    originalAmount: 312.0,
+    balance: 0,
+    status: "Applied",
+    relatedInvoiceNumber: "INV-20044",
+    reason: "Pricing correction",
+  },
+  {
+    memoNumber: "CM-3003",
+    date: "03/28/26",
+    originalAmount: 85.0,
+    balance: 85.0,
+    status: "Open",
+    reason: "Freight adjustment",
   },
 ];
 

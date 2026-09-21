@@ -8,6 +8,9 @@ import { CREDIT_MEMOS } from "../../data/account";
 import { fmt } from "../../lib/format";
 import { ROUTES } from "../../routes";
 
+// Linked credit memos use Applied/Open + remaining balance. Cross-link
+// pattern mirrors Order Detail ↔ Invoice Detail; Sage→SF mapping unconfirmed.
+
 export default function InvoiceDetailPage() {
   const navigate = useNavigate();
   const { invoiceId } = useParams<{ invoiceId: string }>();
@@ -15,8 +18,10 @@ export default function InvoiceDetailPage() {
 
   if (!invoice) return <Navigate to={ROUTES.invoices} replace />;
 
-  const linkedMemos = CREDIT_MEMOS.filter((m) =>
-    invoice.creditMemoIds?.includes(m.memoNumber),
+  const linkedMemos = CREDIT_MEMOS.filter(
+    (m) =>
+      invoice.creditMemoIds?.includes(m.memoNumber) ||
+      m.relatedInvoiceNumber === invoice.invoiceNumber,
   );
   const paid = invoice.amountDue === 0;
 
@@ -236,20 +241,28 @@ export default function InvoiceDetailPage() {
                 {linkedMemos.map((m) => (
                   <div
                     key={m.memoNumber}
-                    className="flex items-center justify-between gap-3 px-5 py-3.5"
+                    className="flex items-start justify-between gap-3 px-5 py-3.5"
                   >
                     <div className="min-w-0">
-                      <div className="mono text-sm font-medium text-foreground">
-                        {m.memoNumber}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="mono text-sm font-medium text-foreground">
+                          {m.memoNumber}
+                        </span>
+                        <StatusBadge status={m.status} />
                       </div>
-                      <div className="text-xs text-muted-foreground mt-0.5">
+                      <div className="text-xs text-muted-foreground mt-1">
                         {m.reason}
                       </div>
                     </div>
                     <div className="text-right shrink-0">
                       <div className="mono text-sm font-semibold text-foreground tabular-nums">
-                        {fmt(m.amount)}
+                        {fmt(m.balance)}
                       </div>
+                      {m.balance !== m.originalAmount && (
+                        <div className="mono text-[11px] text-muted-foreground mt-0.5 tabular-nums">
+                          of {fmt(m.originalAmount)}
+                        </div>
+                      )}
                       <div className="text-xs text-muted-foreground mt-0.5">
                         {m.date}
                       </div>
