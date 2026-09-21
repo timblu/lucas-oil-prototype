@@ -303,7 +303,7 @@ function FinancialTab() {
 
 export default function AccountPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       <PageHeader title="Account" />
 
       <Tabs defaultValue="info" className="gap-6">
