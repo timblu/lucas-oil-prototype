@@ -1,11 +1,19 @@
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { ChevronRight, Download, MapPin, Receipt, Truck } from "lucide-react";
+import {
+  ChevronRight,
+  CreditCard,
+  Download,
+  MapPin,
+  Receipt,
+  Truck,
+} from "lucide-react";
 import { Card } from "../../components/shared/Card";
 import { PageHeader } from "../../components/shared/PageHeader";
 import { StatusBadge } from "../../components/shared/StatusBadge";
 import { INVOICES } from "../../data/invoices";
 import { CREDIT_MEMOS } from "../../data/account";
 import { fmt } from "../../lib/format";
+import { getPaymentSummary } from "../../lib/invoicePayments";
 import { ROUTES } from "../../routes";
 
 // Linked credit memos use Applied/Open + remaining balance. Cross-link
@@ -23,7 +31,9 @@ export default function InvoiceDetailPage() {
       invoice.creditMemoIds?.includes(m.memoNumber) ||
       m.relatedInvoiceNumber === invoice.invoiceNumber,
   );
-  const paid = invoice.amountDue === 0;
+  const { payments, totalPaid, isPaidInFull, isPartiallyPaid } =
+    getPaymentSummary(invoice);
+  const paid = isPaidInFull;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -32,17 +42,14 @@ export default function InvoiceDetailPage() {
         back="Back to Invoices"
         onBack={() => navigate(ROUTES.invoices)}
         action={
-          <div className="flex flex-col items-end gap-1 shrink-0">
-            <button
-              type="button"
-              disabled
-              className="flex items-center gap-2 bg-muted text-muted-foreground text-sm font-medium px-3.5 py-2 rounded-lg cursor-not-allowed"
-            >
-              <Download size={14} />
-              Download PDF
-            </button>
-            <p className="text-xs text-muted-foreground">Available soon</p>
-          </div>
+          <button
+            type="button"
+            disabled
+            className="flex items-center gap-2 bg-muted text-muted-foreground text-sm font-medium px-3.5 py-2 rounded-lg cursor-not-allowed shrink-0"
+          >
+            <Download size={14} />
+            Download PDF
+          </button>
         }
       />
 
@@ -69,6 +76,11 @@ export default function InvoiceDetailPage() {
                 <div className="text-sm text-muted-foreground mt-1">
                   Due {invoice.dueDate}
                 </div>
+                {isPartiallyPaid && (
+                  <div className="mono text-xs text-muted-foreground mt-1">
+                    {fmt(totalPaid)} paid of {fmt(invoice.total)}
+                  </div>
+                )}
               </>
             )}
           </div>
@@ -187,24 +199,82 @@ export default function InvoiceDetailPage() {
                   {fmt(invoice.total)}
                 </span>
               </div>
-              {paid ? (
-                <div className="flex justify-between font-semibold text-foreground">
-                  <span>Paid</span>
-                  <span className="mono tabular-nums">{fmt(invoice.total)}</span>
-                </div>
-              ) : (
-                <div className="flex justify-between font-semibold text-foreground">
-                  <span>Amount due</span>
-                  <span className="mono tabular-nums text-base text-[#111]">
-                    {fmt(invoice.amountDue)}
-                  </span>
+              {totalPaid > 0 && (
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Payments applied</span>
+                  <span className="mono tabular-nums">−{fmt(totalPaid)}</span>
                 </div>
               )}
+              <div className="flex justify-between font-semibold text-foreground">
+                <span>Amount due</span>
+                <span className="mono tabular-nums text-base text-[#111]">
+                  {fmt(invoice.amountDue)}
+                </span>
+              </div>
             </div>
           </div>
         </Card>
 
         <div className="space-y-5">
+          <Card>
+            <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
+              <CreditCard size={15} className="text-muted-foreground" />
+              <h2 className="font-semibold text-sm">Payments</h2>
+              {payments.length > 0 && (
+                <span className="ml-auto text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
+                  {payments.length}
+                </span>
+              )}
+            </div>
+            {payments.length === 0 ? (
+              <div className="px-5 py-4 text-sm text-muted-foreground">
+                No payments applied yet.
+              </div>
+            ) : (
+              <>
+                <div className="divide-y divide-border">
+                  {payments.map((payment) => (
+                    <div
+                      key={payment.id}
+                      className="flex items-start justify-between gap-3 px-5 py-3.5"
+                    >
+                      <div className="min-w-0">
+                        <div className="text-sm font-medium text-foreground">
+                          {payment.method}
+                        </div>
+                        {payment.reference && (
+                          <div className="mono text-xs text-muted-foreground mt-0.5 break-all">
+                            {payment.reference}
+                          </div>
+                        )}
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="mono text-sm font-semibold text-foreground tabular-nums">
+                          {fmt(payment.amount)}
+                        </div>
+                        <div className="text-xs text-muted-foreground mt-0.5">
+                          {payment.date}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="px-5 py-3.5 border-t border-border space-y-1.5 text-sm">
+                  <div className="flex justify-between font-medium text-foreground">
+                    <span>Total paid</span>
+                    <span className="mono tabular-nums">{fmt(totalPaid)}</span>
+                  </div>
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Remaining</span>
+                    <span className="mono tabular-nums">
+                      {fmt(invoice.amountDue)}
+                    </span>
+                  </div>
+                </div>
+              </>
+            )}
+          </Card>
+
           <Card className="p-5">
             <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
               <MapPin size={12} /> Ship To
@@ -272,10 +342,6 @@ export default function InvoiceDetailPage() {
               </div>
             </Card>
           )}
-
-          <p className="text-xs text-muted-foreground">
-            View-only — no payment or dispute actions in Phase 1.
-          </p>
         </div>
       </div>
     </div>
