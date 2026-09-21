@@ -40,7 +40,21 @@ export interface Product {
   colorClass: string;
 }
 
-export type PaymentMethod = "ACH" | "Check" | "Wire" | "Credit Card";
+export type PaymentMethod =
+  | "ACH"
+  | "Check"
+  | "Wire"
+  | "Credit Card"
+  | "Credit Memo";
+
+export interface Payment {
+  id: string;
+  date: string;
+  amount: number;
+  method: PaymentMethod;
+  /** Check number, ACH trace, card last four, or credit memo number */
+  reference?: string;
+}
 
 export interface Invoice {
   id: string;
@@ -58,9 +72,8 @@ export interface Invoice {
   tax: number;
   shipping: number;
   total: number;
+  /** Remaining balance: total less every payment applied below */
   amountDue: number;
-  amountPaid?: number;
-  paymentDate?: string;
-  paymentMethod?: PaymentMethod;
+  payments?: Payment[];
   creditMemoIds?: string[];
 }

@@ -14,8 +14,8 @@ export const DISTRIBUTOR_ACCOUNT = {
 
 export const ACCOUNT_SNAPSHOT = {
   totalCreditLine: 50000,
-  availableCredit: 45023,
-  currentBalance: 4977,
+  availableCredit: 45968.6,
+  currentBalance: 4031.4,
 } as const;
 
 /**
