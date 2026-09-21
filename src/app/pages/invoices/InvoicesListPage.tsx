@@ -94,7 +94,7 @@ export default function InvoicesListPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-page mx-auto px-4 sm:px-6 py-8">
       <PageHeader title="Invoices" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">

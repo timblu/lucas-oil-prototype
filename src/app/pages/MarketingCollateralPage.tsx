@@ -269,7 +269,7 @@ export default function MarketingCollateralPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-page mx-auto px-4 sm:px-6 py-8">
       <PageHeader
         title="Marketing Collateral"
         back="Back to Dashboard"

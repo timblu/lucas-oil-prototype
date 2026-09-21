@@ -37,7 +37,7 @@ export default function OrderDetailPage() {
   const stepIdx = Math.max(0, steps.indexOf(order.status));
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-page mx-auto px-4 sm:px-6 py-8">
       <PageHeader
         title={`${order.id}  —  ${order.date}`}
         back="Back to Orders"

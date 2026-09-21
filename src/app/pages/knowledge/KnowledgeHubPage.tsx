@@ -78,7 +78,7 @@ export default function KnowledgeHubPage() {
           aria-hidden
         />
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-10 flex flex-col justify-center min-h-[inherit]">
+        <div className="relative z-10 max-w-page mx-auto px-4 sm:px-6 py-8 sm:py-10 flex flex-col justify-center min-h-[inherit]">
           <button
             type="button"
             onClick={() => navigate(ROUTES.dashboard)}
@@ -115,7 +115,7 @@ export default function KnowledgeHubPage() {
         </div>
       </section>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+      <div className="max-w-page mx-auto px-4 sm:px-6 py-8">
         {filtered.length === 0 ? (
           <p className="text-sm text-muted-foreground text-center py-12">
             No resources match your search.
@@ -150,7 +150,7 @@ export default function KnowledgeHubPage() {
         )}
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 pb-8">
+      <div className="max-w-page mx-auto px-4 sm:px-6 pb-8">
         <ProductInfoVideoGrid
           limit={6}
           onViewAll={() => navigate(ROUTES.productVideos)}

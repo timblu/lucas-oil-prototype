@@ -31,7 +31,7 @@ export function TopNav() {
 
   return (
     <header className="bg-white sticky top-0 z-40 border-b border-[rgba(0,0,0,0.1)]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center h-14 gap-6">
+      <div className="max-w-page mx-auto px-4 sm:px-6 flex items-center h-14 gap-6">
         <Link to={ROUTES.dashboard} className="flex items-center gap-1.5 mr-2 shrink-0">
           <LucasOilLogo />
         </Link>
