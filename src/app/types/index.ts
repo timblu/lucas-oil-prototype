@@ -40,6 +40,8 @@ export interface Product {
   colorClass: string;
 }
 
+export type PaymentMethod = "ACH" | "Check" | "Wire" | "Credit Card";
+
 export interface Invoice {
   id: string;
   invoiceNumber: string;
@@ -57,5 +59,8 @@ export interface Invoice {
   shipping: number;
   total: number;
   amountDue: number;
+  amountPaid?: number;
+  paymentDate?: string;
+  paymentMethod?: PaymentMethod;
   creditMemoIds?: string[];
 }

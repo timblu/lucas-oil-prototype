@@ -37,6 +37,9 @@ export const INVOICES: Invoice[] = [
     shipping: 54.0,
     total: 2281.0,
     amountDue: 0,
+    amountPaid: 2281.0,
+    paymentDate: "04/02/26",
+    paymentMethod: "ACH",
   },
   {
     id: "INV-20042",

@@ -1,5 +1,12 @@
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { ChevronRight, Download, MapPin, Receipt, Truck } from "lucide-react";
+import {
+  ChevronRight,
+  CreditCard,
+  Download,
+  MapPin,
+  Receipt,
+  Truck,
+} from "lucide-react";
 import { Card } from "../../components/shared/Card";
 import { PageHeader } from "../../components/shared/PageHeader";
 import { StatusBadge } from "../../components/shared/StatusBadge";
@@ -32,17 +39,14 @@ export default function InvoiceDetailPage() {
         back="Back to Invoices"
         onBack={() => navigate(ROUTES.invoices)}
         action={
-          <div className="flex flex-col items-end gap-1 shrink-0">
-            <button
-              type="button"
-              disabled
-              className="flex items-center gap-2 bg-muted text-muted-foreground text-sm font-medium px-3.5 py-2 rounded-lg cursor-not-allowed"
-            >
-              <Download size={14} />
-              Download PDF
-            </button>
-            <p className="text-xs text-muted-foreground">Available soon</p>
-          </div>
+          <button
+            type="button"
+            disabled
+            className="flex items-center gap-2 bg-muted text-muted-foreground text-sm font-medium px-3.5 py-2 rounded-lg cursor-not-allowed shrink-0"
+          >
+            <Download size={14} />
+            Download PDF
+          </button>
         }
       />
 
@@ -190,7 +194,9 @@ export default function InvoiceDetailPage() {
               {paid ? (
                 <div className="flex justify-between font-semibold text-foreground">
                   <span>Paid</span>
-                  <span className="mono tabular-nums">{fmt(invoice.total)}</span>
+                  <span className="mono tabular-nums">
+                    {fmt(invoice.amountPaid ?? invoice.total)}
+                  </span>
                 </div>
               ) : (
                 <div className="flex justify-between font-semibold text-foreground">
@@ -205,6 +211,38 @@ export default function InvoiceDetailPage() {
         </Card>
 
         <div className="space-y-5">
+          <Card className="p-5">
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3 flex items-center gap-1.5">
+              <CreditCard size={12} /> Payment
+            </div>
+            <dl className="space-y-3">
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                  Amount paid
+                </dt>
+                <dd className="mono text-sm font-medium text-foreground tabular-nums">
+                  {invoice.amountPaid != null ? fmt(invoice.amountPaid) : "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                  Payment date
+                </dt>
+                <dd className="text-sm font-medium text-foreground">
+                  {invoice.paymentDate ?? "—"}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+                  Payment method
+                </dt>
+                <dd className="text-sm font-medium text-foreground">
+                  {invoice.paymentMethod ?? "—"}
+                </dd>
+              </div>
+            </dl>
+          </Card>
+
           <Card className="p-5">
             <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
               <MapPin size={12} /> Ship To
@@ -272,10 +310,6 @@ export default function InvoiceDetailPage() {
               </div>
             </Card>
           )}
-
-          <p className="text-xs text-muted-foreground">
-            View-only — no payment or dispute actions in Phase 1.
-          </p>
         </div>
       </div>
     </div>
