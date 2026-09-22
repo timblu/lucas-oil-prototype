@@ -1,10 +1,9 @@
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
-  CheckCircle2,
   ChevronDown,
   ChevronRight,
-  CircleDollarSign,
+  MapPin,
   Package,
   Search,
   Truck,
@@ -34,34 +33,24 @@ const STATUS_FILTER_OPTIONS: StatusFilter[] = [
   "Delivered",
 ];
 
-function orderCountLabel(count: number) {
-  return `${count} order${count === 1 ? "" : "s"}`;
-}
-
 function matchesStatusFilter(order: Order, filter: StatusFilter) {
   if (filter === "All") return true;
-  if (filter === "In Progress") return order.status !== "Delivered";
-  if (filter === "In Transit") {
-    return order.status === "Shipping" || order.status === "Out for Delivery";
+  if (filter === "In Progress") {
+    return order.status === "Received" || order.status === "Picked";
   }
+  if (filter === "In Transit") return order.status === "Shipping";
   return order.status === filter;
-}
-
-function sumOrderTotals(orders: Order[]) {
-  return orders.reduce((sum, o) => sum + o.total, 0);
 }
 
 function SummaryCard({
   label,
-  value,
-  hint,
+  count,
   icon,
   active,
   onClick,
 }: {
   label: string;
-  value: string;
-  hint: string;
+  count: number;
   icon: ReactNode;
   active: boolean;
   onClick: () => void;
@@ -83,9 +72,8 @@ function SummaryCard({
           {label}
         </div>
         <div className="mono text-2xl font-semibold text-foreground tracking-tight">
-          {value}
+          {count}
         </div>
-        <div className="text-xs text-muted-foreground mt-0.5">{hint}</div>
       </div>
     </button>
   );
@@ -96,15 +84,13 @@ export default function OrdersListPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
 
-  const inProgressOrders = ORDERS.filter((o) => o.status !== "Delivered");
-  const inTransitOrders = ORDERS.filter(
-    (o) => o.status === "Shipping" || o.status === "Out for Delivery",
-  );
-  const deliveredOrders = ORDERS.filter((o) => o.status === "Delivered");
-  const totalValue = sumOrderTotals(ORDERS);
-  const inProgressValue = sumOrderTotals(inProgressOrders);
-  const inTransitValue = sumOrderTotals(inTransitOrders);
-  const deliveredValue = sumOrderTotals(deliveredOrders);
+  const inProgressCount = ORDERS.filter(
+    (o) => o.status === "Received" || o.status === "Picked",
+  ).length;
+  const inTransitCount = ORDERS.filter((o) => o.status === "Shipping").length;
+  const outForDeliveryCount = ORDERS.filter(
+    (o) => o.status === "Out for Delivery",
+  ).length;
 
   const filtered = ORDERS.filter((o) => {
     const q = search.toLowerCase();
@@ -125,38 +111,27 @@ export default function OrdersListPage() {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       <PageHeader title="Orders" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
-        <SummaryCard
-          label="Total value"
-          value={fmtShort(totalValue)}
-          hint={orderCountLabel(ORDERS.length)}
-          icon={<CircleDollarSign size={20} className="text-foreground" />}
-          active={false}
-          onClick={() => setStatusFilter("All")}
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
         <SummaryCard
           label="In progress"
-          value={fmtShort(inProgressValue)}
-          hint={orderCountLabel(inProgressOrders.length)}
+          count={inProgressCount}
           icon={<Package size={20} className="text-foreground" />}
           active={statusFilter === "In Progress"}
           onClick={() => toggleStatus("In Progress")}
         />
         <SummaryCard
           label="In transit"
-          value={fmtShort(inTransitValue)}
-          hint={orderCountLabel(inTransitOrders.length)}
+          count={inTransitCount}
           icon={<Truck size={20} className="text-foreground" />}
           active={statusFilter === "In Transit"}
           onClick={() => toggleStatus("In Transit")}
         />
         <SummaryCard
-          label="Delivered"
-          value={fmtShort(deliveredValue)}
-          hint={orderCountLabel(deliveredOrders.length)}
-          icon={<CheckCircle2 size={20} className="text-foreground" />}
-          active={statusFilter === "Delivered"}
-          onClick={() => toggleStatus("Delivered")}
+          label="Out for delivery"
+          count={outForDeliveryCount}
+          icon={<MapPin size={20} className="text-foreground" />}
+          active={statusFilter === "Out for Delivery"}
+          onClick={() => toggleStatus("Out for Delivery")}
         />
       </div>
 
