@@ -142,7 +142,7 @@ function CreditSnapshot({ onViewOpenMemos }: { onViewOpenMemos: () => void }) {
 
   return (
     <Card className="p-5 sm:p-6 mb-6">
-      <div className="flex flex-col lg:flex-row lg:items-start gap-5 lg:gap-8">
+      <div className="flex flex-col lg:flex-row lg:items-stretch gap-5 lg:gap-8">
         <div className="min-w-0 flex-1">
           <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
             Available credit
@@ -151,9 +151,9 @@ function CreditSnapshot({ onViewOpenMemos }: { onViewOpenMemos: () => void }) {
             {fmt(availableCredit)}
           </div>
           <p className="text-sm text-muted-foreground mt-1">
-            {fmt(currentBalance)} used of a {fmt(totalCreditLine)} credit line
+            {fmt(currentBalance)} currently in use
           </p>
-          <div className="mt-4 max-w-xl">
+          <div className="mt-4">
             <div
               role="progressbar"
               aria-valuenow={Math.round(usedPct)}
@@ -171,7 +171,7 @@ function CreditSnapshot({ onViewOpenMemos }: { onViewOpenMemos: () => void }) {
               <span className="font-medium uppercase tracking-wider">
                 {Math.round(usedPct)}% used
               </span>
-              <span>{fmt(availableCredit)} still available</span>
+              <span>{fmt(totalCreditLine)} credit line</span>
             </div>
           </div>
         </div>
@@ -180,7 +180,7 @@ function CreditSnapshot({ onViewOpenMemos }: { onViewOpenMemos: () => void }) {
           <button
             type="button"
             onClick={onViewOpenMemos}
-            className={`lg:max-w-xs w-full text-left rounded-xl border border-border bg-muted/40 px-4 py-3.5 hover:bg-muted hover:border-[#999]/50 transition-colors group ${focusRing}`}
+            className={`lg:w-64 lg:shrink-0 w-full text-left rounded-xl border border-border bg-muted/40 px-4 py-3.5 hover:bg-muted hover:border-[#999]/50 transition-colors group flex flex-col justify-center ${focusRing}`}
           >
             <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
               Open credit
@@ -209,24 +209,19 @@ function CreditSnapshot({ onViewOpenMemos }: { onViewOpenMemos: () => void }) {
 
 function AccountInfoTab() {
   return (
-    <div className="space-y-4">
-      <p className="text-sm text-muted-foreground">
-        Locations on file for {DISTRIBUTOR_ACCOUNT.legalName}.
-      </p>
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <AddressCard
-          label="Ship-to"
-          hint="Where orders are delivered"
-          address={DISTRIBUTOR_ACCOUNT.shipToAddress}
-          icon={<Truck size={18} />}
-        />
-        <AddressCard
-          label="Bill-to"
-          hint="Where invoices are billed"
-          address={DISTRIBUTOR_ACCOUNT.billToAddress}
-          icon={<Receipt size={18} />}
-        />
-      </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <AddressCard
+        label="Ship-to"
+        hint="Where orders are delivered"
+        address={DISTRIBUTOR_ACCOUNT.shipToAddress}
+        icon={<Truck size={18} />}
+      />
+      <AddressCard
+        label="Bill-to"
+        hint="Where invoices are billed"
+        address={DISTRIBUTOR_ACCOUNT.billToAddress}
+        icon={<Receipt size={18} />}
+      />
     </div>
   );
 }
