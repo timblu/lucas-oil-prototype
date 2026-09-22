@@ -1,12 +1,12 @@
 import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  AlertCircle,
   ChevronDown,
   ChevronRight,
-  MapPin,
   Package,
+  Receipt,
   Search,
-  Truck,
 } from "lucide-react";
 import { Card } from "../../components/shared/Card";
 import { PageHeader } from "../../components/shared/PageHeader";
@@ -16,16 +16,15 @@ import { fmtShort } from "../../lib/format";
 import { ROUTES } from "../../routes";
 import type { Order } from "../../types";
 
-type StatusFilter =
-  | "All"
-  | "In Progress"
-  | "In Transit"
-  | Order["status"];
+type SummaryFilter = "Pending" | "Open" | "Due";
+
+type StatusFilter = "All" | SummaryFilter | Order["status"];
 
 const STATUS_FILTER_OPTIONS: StatusFilter[] = [
   "All",
-  "In Progress",
-  "In Transit",
+  "Pending",
+  "Open",
+  "Due",
   "Received",
   "Picked",
   "Shipping",
@@ -35,10 +34,11 @@ const STATUS_FILTER_OPTIONS: StatusFilter[] = [
 
 function matchesStatusFilter(order: Order, filter: StatusFilter) {
   if (filter === "All") return true;
-  if (filter === "In Progress") {
+  if (filter === "Pending") {
     return order.status === "Received" || order.status === "Picked";
   }
-  if (filter === "In Transit") return order.status === "Shipping";
+  if (filter === "Open") return order.status === "Shipping";
+  if (filter === "Due") return order.status === "Out for Delivery";
   return order.status === filter;
 }
 
@@ -84,13 +84,11 @@ export default function OrdersListPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
 
-  const inProgressCount = ORDERS.filter(
+  const pendingOrders = ORDERS.filter(
     (o) => o.status === "Received" || o.status === "Picked",
-  ).length;
-  const inTransitCount = ORDERS.filter((o) => o.status === "Shipping").length;
-  const outForDeliveryCount = ORDERS.filter(
-    (o) => o.status === "Out for Delivery",
-  ).length;
+  );
+  const openOrders = ORDERS.filter((o) => o.status === "Shipping");
+  const dueOrders = ORDERS.filter((o) => o.status === "Out for Delivery");
 
   const filtered = ORDERS.filter((o) => {
     const q = search.toLowerCase();
@@ -103,7 +101,7 @@ export default function OrdersListPage() {
     return matchQ && matchS;
   });
 
-  function toggleStatus(next: StatusFilter) {
+  function toggleSummaryFilter(next: SummaryFilter) {
     setStatusFilter((current) => (current === next ? "All" : next));
   }
 
@@ -113,25 +111,25 @@ export default function OrdersListPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
         <SummaryCard
-          label="In progress"
-          count={inProgressCount}
+          label="Pending"
+          count={pendingOrders.length}
           icon={<Package size={20} className="text-foreground" />}
-          active={statusFilter === "In Progress"}
-          onClick={() => toggleStatus("In Progress")}
+          active={statusFilter === "Pending"}
+          onClick={() => toggleSummaryFilter("Pending")}
         />
         <SummaryCard
-          label="In transit"
-          count={inTransitCount}
-          icon={<Truck size={20} className="text-foreground" />}
-          active={statusFilter === "In Transit"}
-          onClick={() => toggleStatus("In Transit")}
+          label="Open"
+          count={openOrders.length}
+          icon={<Receipt size={20} className="text-foreground" />}
+          active={statusFilter === "Open"}
+          onClick={() => toggleSummaryFilter("Open")}
         />
         <SummaryCard
-          label="Out for delivery"
-          count={outForDeliveryCount}
-          icon={<MapPin size={20} className="text-foreground" />}
-          active={statusFilter === "Out for Delivery"}
-          onClick={() => toggleStatus("Out for Delivery")}
+          label="Due"
+          count={dueOrders.length}
+          icon={<AlertCircle size={20} className="text-foreground" />}
+          active={statusFilter === "Due"}
+          onClick={() => toggleSummaryFilter("Due")}
         />
       </div>
 
