@@ -37,6 +37,22 @@ export const INVOICES: Invoice[] = [
     shipping: 54.0,
     total: 2281.0,
     amountDue: 0,
+    payments: [
+      {
+        id: "PMT-5501",
+        date: "03/28/26",
+        amount: 1500.0,
+        method: "ACH",
+        reference: "ACH-7741021",
+      },
+      {
+        id: "PMT-5518",
+        date: "04/02/26",
+        amount: 781.0,
+        method: "Check",
+        reference: "Check #20418",
+      },
+    ],
   },
   {
     id: "INV-20042",
@@ -67,7 +83,23 @@ export const INVOICES: Invoice[] = [
     tax: 99.0,
     shipping: 42.0,
     total: 1464.0,
-    amountDue: 1464.0,
+    amountDue: 809.5,
+    payments: [
+      {
+        id: "PMT-5504",
+        date: "03/20/26",
+        amount: 154.5,
+        method: "Credit Memo",
+        reference: "CM-3001",
+      },
+      {
+        id: "PMT-5522",
+        date: "04/01/26",
+        amount: 500.0,
+        method: "ACH",
+        reference: "ACH-7748330",
+      },
+    ],
     creditMemoIds: ["CM-3001"],
   },
   {
@@ -124,7 +156,16 @@ export const INVOICES: Invoice[] = [
     tax: 198.5,
     shipping: 68.0,
     total: 2912.5,
-    amountDue: 2912.5,
+    amountDue: 2600.5,
+    payments: [
+      {
+        id: "PMT-5489",
+        date: "02/25/26",
+        amount: 312.0,
+        method: "Credit Memo",
+        reference: "CM-3002",
+      },
+    ],
     creditMemoIds: ["CM-3002"],
   },
 ];
