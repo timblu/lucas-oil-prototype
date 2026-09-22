@@ -1,94 +1,17 @@
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-  AlertCircle,
-  ChevronDown,
-  ChevronRight,
-  Package,
-  Receipt,
-  Search,
-} from "lucide-react";
+import { ChevronDown, ChevronRight, Search } from "lucide-react";
 import { Card } from "../../components/shared/Card";
 import { PageHeader } from "../../components/shared/PageHeader";
 import { StatusBadge } from "../../components/shared/StatusBadge";
 import { ORDERS } from "../../data/orders";
 import { fmtShort } from "../../lib/format";
 import { ROUTES } from "../../routes";
-import type { Order } from "../../types";
-
-type SummaryFilter = "Pending" | "Open" | "Due";
-
-type StatusFilter = "All" | SummaryFilter | Order["status"];
-
-const STATUS_FILTER_OPTIONS: StatusFilter[] = [
-  "All",
-  "Pending",
-  "Open",
-  "Due",
-  "Received",
-  "Picked",
-  "Shipping",
-  "Out for Delivery",
-  "Delivered",
-];
-
-function matchesStatusFilter(order: Order, filter: StatusFilter) {
-  if (filter === "All") return true;
-  if (filter === "Pending") {
-    return order.status === "Received" || order.status === "Picked";
-  }
-  if (filter === "Open") return order.status === "Shipping";
-  if (filter === "Due") return order.status === "Out for Delivery";
-  return order.status === filter;
-}
-
-function SummaryCard({
-  label,
-  count,
-  icon,
-  active,
-  onClick,
-}: {
-  label: string;
-  count: number;
-  icon: ReactNode;
-  active: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={`bg-card border rounded-xl px-5 py-4 text-left hover:shadow-md transition-all group flex items-center gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111]/30 ${
-        active ? "border-[#111] shadow-sm" : "border-border"
-      }`}
-    >
-      <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
-        {icon}
-      </div>
-      <div className="min-w-0">
-        <div className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-0.5">
-          {label}
-        </div>
-        <div className="mono text-2xl font-semibold text-foreground tracking-tight">
-          {count}
-        </div>
-      </div>
-    </button>
-  );
-}
 
 export default function OrdersListPage() {
   const navigate = useNavigate();
   const [search, setSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
-
-  const pendingOrders = ORDERS.filter(
-    (o) => o.status === "Received" || o.status === "Picked",
-  );
-  const openOrders = ORDERS.filter((o) => o.status === "Shipping");
-  const dueOrders = ORDERS.filter((o) => o.status === "Out for Delivery");
+  const [statusFilter, setStatusFilter] = useState("All");
 
   const filtered = ORDERS.filter((o) => {
     const q = search.toLowerCase();
@@ -97,41 +20,13 @@ export default function OrdersListPage() {
       o.id.toLowerCase().includes(q) ||
       o.po.toLowerCase().includes(q) ||
       o.shipTo.toLowerCase().includes(q);
-    const matchS = matchesStatusFilter(o, statusFilter);
+    const matchS = statusFilter === "All" || o.status === statusFilter;
     return matchQ && matchS;
   });
-
-  function toggleSummaryFilter(next: SummaryFilter) {
-    setStatusFilter((current) => (current === next ? "All" : next));
-  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       <PageHeader title="Orders" />
-
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
-        <SummaryCard
-          label="Pending"
-          count={pendingOrders.length}
-          icon={<Package size={20} className="text-foreground" />}
-          active={statusFilter === "Pending"}
-          onClick={() => toggleSummaryFilter("Pending")}
-        />
-        <SummaryCard
-          label="Open"
-          count={openOrders.length}
-          icon={<Receipt size={20} className="text-foreground" />}
-          active={statusFilter === "Open"}
-          onClick={() => toggleSummaryFilter("Open")}
-        />
-        <SummaryCard
-          label="Due"
-          count={dueOrders.length}
-          icon={<AlertCircle size={20} className="text-foreground" />}
-          active={statusFilter === "Due"}
-          onClick={() => toggleSummaryFilter("Due")}
-        />
-      </div>
 
       <div className="flex items-center gap-3 mb-5">
         <div className="relative flex-1 max-w-xs">
@@ -149,13 +44,18 @@ export default function OrdersListPage() {
         <div className="relative">
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
+            onChange={(e) => setStatusFilter(e.target.value)}
             className="appearance-none bg-card border border-border rounded-lg pl-3 pr-8 py-2 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring/20"
           >
-            {STATUS_FILTER_OPTIONS.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
+            {[
+              "All",
+              "Received",
+              "Picked",
+              "Shipping",
+              "Out for Delivery",
+              "Delivered",
+            ].map((s) => (
+              <option key={s}>{s}</option>
             ))}
           </select>
           <ChevronDown
