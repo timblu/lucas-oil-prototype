@@ -1,8 +1,15 @@
-import type { ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
-import { Building2, Mail, MapPin, Phone, User } from "lucide-react";
+import { useEffect, useRef, type ReactNode } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import {
+  ChevronRight,
+  Mail,
+  MapPin,
+  Phone,
+  Receipt,
+  Truck,
+  User,
+} from "lucide-react";
 import { Card } from "../components/shared/Card";
-import { PageHeader } from "../components/shared/PageHeader";
 import { StatusBadge } from "../components/shared/StatusBadge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
 import {
@@ -10,6 +17,7 @@ import {
   CREDIT_MEMOS,
   CUSTOMER_CONTACTS,
   DISTRIBUTOR_ACCOUNT,
+  type CreditMemo,
 } from "../data/account";
 import { fmt } from "../lib/format";
 import { ROUTES } from "../routes";
@@ -20,302 +28,629 @@ import { ROUTES } from "../routes";
 // remaining balance, related invoice) — confirm shape with Mark/Amber before
 // treating this list UI as final.
 
-// Sept 2026: Sign out moved from page-bottom into the persistent TopNav
-// header/profile area (see TopNav.tsx) so it's reachable from every page,
-// not just Account.
+const SECTIONS = ["info", "contacts", "financial"] as const;
+type Section = (typeof SECTIONS)[number];
 
-function DetailRow({
+const MEMO_FILTERS = ["all", "open", "applied"] as const;
+type MemoFilter = (typeof MEMO_FILTERS)[number];
+
+const focusRing =
+  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111]/30 focus-visible:ring-offset-2";
+
+function isSection(value: string | null): value is Section {
+  return SECTIONS.includes(value as Section);
+}
+
+function isMemoFilter(value: string | null): value is MemoFilter {
+  return MEMO_FILTERS.includes(value as MemoFilter);
+}
+
+function telHref(phone: string) {
+  const [base, ext] = phone.split(/\s*x/i);
+  const digits = base.replace(/[^\d+]/g, "");
+  return ext ? `tel:${digits};ext=${ext.trim()}` : `tel:${digits}`;
+}
+
+function initials(name: string) {
+  return name
+    .split(/[\s.]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase() ?? "")
+    .join("");
+}
+
+function splitAddress(address: string) {
+  const idx = address.lastIndexOf(",");
+  if (idx === -1) return { street: address, locality: "" };
+  return {
+    street: address.slice(0, idx),
+    locality: address.slice(idx + 1).trim(),
+  };
+}
+
+function parseMemoDate(date: string) {
+  const [month, day, year] = date.split("/").map(Number);
+  if (!month || !day || !year) return 0;
+  return new Date(2000 + year, month - 1, day).getTime();
+}
+
+function plural(count: number, singular: string, pluralLabel = `${singular}s`) {
+  return count === 1 ? singular : pluralLabel;
+}
+
+function ContactAction({
+  href,
+  icon,
+  children,
+}: {
+  href: string;
+  icon: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <a
+      href={href}
+      className={`inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium text-foreground hover:bg-muted/60 transition-colors ${focusRing}`}
+    >
+      <span className="text-muted-foreground shrink-0">{icon}</span>
+      <span className="break-all text-left">{children}</span>
+    </a>
+  );
+}
+
+function AddressCard({
   label,
-  value,
+  hint,
+  address,
   icon,
 }: {
   label: string;
-  value: string;
-  icon?: ReactNode;
+  hint: string;
+  address: string;
+  icon: ReactNode;
 }) {
+  const { street, locality } = splitAddress(address);
+
   return (
-    <div className="flex items-start gap-3 py-3.5">
-      {icon ? (
-        <div className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center text-muted-foreground shrink-0">
+    <Card className="p-5 h-full">
+      <div className="flex items-start gap-3">
+        <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center text-foreground shrink-0">
           {icon}
         </div>
-      ) : null}
-      <div className="min-w-0 flex-1">
-        <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-          {label}
+        <div className="min-w-0">
+          <div className="text-sm font-semibold text-foreground">{label}</div>
+          <div className="text-xs text-muted-foreground mt-0.5">{hint}</div>
         </div>
-        <div className="text-sm font-medium text-foreground leading-snug">
-          {value}
+      </div>
+      <address className="not-italic mt-4 text-sm leading-relaxed text-foreground">
+        <div className="font-medium">{street}</div>
+        {locality ? <div>{locality}</div> : null}
+      </address>
+    </Card>
+  );
+}
+
+function CreditSnapshot({ onViewOpenMemos }: { onViewOpenMemos: () => void }) {
+  const { totalCreditLine, availableCredit, currentBalance } = ACCOUNT_SNAPSHOT;
+  const usedPct =
+    totalCreditLine > 0
+      ? Math.min(100, (currentBalance / totalCreditLine) * 100)
+      : 0;
+  const openMemos = CREDIT_MEMOS.filter((memo) => memo.status === "Open");
+  const openRemaining = openMemos.reduce((sum, memo) => sum + memo.balance, 0);
+
+  return (
+    <Card className="p-5 sm:p-6 mb-6">
+      <div className="flex flex-col lg:flex-row lg:items-start gap-5 lg:gap-8">
+        <div className="min-w-0 flex-1">
+          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Available credit
+          </div>
+          <div className="mono text-3xl font-semibold tracking-tight text-foreground mt-1 tabular-nums">
+            {fmt(availableCredit)}
+          </div>
+          <p className="text-sm text-muted-foreground mt-1">
+            {fmt(currentBalance)} used of a {fmt(totalCreditLine)} credit line
+          </p>
+          <div className="mt-4 max-w-xl">
+            <div
+              role="progressbar"
+              aria-valuenow={Math.round(usedPct)}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-label="Share of credit line currently used"
+              className="h-2 rounded-full bg-muted overflow-hidden"
+            >
+              <div
+                className="h-full rounded-full bg-[#111]"
+                style={{ width: `${usedPct}%` }}
+              />
+            </div>
+            <div className="flex items-center justify-between gap-3 mt-1.5 text-[11px] text-muted-foreground">
+              <span className="font-medium uppercase tracking-wider">
+                {Math.round(usedPct)}% used
+              </span>
+              <span>{fmt(availableCredit)} still available</span>
+            </div>
+          </div>
+        </div>
+
+        {openMemos.length > 0 ? (
+          <button
+            type="button"
+            onClick={onViewOpenMemos}
+            className={`lg:max-w-xs w-full text-left rounded-xl border border-border bg-muted/40 px-4 py-3.5 hover:bg-muted hover:border-[#999]/50 transition-colors group ${focusRing}`}
+          >
+            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Open credit
+            </div>
+            <div className="mt-1 flex items-center justify-between gap-3">
+              <div>
+                <div className="text-sm font-semibold text-foreground">
+                  {openMemos.length}{" "}
+                  {plural(openMemos.length, "memo")} to apply
+                </div>
+                <div className="mono text-sm text-muted-foreground mt-0.5 tabular-nums">
+                  {fmt(openRemaining)} remaining
+                </div>
+              </div>
+              <ChevronRight
+                size={16}
+                className="text-muted-foreground shrink-0 group-hover:translate-x-0.5 transition-transform"
+              />
+            </div>
+          </button>
+        ) : null}
+      </div>
+    </Card>
+  );
+}
+
+function AccountInfoTab() {
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Locations on file for {DISTRIBUTOR_ACCOUNT.legalName}.
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <AddressCard
+          label="Ship-to"
+          hint="Where orders are delivered"
+          address={DISTRIBUTOR_ACCOUNT.shipToAddress}
+          icon={<Truck size={18} />}
+        />
+        <AddressCard
+          label="Bill-to"
+          hint="Where invoices are billed"
+          address={DISTRIBUTOR_ACCOUNT.billToAddress}
+          icon={<Receipt size={18} />}
+        />
+      </div>
+    </div>
+  );
+}
+
+function ContactsTab() {
+  return (
+    <div className="space-y-5">
+      <p className="text-sm text-muted-foreground">
+        Your Lucas Oil representative, and the people at{" "}
+        {DISTRIBUTOR_ACCOUNT.shortName} we have on file.
+      </p>
+
+      <Card className="p-5 sm:p-6">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex items-center gap-3 min-w-0 flex-1">
+            <div
+              className="w-12 h-12 rounded-full bg-[#111] text-white flex items-center justify-center text-sm font-semibold shrink-0"
+              aria-hidden
+            >
+              {initials(DISTRIBUTOR_ACCOUNT.repName)}
+            </div>
+            <div className="min-w-0">
+              <div className="font-semibold text-foreground leading-snug">
+                {DISTRIBUTOR_ACCOUNT.repName}
+              </div>
+              <div className="text-sm text-muted-foreground mt-0.5">
+                Lucas Oil representative
+              </div>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 sm:justify-end">
+            <ContactAction
+              href={telHref(DISTRIBUTOR_ACCOUNT.repPhone)}
+              icon={<Phone size={14} />}
+            >
+              {DISTRIBUTOR_ACCOUNT.repPhone}
+            </ContactAction>
+            <ContactAction
+              href={`mailto:${DISTRIBUTOR_ACCOUNT.repEmail}`}
+              icon={<Mail size={14} />}
+            >
+              {DISTRIBUTOR_ACCOUNT.repEmail}
+            </ContactAction>
+          </div>
+        </div>
+      </Card>
+
+      <div>
+        <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
+          Customer contacts
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {CUSTOMER_CONTACTS.map((contact) => {
+            const isPrimary =
+              contact.name === DISTRIBUTOR_ACCOUNT.primaryContact;
+            return (
+              <Card key={contact.email} className="p-5 flex flex-col gap-4">
+                <div className="flex items-start gap-3">
+                  <div
+                    className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-xs font-semibold text-foreground shrink-0"
+                    aria-hidden
+                  >
+                    {initials(contact.name)}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <div className="text-sm font-semibold text-foreground">
+                        {contact.name}
+                      </div>
+                      {isPrimary ? (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold uppercase tracking-wide bg-[#111] text-white">
+                          Primary
+                        </span>
+                      ) : null}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {contact.role}
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-auto space-y-2">
+                  <a
+                    href={`mailto:${contact.email}`}
+                    className={`flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors rounded-md ${focusRing}`}
+                  >
+                    <Mail size={14} className="text-muted-foreground shrink-0" />
+                    <span className="break-all">{contact.email}</span>
+                  </a>
+                  <a
+                    href={telHref(contact.phone)}
+                    className={`flex items-center gap-2 text-sm text-foreground hover:text-primary transition-colors rounded-md ${focusRing}`}
+                  >
+                    <Phone size={14} className="text-muted-foreground shrink-0" />
+                    <span>{contact.phone}</span>
+                  </a>
+                </div>
+              </Card>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
 
-function ContactLinkRow({
-  icon,
-  href,
-  value,
-}: {
-  icon: ReactNode;
-  href: string;
-  value: string;
-}) {
-  return (
-    <a
-      href={href}
-      className="flex items-center gap-2.5 text-sm text-foreground hover:text-primary transition-colors group"
-    >
-      <span className="text-muted-foreground shrink-0">{icon}</span>
-      <span className="mono underline decoration-muted-foreground/40 underline-offset-2 group-hover:decoration-primary">
-        {value}
-      </span>
-    </a>
-  );
-}
-
-function AccountInfoTab() {
-  return (
-    <Card className="p-6">
-      <div className="flex items-center gap-3 pb-5 mb-1 border-b border-border">
-        <div className="w-12 h-12 rounded-xl bg-[#111]/8 flex items-center justify-center shrink-0">
-          <Building2 size={22} className="text-[#111]" />
-        </div>
-        <div className="min-w-0">
-          <div className="font-semibold text-foreground leading-snug">
-            {DISTRIBUTOR_ACCOUNT.legalName}
-          </div>
-          <div className="text-sm text-muted-foreground mt-0.5 mono">
-            Account #{DISTRIBUTOR_ACCOUNT.accountNumber}
-          </div>
-        </div>
-      </div>
-      <div className="divide-y divide-border">
-        <DetailRow
-          label="Territory"
-          value={DISTRIBUTOR_ACCOUNT.territory}
-          icon={<MapPin size={15} />}
-        />
-        <DetailRow
-          label="Ship-To Address"
-          value={DISTRIBUTOR_ACCOUNT.shipToAddress}
-          icon={<MapPin size={15} />}
-        />
-        <DetailRow
-          label="Bill-To Address"
-          value={DISTRIBUTOR_ACCOUNT.billToAddress}
-          icon={<MapPin size={15} />}
-        />
-      </div>
-    </Card>
-  );
-}
-
-function ContactsTab() {
-  return (
-    <Card className="overflow-hidden">
-      <div className="p-6 bg-muted/30">
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-11 h-11 rounded-xl bg-[#111]/8 flex items-center justify-center shrink-0">
-            <User size={20} className="text-[#111]" />
-          </div>
-          <div className="min-w-0">
-            <div className="text-sm font-semibold text-foreground leading-snug">
-              {DISTRIBUTOR_ACCOUNT.repName}
-            </div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-0.5">
-              Lucas Oil Rep
-            </div>
-          </div>
-        </div>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 sm:gap-6 pl-0 sm:pl-14">
-          <ContactLinkRow
-            icon={<Phone size={14} />}
-            href={`tel:${DISTRIBUTOR_ACCOUNT.repPhone.replace(/\s/g, "")}`}
-            value={DISTRIBUTOR_ACCOUNT.repPhone}
-          />
-          <ContactLinkRow
-            icon={<Mail size={14} />}
-            href={`mailto:${DISTRIBUTOR_ACCOUNT.repEmail}`}
-            value={DISTRIBUTOR_ACCOUNT.repEmail}
-          />
-        </div>
-      </div>
-
-      <div className="p-6 border-t border-border">
-        <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground/80 mb-3">
-          Customer Contacts
-        </div>
-        <div className="divide-y divide-border">
-          {CUSTOMER_CONTACTS.map((c) => (
-            <div
-              key={c.email}
-              className="py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2"
-            >
-              <div className="flex items-center gap-2.5">
-                <User size={14} className="text-muted-foreground shrink-0" />
-                <div>
-                  <div className="text-sm text-foreground">{c.name}</div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {c.role}
-                  </div>
-                </div>
-              </div>
-              <div className="flex flex-col sm:items-end gap-1.5 pl-6 sm:pl-0">
-                <ContactLinkRow
-                  icon={<Mail size={13} />}
-                  href={`mailto:${c.email}`}
-                  value={c.email}
-                />
-                <ContactLinkRow
-                  icon={<Phone size={13} />}
-                  href={`tel:${c.phone.replace(/\s/g, "")}`}
-                  value={c.phone}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-function FinancialTab() {
+function MemoInvoiceLink({ memo }: { memo: CreditMemo }) {
   const navigate = useNavigate();
 
+  if (!memo.relatedInvoiceNumber) {
+    return <span className="text-sm text-muted-foreground">—</span>;
+  }
+
   return (
-    <div className="space-y-5">
-      <Card className="p-6">
-        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-4">
-          Account Snapshot
+    <button
+      type="button"
+      onClick={() => navigate(ROUTES.invoice(memo.relatedInvoiceNumber!))}
+      className={`mono text-sm font-medium text-foreground underline decoration-muted-foreground/40 underline-offset-2 hover:decoration-primary hover:text-primary transition-colors rounded-sm ${focusRing}`}
+    >
+      {memo.relatedInvoiceNumber}
+    </button>
+  );
+}
+
+function CreditMemoCards({ memos }: { memos: CreditMemo[] }) {
+  return (
+    <div className="md:hidden divide-y divide-border">
+      {memos.map((memo) => (
+        <article key={memo.memoNumber} className="px-5 py-4 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <span className="mono text-sm font-semibold text-foreground">
+              {memo.memoNumber}
+            </span>
+            <StatusBadge status={memo.status} />
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Date
+              </div>
+              <div className="mono text-sm mt-0.5">{memo.date}</div>
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Original
+              </div>
+              <div className="mono text-sm mt-0.5 tabular-nums">
+                {fmt(memo.originalAmount)}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Remaining
+              </div>
+              <div className="mono text-sm font-semibold mt-0.5 tabular-nums">
+                {fmt(memo.balance)}
+              </div>
+            </div>
+            <div>
+              <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Invoice
+              </div>
+              <div className="mt-0.5">
+                <MemoInvoiceLink memo={memo} />
+              </div>
+            </div>
+          </div>
+          <p className="text-sm text-foreground">{memo.reason}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function CreditMemoTable({ memos }: { memos: CreditMemo[] }) {
+  return (
+    <div className="hidden md:block overflow-x-auto">
+      <table className="w-full min-w-[720px]" aria-label="Credit memos for this account">
+        <thead>
+          <tr className="border-b border-border">
+            {[
+              "Memo",
+              "Date",
+              "Original",
+              "Remaining",
+              "Status",
+              "Invoice",
+              "Reason",
+            ].map((heading) => (
+              <th
+                key={heading}
+                scope="col"
+                className="text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground px-5 py-3"
+              >
+                {heading}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border">
+          {memos.map((memo) => (
+            <tr key={memo.memoNumber} className="hover:bg-muted/30 transition-colors">
+              <td className="px-5 py-3.5 mono text-sm font-medium text-foreground">
+                {memo.memoNumber}
+              </td>
+              <td className="px-5 py-3.5 mono text-sm text-muted-foreground">
+                {memo.date}
+              </td>
+              <td className="px-5 py-3.5 mono text-sm text-foreground tabular-nums">
+                {fmt(memo.originalAmount)}
+              </td>
+              <td className="px-5 py-3.5 mono text-sm font-semibold text-foreground tabular-nums">
+                {fmt(memo.balance)}
+              </td>
+              <td className="px-5 py-3.5">
+                <StatusBadge status={memo.status} />
+              </td>
+              <td className="px-5 py-3.5">
+                <MemoInvoiceLink memo={memo} />
+              </td>
+              <td className="px-5 py-3.5 text-sm text-foreground max-w-[220px]">
+                {memo.reason}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function FinancialTab({
+  memoFilter,
+  onFilterChange,
+}: {
+  memoFilter: MemoFilter;
+  onFilterChange: (next: MemoFilter) => void;
+}) {
+  const memos = [...CREDIT_MEMOS].sort(
+    (a, b) => parseMemoDate(b.date) - parseMemoDate(a.date),
+  );
+  const counts: Record<MemoFilter, number> = {
+    all: memos.length,
+    open: memos.filter((memo) => memo.status === "Open").length,
+    applied: memos.filter((memo) => memo.status === "Applied").length,
+  };
+  const visible =
+    memoFilter === "all"
+      ? memos
+      : memos.filter((memo) => memo.status.toLowerCase() === memoFilter);
+
+  return (
+    <div id="credit-memos" className="space-y-4 scroll-mt-20">
+      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-semibold text-foreground">Credit memos</h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            Open memos still have a balance that can be applied. Applied memos
+            are already used.
+          </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-              Total Credit Line
-            </div>
-            <div className="mono text-lg font-semibold text-foreground">
-              {fmt(ACCOUNT_SNAPSHOT.totalCreditLine)}
-            </div>
-          </div>
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-              Available Credit
-            </div>
-            <div className="mono text-lg font-semibold text-foreground">
-              {fmt(ACCOUNT_SNAPSHOT.availableCredit)}
-            </div>
-          </div>
-          <div>
-            <div className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground mb-1">
-              Current Balance
-            </div>
-            <div className="mono text-lg font-semibold text-foreground">
-              {fmt(ACCOUNT_SNAPSHOT.currentBalance)}
-            </div>
-          </div>
+        <div className="flex items-center gap-1.5" role="group" aria-label="Filter credit memos">
+          {MEMO_FILTERS.map((filter) => {
+            const active = memoFilter === filter;
+            const label = filter[0].toUpperCase() + filter.slice(1);
+            return (
+              <button
+                key={filter}
+                type="button"
+                aria-pressed={active}
+                onClick={() => onFilterChange(filter)}
+                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${focusRing} ${
+                  active
+                    ? "bg-[#111] text-white"
+                    : "bg-card border border-border text-foreground hover:bg-muted"
+                }`}
+              >
+                {label}
+                <span className={active ? "text-white/70" : "text-muted-foreground"}>
+                  {counts[filter]}
+                </span>
+              </button>
+            );
+          })}
         </div>
+      </div>
+
+      <Card className="overflow-hidden">
+        {visible.length === 0 ? (
+          <div className="text-center px-6 py-10">
+            <p className="text-sm font-medium text-foreground">
+              No {memoFilter === "all" ? "" : `${memoFilter} `}credit memos
+            </p>
+            <p className="text-sm text-muted-foreground mt-1">
+              {memoFilter === "all"
+                ? "Credits issued to this account will show up here."
+                : "Switch the filter to see the other memos."}
+            </p>
+          </div>
+        ) : (
+          <>
+            <CreditMemoCards memos={visible} />
+            <CreditMemoTable memos={visible} />
+          </>
+        )}
       </Card>
 
-      <Card>
-        <div className="px-6 pt-6 pb-3">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Credit Memos
-          </div>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[760px]">
-            <thead>
-              <tr className="border-b border-border">
-                {[
-                  "Memo #",
-                  "Date",
-                  "Amount",
-                  "Balance",
-                  "Status",
-                  "Related Invoice",
-                  "Reason",
-                ].map((h) => (
-                  <th
-                    key={h}
-                    className="text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground px-6 py-3"
-                  >
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border">
-              {CREDIT_MEMOS.map((m) => (
-                <tr key={m.memoNumber}>
-                  <td className="px-6 py-3.5 mono text-sm font-medium text-foreground">
-                    {m.memoNumber}
-                  </td>
-                  <td className="px-6 py-3.5 mono text-sm text-muted-foreground">
-                    {m.date}
-                  </td>
-                  <td className="px-6 py-3.5 mono text-sm font-semibold text-foreground">
-                    {fmt(m.originalAmount)}
-                  </td>
-                  <td className="px-6 py-3.5 mono text-sm font-semibold text-foreground">
-                    {fmt(m.balance)}
-                  </td>
-                  <td className="px-6 py-3.5">
-                    <StatusBadge status={m.status} />
-                  </td>
-                  <td className="px-6 py-3.5">
-                    {m.relatedInvoiceNumber ? (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          navigate(ROUTES.invoice(m.relatedInvoiceNumber!))
-                        }
-                        className="mono text-sm font-medium text-foreground underline decoration-muted-foreground/40 underline-offset-2 hover:decoration-primary hover:text-primary transition-colors"
-                      >
-                        {m.relatedInvoiceNumber}
-                      </button>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">—</span>
-                    )}
-                  </td>
-                  <td className="px-6 py-3.5 text-sm text-foreground">
-                    {m.reason}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {CREDIT_MEMOS.length === 0 && (
-            <div className="text-center py-8 text-muted-foreground text-sm">
-              No credit memos on file.
-            </div>
-          )}
-        </div>
-      </Card>
-
-      <p className="text-xs text-muted-foreground italic">
-        View-only — no self-service credit requests in Phase 1.
+      <p className="text-sm text-muted-foreground">
+        Credit details are view-only. To request an adjustment, contact{" "}
+        <a
+          href={`mailto:${DISTRIBUTOR_ACCOUNT.repEmail}?subject=Credit%20adjustment%20for%20${encodeURIComponent(DISTRIBUTOR_ACCOUNT.accountNumber)}`}
+          className={`font-medium text-foreground underline decoration-muted-foreground/40 underline-offset-2 hover:text-primary hover:decoration-primary rounded-sm ${focusRing}`}
+        >
+          {DISTRIBUTOR_ACCOUNT.repName}
+        </a>
+        .
       </p>
     </div>
   );
 }
 
 export default function AccountPage() {
-  return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <PageHeader title="Account" />
+  const [searchParams, setSearchParams] = useSearchParams();
+  const pendingMemoScroll = useRef(false);
+  const rawSection = searchParams.get("section");
+  const rawMemo = searchParams.get("memo");
+  const section: Section = isSection(rawSection) ? rawSection : "info";
+  const memoFilter: MemoFilter = isMemoFilter(rawMemo) ? rawMemo : "all";
+  const openMemoCount = CREDIT_MEMOS.filter((memo) => memo.status === "Open").length;
 
-      <Tabs defaultValue="info" className="gap-6">
+  function writeParams(next: { section?: Section; memo?: MemoFilter }) {
+    const sectionValue = next.section ?? section;
+    const memoValue = next.memo ?? (sectionValue === "financial" ? memoFilter : "all");
+    const params = new URLSearchParams();
+    if (sectionValue !== "info") params.set("section", sectionValue);
+    if (sectionValue === "financial" && memoValue !== "all") {
+      params.set("memo", memoValue);
+    }
+    setSearchParams(params, { replace: true });
+  }
+
+  useEffect(() => {
+    const sectionInvalid = rawSection !== null && !isSection(rawSection);
+    const memoInvalid = rawMemo !== null && !isMemoFilter(rawMemo);
+    if (!sectionInvalid && !memoInvalid) return;
+    const params = new URLSearchParams(searchParams);
+    if (sectionInvalid) params.delete("section");
+    if (memoInvalid) params.delete("memo");
+    setSearchParams(params, { replace: true });
+  }, [rawMemo, rawSection, searchParams, setSearchParams]);
+
+  useEffect(() => {
+    if (section !== "financial" || !pendingMemoScroll.current) return;
+    pendingMemoScroll.current = false;
+    document.getElementById("credit-memos")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [section, memoFilter]);
+
+  return (
+    <div className="max-w-page mx-auto px-4 sm:px-6 py-8">
+      <header className="mb-6">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+          Account
+        </p>
+        <h1 className="text-2xl font-semibold text-foreground mt-1">
+          {DISTRIBUTOR_ACCOUNT.legalName}
+        </h1>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-muted-foreground">
+          <span className="mono">#{DISTRIBUTOR_ACCOUNT.accountNumber}</span>
+          <span className="inline-flex items-center gap-1.5">
+            <MapPin size={14} aria-hidden />
+            {DISTRIBUTOR_ACCOUNT.territory}
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <User size={14} aria-hidden />
+            {DISTRIBUTOR_ACCOUNT.repName}
+            <span aria-hidden>·</span>
+            Lucas Oil rep
+          </span>
+        </div>
+      </header>
+
+      <CreditSnapshot
+        onViewOpenMemos={() => {
+          if (section === "financial" && memoFilter === "open") {
+            document.getElementById("credit-memos")?.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+            return;
+          }
+          pendingMemoScroll.current = true;
+          writeParams({ section: "financial", memo: "open" });
+        }}
+      />
+
+      <Tabs
+        value={section}
+        onValueChange={(value) => {
+          if (isSection(value)) writeParams({ section: value });
+        }}
+        className="gap-5"
+      >
         <TabsList className="w-full sm:w-fit h-auto p-1">
-          <TabsTrigger value="info" className="flex-1 sm:flex-none px-4 py-2">
+          <TabsTrigger value="info" className="flex-1 sm:flex-none px-3 sm:px-4 py-2">
             Account Info
           </TabsTrigger>
-          <TabsTrigger value="contacts" className="flex-1 sm:flex-none px-4 py-2">
+          <TabsTrigger
+            value="contacts"
+            className="flex-1 sm:flex-none px-3 sm:px-4 py-2"
+          >
             Contacts
           </TabsTrigger>
-          <TabsTrigger value="financial" className="flex-1 sm:flex-none px-4 py-2">
+          <TabsTrigger
+            value="financial"
+            className="flex-1 sm:flex-none px-3 sm:px-4 py-2"
+          >
             Financial
+            {openMemoCount > 0 ? (
+              <span className="inline-flex min-w-5 h-5 items-center justify-center rounded-full bg-[#111] px-1.5 text-[10px] font-semibold text-white tabular-nums">
+                {openMemoCount}
+              </span>
+            ) : null}
           </TabsTrigger>
         </TabsList>
 
@@ -326,7 +661,10 @@ export default function AccountPage() {
           <ContactsTab />
         </TabsContent>
         <TabsContent value="financial">
-          <FinancialTab />
+          <FinancialTab
+            memoFilter={memoFilter}
+            onFilterChange={(next) => writeParams({ section: "financial", memo: next })}
+          />
         </TabsContent>
       </Tabs>
     </div>
