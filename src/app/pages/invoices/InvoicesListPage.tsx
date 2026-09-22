@@ -2,10 +2,9 @@ import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   AlertCircle,
-  CheckCircle2,
   ChevronDown,
   ChevronRight,
-  CircleDollarSign,
+  Clock,
   Receipt,
   Search,
 } from "lucide-react";
@@ -15,24 +14,29 @@ import { StatusBadge } from "../../components/shared/StatusBadge";
 import { INVOICES } from "../../data/invoices";
 import { fmtShort } from "../../lib/format";
 import { ROUTES } from "../../routes";
+import type { Invoice } from "../../types";
 
-type StatusFilter = "All" | "Paid" | "Open" | "Past Due";
+type SummaryFilter = "Pending" | "Open" | "Past Due";
 
-function invoiceCountLabel(count: number) {
-  return `${count} invoice${count === 1 ? "" : "s"}`;
+type StatusFilter = "All" | SummaryFilter | "Paid";
+
+function matchesStatusFilter(invoice: Invoice, filter: StatusFilter) {
+  if (filter === "All") return true;
+  if (filter === "Pending") {
+    return invoice.status === "Open" || invoice.status === "Past Due";
+  }
+  return invoice.status === filter;
 }
 
 function SummaryCard({
   label,
-  value,
-  hint,
+  count,
   icon,
   active,
   onClick,
 }: {
   label: string;
-  value: string;
-  hint: string;
+  count: number;
   icon: ReactNode;
   active: boolean;
   onClick: () => void;
@@ -54,9 +58,8 @@ function SummaryCard({
           {label}
         </div>
         <div className="mono text-2xl font-semibold text-foreground tracking-tight">
-          {value}
+          {count}
         </div>
-        <div className="text-xs text-muted-foreground mt-0.5">{hint}</div>
       </div>
     </button>
   );
@@ -67,16 +70,11 @@ export default function InvoicesListPage() {
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("All");
 
+  const pendingInvoices = INVOICES.filter(
+    (inv) => inv.status === "Open" || inv.status === "Past Due",
+  );
   const openInvoices = INVOICES.filter((inv) => inv.status === "Open");
   const pastDueInvoices = INVOICES.filter((inv) => inv.status === "Past Due");
-  const paidInvoices = INVOICES.filter((inv) => inv.status === "Paid");
-  const outstandingAmount = INVOICES.reduce((sum, inv) => sum + inv.amountDue, 0);
-  const openAmount = openInvoices.reduce((sum, inv) => sum + inv.amountDue, 0);
-  const pastDueAmount = pastDueInvoices.reduce(
-    (sum, inv) => sum + inv.amountDue,
-    0,
-  );
-  const paidAmount = paidInvoices.reduce((sum, inv) => sum + inv.total, 0);
 
   const filtered = INVOICES.filter((inv) => {
     const q = search.toLowerCase();
@@ -85,11 +83,11 @@ export default function InvoicesListPage() {
       inv.invoiceNumber.toLowerCase().includes(q) ||
       inv.orderId.toLowerCase().includes(q) ||
       inv.poNumber.toLowerCase().includes(q);
-    const matchS = statusFilter === "All" || inv.status === statusFilter;
+    const matchS = matchesStatusFilter(inv, statusFilter);
     return matchQ && matchS;
   });
 
-  function toggleStatus(next: StatusFilter) {
+  function toggleSummaryFilter(next: SummaryFilter) {
     setStatusFilter((current) => (current === next ? "All" : next));
   }
 
@@ -97,38 +95,27 @@ export default function InvoicesListPage() {
     <div className="max-w-page mx-auto px-4 sm:px-6 py-8">
       <PageHeader title="Invoices" />
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-5">
         <SummaryCard
-          label="Outstanding"
-          value={fmtShort(outstandingAmount)}
-          hint={invoiceCountLabel(openInvoices.length + pastDueInvoices.length)}
-          icon={<CircleDollarSign size={20} className="text-foreground" />}
-          active={false}
-          onClick={() => setStatusFilter("All")}
+          label="Pending"
+          count={pendingInvoices.length}
+          icon={<Clock size={20} className="text-foreground" />}
+          active={statusFilter === "Pending"}
+          onClick={() => toggleSummaryFilter("Pending")}
         />
         <SummaryCard
           label="Open"
-          value={fmtShort(openAmount)}
-          hint={invoiceCountLabel(openInvoices.length)}
+          count={openInvoices.length}
           icon={<Receipt size={20} className="text-foreground" />}
           active={statusFilter === "Open"}
-          onClick={() => toggleStatus("Open")}
+          onClick={() => toggleSummaryFilter("Open")}
         />
         <SummaryCard
           label="Past Due"
-          value={fmtShort(pastDueAmount)}
-          hint={invoiceCountLabel(pastDueInvoices.length)}
+          count={pastDueInvoices.length}
           icon={<AlertCircle size={20} className="text-foreground" />}
           active={statusFilter === "Past Due"}
-          onClick={() => toggleStatus("Past Due")}
-        />
-        <SummaryCard
-          label="Paid"
-          value={fmtShort(paidAmount)}
-          hint={invoiceCountLabel(paidInvoices.length)}
-          icon={<CheckCircle2 size={20} className="text-foreground" />}
-          active={statusFilter === "Paid"}
-          onClick={() => toggleStatus("Paid")}
+          onClick={() => toggleSummaryFilter("Past Due")}
         />
       </div>
 
@@ -151,9 +138,13 @@ export default function InvoicesListPage() {
             onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
             className="appearance-none bg-card border border-border rounded-lg pl-3 pr-8 py-2 text-sm cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring/20"
           >
-            {(["All", "Paid", "Open", "Past Due"] as const).map((s) => (
-              <option key={s}>{s}</option>
-            ))}
+            {(["All", "Pending", "Open", "Past Due", "Paid"] as const).map(
+              (s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ),
+            )}
           </select>
           <ChevronDown
             size={13}
