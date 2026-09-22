@@ -36,7 +36,7 @@ export default function InvoiceDetailPage() {
   const paid = isPaidInFull;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-page mx-auto px-4 sm:px-6 py-8">
       <PageHeader
         title={invoice.invoiceNumber}
         back="Back to Invoices"

@@ -6,7 +6,7 @@ import { ROUTES } from "../../routes";
 export default function ProductVideosPage() {
   const navigate = useNavigate();
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-page mx-auto px-4 sm:px-6 py-8">
       <PageHeader
         title="Product Videos"
         back="Knowledge Hub"

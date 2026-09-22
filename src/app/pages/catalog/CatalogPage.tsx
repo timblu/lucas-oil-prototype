@@ -28,7 +28,7 @@ export default function CatalogPage() {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-page mx-auto px-4 sm:px-6 py-8">
       {/* Route stays /catalog internally; content model remains product-grid-only
           this pass (Phase 1 minimum viable) pending confirmation of SDS sheets/
           videos/docs content types — see PRD Section 6. */}

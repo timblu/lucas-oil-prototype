@@ -299,7 +299,7 @@ export function MarketingBannerCarousel() {
                     <BackgroundOnlyVisual slide={slide} />
                   )}
 
-                  <div className="relative z-10 w-full max-w-7xl mx-auto">
+                  <div className="relative z-10 w-full max-w-page mx-auto">
                     <SlideCopy
                       slide={slide}
                       theme={theme}
