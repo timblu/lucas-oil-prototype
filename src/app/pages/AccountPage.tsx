@@ -1,14 +1,6 @@
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import {
-  ChevronRight,
-  Mail,
-  MapPin,
-  Phone,
-  Receipt,
-  Truck,
-  User,
-} from "lucide-react";
+import { Mail, MapPin, Phone, Receipt, Truck, User } from "lucide-react";
 import { Card } from "../components/shared/Card";
 import { StatusBadge } from "../components/shared/StatusBadge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../components/ui/tabs";
@@ -31,18 +23,11 @@ import { ROUTES } from "../routes";
 const SECTIONS = ["info", "contacts", "financial"] as const;
 type Section = (typeof SECTIONS)[number];
 
-const MEMO_FILTERS = ["all", "open", "applied"] as const;
-type MemoFilter = (typeof MEMO_FILTERS)[number];
-
 const focusRing =
   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#111]/30 focus-visible:ring-offset-2";
 
 function isSection(value: string | null): value is Section {
   return SECTIONS.includes(value as Section);
-}
-
-function isMemoFilter(value: string | null): value is MemoFilter {
-  return MEMO_FILTERS.includes(value as MemoFilter);
 }
 
 function telHref(phone: string) {
@@ -73,10 +58,6 @@ function parseMemoDate(date: string) {
   const [month, day, year] = date.split("/").map(Number);
   if (!month || !day || !year) return 0;
   return new Date(2000 + year, month - 1, day).getTime();
-}
-
-function plural(count: number, singular: string, pluralLabel = `${singular}s`) {
-  return count === 1 ? singular : pluralLabel;
 }
 
 function ContactAction({
@@ -131,77 +112,44 @@ function AddressCard({
   );
 }
 
-function CreditSnapshot({ onViewOpenMemos }: { onViewOpenMemos: () => void }) {
+function CreditSnapshot() {
   const { totalCreditLine, availableCredit, currentBalance } = ACCOUNT_SNAPSHOT;
   const usedPct =
     totalCreditLine > 0
       ? Math.min(100, (currentBalance / totalCreditLine) * 100)
       : 0;
-  const openMemos = CREDIT_MEMOS.filter((memo) => memo.status === "Open");
-  const openRemaining = openMemos.reduce((sum, memo) => sum + memo.balance, 0);
 
   return (
     <Card className="p-5 sm:p-6 mb-6">
-      <div className="flex flex-col lg:flex-row lg:items-stretch gap-5 lg:gap-8">
-        <div className="min-w-0 flex-1">
-          <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            Available credit
-          </div>
-          <div className="mono text-3xl font-semibold tracking-tight text-foreground mt-1 tabular-nums">
-            {fmt(availableCredit)}
-          </div>
-          <p className="text-sm text-muted-foreground mt-1">
-            {fmt(currentBalance)} currently in use
-          </p>
-          <div className="mt-4">
-            <div
-              role="progressbar"
-              aria-valuenow={Math.round(usedPct)}
-              aria-valuemin={0}
-              aria-valuemax={100}
-              aria-label="Share of credit line currently used"
-              className="h-2 rounded-full bg-muted overflow-hidden"
-            >
-              <div
-                className="h-full rounded-full bg-[#111]"
-                style={{ width: `${usedPct}%` }}
-              />
-            </div>
-            <div className="flex items-center justify-between gap-3 mt-1.5 text-[11px] text-muted-foreground">
-              <span className="font-medium uppercase tracking-wider">
-                {Math.round(usedPct)}% used
-              </span>
-              <span>{fmt(totalCreditLine)} credit line</span>
-            </div>
-          </div>
+      <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+        Available credit
+      </div>
+      <div className="mono text-3xl font-semibold tracking-tight text-foreground mt-1 tabular-nums">
+        {fmt(availableCredit)}
+      </div>
+      <p className="text-sm text-muted-foreground mt-1">
+        {fmt(currentBalance)} currently in use
+      </p>
+      <div className="mt-4 max-w-xl">
+        <div
+          role="progressbar"
+          aria-valuenow={Math.round(usedPct)}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Share of credit line currently used"
+          className="h-2 rounded-full bg-muted overflow-hidden"
+        >
+          <div
+            className="h-full rounded-full bg-[#111]"
+            style={{ width: `${usedPct}%` }}
+          />
         </div>
-
-        {openMemos.length > 0 ? (
-          <button
-            type="button"
-            onClick={onViewOpenMemos}
-            className={`lg:w-64 lg:shrink-0 w-full text-left rounded-xl border border-border bg-muted/40 px-4 py-3.5 hover:bg-muted hover:border-[#999]/50 transition-colors group flex flex-col justify-center ${focusRing}`}
-          >
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Open credit
-            </div>
-            <div className="mt-1 flex items-center justify-between gap-3">
-              <div>
-                <div className="text-sm font-semibold text-foreground">
-                  {openMemos.length}{" "}
-                  {plural(openMemos.length, "memo")} to apply
-                </div>
-                <div className="mono text-sm text-muted-foreground mt-0.5 tabular-nums">
-                  {fmt(openRemaining)} remaining
-                </div>
-              </div>
-              <ChevronRight
-                size={16}
-                className="text-muted-foreground shrink-0 group-hover:translate-x-0.5 transition-transform"
-              />
-            </div>
-          </button>
-        ) : null}
+        <div className="flex items-center justify-between gap-3 mt-1.5 text-[11px] text-muted-foreground">
+          <span className="font-medium uppercase tracking-wider">
+            {Math.round(usedPct)}% used
+          </span>
+          <span>{fmt(totalCreditLine)} credit line</span>
+        </div>
       </div>
     </Card>
   );
@@ -452,78 +400,33 @@ function CreditMemoTable({ memos }: { memos: CreditMemo[] }) {
   );
 }
 
-function FinancialTab({
-  memoFilter,
-  onFilterChange,
-}: {
-  memoFilter: MemoFilter;
-  onFilterChange: (next: MemoFilter) => void;
-}) {
+function FinancialTab() {
   const memos = [...CREDIT_MEMOS].sort(
     (a, b) => parseMemoDate(b.date) - parseMemoDate(a.date),
   );
-  const counts: Record<MemoFilter, number> = {
-    all: memos.length,
-    open: memos.filter((memo) => memo.status === "Open").length,
-    applied: memos.filter((memo) => memo.status === "Applied").length,
-  };
-  const visible =
-    memoFilter === "all"
-      ? memos
-      : memos.filter((memo) => memo.status.toLowerCase() === memoFilter);
 
   return (
     <div id="credit-memos" className="space-y-4 scroll-mt-20">
-      <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
-        <div>
-          <h2 className="text-sm font-semibold text-foreground">Credit memos</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">
-            Open memos still have a balance that can be applied. Applied memos
-            are already used.
-          </p>
-        </div>
-        <div className="flex items-center gap-1.5" role="group" aria-label="Filter credit memos">
-          {MEMO_FILTERS.map((filter) => {
-            const active = memoFilter === filter;
-            const label = filter[0].toUpperCase() + filter.slice(1);
-            return (
-              <button
-                key={filter}
-                type="button"
-                aria-pressed={active}
-                onClick={() => onFilterChange(filter)}
-                className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-colors ${focusRing} ${
-                  active
-                    ? "bg-[#111] text-white"
-                    : "bg-card border border-border text-foreground hover:bg-muted"
-                }`}
-              >
-                {label}
-                <span className={active ? "text-white/70" : "text-muted-foreground"}>
-                  {counts[filter]}
-                </span>
-              </button>
-            );
-          })}
-        </div>
+      <div>
+        <h2 className="text-sm font-semibold text-foreground">Credit memos</h2>
+        <p className="text-sm text-muted-foreground mt-0.5">
+          Open memos still have a balance that can be applied. Applied memos
+          are already used.
+        </p>
       </div>
 
       <Card className="overflow-hidden">
-        {visible.length === 0 ? (
+        {memos.length === 0 ? (
           <div className="text-center px-6 py-10">
-            <p className="text-sm font-medium text-foreground">
-              No {memoFilter === "all" ? "" : `${memoFilter} `}credit memos
-            </p>
+            <p className="text-sm font-medium text-foreground">No credit memos</p>
             <p className="text-sm text-muted-foreground mt-1">
-              {memoFilter === "all"
-                ? "Credits issued to this account will show up here."
-                : "Switch the filter to see the other memos."}
+              Credits issued to this account will show up here.
             </p>
           </div>
         ) : (
           <>
-            <CreditMemoCards memos={visible} />
-            <CreditMemoTable memos={visible} />
+            <CreditMemoCards memos={memos} />
+            <CreditMemoTable memos={memos} />
           </>
         )}
       </Card>
@@ -544,42 +447,25 @@ function FinancialTab({
 
 export default function AccountPage() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const pendingMemoScroll = useRef(false);
   const rawSection = searchParams.get("section");
-  const rawMemo = searchParams.get("memo");
   const section: Section = isSection(rawSection) ? rawSection : "info";
-  const memoFilter: MemoFilter = isMemoFilter(rawMemo) ? rawMemo : "all";
   const openMemoCount = CREDIT_MEMOS.filter((memo) => memo.status === "Open").length;
 
-  function writeParams(next: { section?: Section; memo?: MemoFilter }) {
-    const sectionValue = next.section ?? section;
-    const memoValue = next.memo ?? (sectionValue === "financial" ? memoFilter : "all");
+  function writeParams(sectionValue: Section) {
     const params = new URLSearchParams();
     if (sectionValue !== "info") params.set("section", sectionValue);
-    if (sectionValue === "financial" && memoValue !== "all") {
-      params.set("memo", memoValue);
-    }
     setSearchParams(params, { replace: true });
   }
 
   useEffect(() => {
     const sectionInvalid = rawSection !== null && !isSection(rawSection);
-    const memoInvalid = rawMemo !== null && !isMemoFilter(rawMemo);
-    if (!sectionInvalid && !memoInvalid) return;
+    const hasMemo = searchParams.has("memo");
+    if (!sectionInvalid && !hasMemo) return;
     const params = new URLSearchParams(searchParams);
     if (sectionInvalid) params.delete("section");
-    if (memoInvalid) params.delete("memo");
+    params.delete("memo");
     setSearchParams(params, { replace: true });
-  }, [rawMemo, rawSection, searchParams, setSearchParams]);
-
-  useEffect(() => {
-    if (section !== "financial" || !pendingMemoScroll.current) return;
-    pendingMemoScroll.current = false;
-    document.getElementById("credit-memos")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }, [section, memoFilter]);
+  }, [rawSection, searchParams, setSearchParams]);
 
   return (
     <div className="max-w-page mx-auto px-4 sm:px-6 py-8">
@@ -605,24 +491,12 @@ export default function AccountPage() {
         </div>
       </header>
 
-      <CreditSnapshot
-        onViewOpenMemos={() => {
-          if (section === "financial" && memoFilter === "open") {
-            document.getElementById("credit-memos")?.scrollIntoView({
-              behavior: "smooth",
-              block: "start",
-            });
-            return;
-          }
-          pendingMemoScroll.current = true;
-          writeParams({ section: "financial", memo: "open" });
-        }}
-      />
+      <CreditSnapshot />
 
       <Tabs
         value={section}
         onValueChange={(value) => {
-          if (isSection(value)) writeParams({ section: value });
+          if (isSection(value)) writeParams(value);
         }}
         className="gap-5"
       >
@@ -656,10 +530,7 @@ export default function AccountPage() {
           <ContactsTab />
         </TabsContent>
         <TabsContent value="financial">
-          <FinancialTab
-            memoFilter={memoFilter}
-            onFilterChange={(next) => writeParams({ section: "financial", memo: next })}
-          />
+          <FinancialTab />
         </TabsContent>
       </Tabs>
     </div>
