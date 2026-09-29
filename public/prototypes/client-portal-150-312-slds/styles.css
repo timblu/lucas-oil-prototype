@@ -1,0 +1,157 @@
+/* Layout helpers only — branding intentionally SLDS-default */
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  background: #f3f2f2;
+}
+
+.portal-content {
+  max-width: 80rem;
+  margin-inline: auto;
+}
+
+.portal-logo {
+  display: block;
+  height: 2rem;
+  width: auto;
+}
+
+.portal-header-search {
+  width: min(22rem, 40vw);
+}
+
+.portal-header-search .slds-input {
+  min-height: 2rem;
+}
+
+a.slds-card {
+  display: block;
+  color: inherit;
+  height: 100%;
+}
+
+a.slds-box {
+  display: block;
+  color: inherit;
+}
+
+.portal-carousel {
+  overflow: hidden;
+  border-radius: 0.25rem;
+  background: #fff;
+  border: 1px solid #c9c9c9;
+}
+
+.portal-carousel__panel {
+  position: relative;
+  min-height: 16rem;
+  overflow: hidden;
+  background: #181818;
+}
+
+.portal-carousel__bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.45;
+}
+
+.portal-carousel__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  min-height: 16rem;
+}
+
+.portal-carousel__copy {
+  flex: 1 1 0;
+  min-width: 0;
+  color: #fff;
+}
+
+.portal-carousel__product {
+  flex: 0 0 auto;
+  width: min(12rem, 35%);
+}
+
+.portal-carousel__product img {
+  display: block;
+  max-height: 12rem;
+  width: auto;
+  margin-inline: auto;
+}
+
+.portal-carousel__controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #fff;
+}
+
+.portal-resource-card__media {
+  height: 8rem;
+  overflow: hidden;
+  background: #f3f3f3;
+}
+
+.portal-resource-card__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.portal-resource-card--solid .slds-card__header {
+  padding-top: 1rem;
+}
+
+.portal-list-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  color: inherit;
+  text-decoration: none;
+}
+
+.portal-list-link:hover,
+.portal-list-link:focus {
+  background: #f3f3f3;
+  outline: none;
+}
+
+.portal-tracking-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+
+#tracker-labels .slds-col {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+@media (max-width: 47.9375em) {
+  .portal-header-search {
+    display: none;
+  }
+
+  .portal-carousel__inner {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .portal-carousel__product {
+    width: 8rem;
+  }
+}
