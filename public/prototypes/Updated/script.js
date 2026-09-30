@@ -1,5 +1,5 @@
 /**
- * Client Portal Dashboard prototype (Figma node 150:312)
+ * Client Portal Dashboard prototype (Figma node 5:2 Home)
  * Mock data mirrored from src/app/data/{account,orders,invoices}.ts
  * and marketing slides / dashboard summary helpers.
  */
@@ -21,6 +21,7 @@ const DATA = {
       shipTo: "Dallas WD",
       status: "Delivered",
       total: 4210,
+      estDeliveryDisplay: "Mon, April 23",
     },
     {
       id: "SO-10042",
@@ -30,6 +31,7 @@ const DATA = {
       status: "Out for Delivery",
       total: 1875,
       estDelivery: "03/22/26",
+      estDeliveryDisplay: "Mon, April 23",
     },
     {
       id: "SO-10043",
@@ -39,6 +41,7 @@ const DATA = {
       status: "Shipping",
       total: 980,
       estDelivery: "03/22/26",
+      estDeliveryDisplay: "Mon, April 23",
     },
     {
       id: "SO-10044",
@@ -47,6 +50,7 @@ const DATA = {
       shipTo: "Boise WD",
       status: "Delivered",
       total: 2340,
+      estDeliveryDisplay: "Mon, April 23",
     },
     {
       id: "SO-10045",
@@ -55,6 +59,7 @@ const DATA = {
       shipTo: "Denver WD",
       status: "Picked",
       total: 7105,
+      estDeliveryDisplay: "Mon, April 23",
     },
     {
       id: "SO-10046",
@@ -63,6 +68,7 @@ const DATA = {
       shipTo: "Omaha WD",
       status: "Received",
       total: 540,
+      estDeliveryDisplay: "Mon, April 23",
     },
   ],
   shipments: {
@@ -116,8 +122,8 @@ const DATA = {
       title: "Synthetic 5W-30 Now In Stock",
       description:
         "API SP / ILSAC GF-6A full synthetic for modern passenger-car and light-truck applications. Check case pricing and availability before you quote your accounts.",
-      ctaLabel: "Learn More",
-      background: "assets/carousel-bg.jpg",
+      ctaLabel: "View Product",
+      background: "assets/carousel-bg.png",
       product: "assets/product-hero.png",
       productAlt: "Lucas Oil synthetic motor oil lineup",
     },
@@ -150,7 +156,7 @@ const DATA = {
       description:
         "Download the 2026 catalog PDF, Hi-Perf line sheet, brand standards, and trade-show artwork.",
       ctaLabel: "View marketing collateral",
-      background: "assets/carousel-bg.jpg",
+      background: "assets/carousel-bg.png",
       product: "assets/marketing.jpg",
       productAlt: "Lucas Oil marketing collateral",
     },
@@ -158,24 +164,23 @@ const DATA = {
   resources: [
     {
       title: "Knowledge Hub",
-      description: "Product specs, training, and technical resources",
+      description: "Product specs, training, and technical resources.",
       cta: "Open Hub",
-      image: "assets/knowledge-hub.jpg",
+      image: "assets/promo-card.jpg",
       variant: "image",
     },
     {
       title: "Catalog",
-      description: "Browse the full lineup, pricing, and inventory levels",
+      description: "Browse our catalog and product information.",
       cta: "View Catalog",
-      image: "assets/catalog.jpg",
+      image: "assets/promo-card.jpg",
       variant: "image",
-      imagePosition: "top center",
     },
     {
-      title: "Marketing Collateral",
-      description: "Catalogs, line sheets, brand assets, and booth graphics",
+      title: "Resources",
+      description: "Download catalogs and marketing material.",
       cta: "View Downloads",
-      image: null,
+      image: "assets/search-hero-bg.png",
       variant: "solid",
     },
   ],
@@ -235,9 +240,15 @@ function getActiveOrdersSummary(orders) {
   return { activeCount: active.length, urgent };
 }
 
+function orderStatusLabel(status) {
+  if (status === "Shipping" || status === "Picked") return "In-Transit";
+  return status;
+}
+
 function orderBadgeClass(status) {
-  if (status === "Out for Delivery") return "badge badge--success";
-  if (status === "Shipping") return "badge badge--shipping";
+  if (status === "Delivered") return "badge badge--success";
+  if (status === "Out for Delivery") return "badge badge--shipping";
+  if (status === "Shipping" || status === "Picked") return "badge badge--due";
   return "badge badge--neutral";
 }
 
@@ -253,6 +264,18 @@ function invoiceBadgeLabel(status) {
   if (status === "Past Due") return "Past Due";
   if (status === "Paid") return "Paid";
   return status;
+}
+
+function badgeWithCheck(label, className) {
+  if (label !== "Delivered" && label !== "Paid") {
+    return `<span class="${className}">${label}</span>`;
+  }
+  return `<span class="${className}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>${label}</span>`;
+}
+
+function orderEstLabel(order) {
+  const est = order.estDeliveryDisplay || order.estDelivery || order.date;
+  return `Est. ${est} · ${order.shipTo}`;
 }
 
 /* —— Carousel —— */
@@ -328,7 +351,7 @@ function renderSummary() {
       : "No open invoices";
 
   const ordersSupporting = ordersSummary.urgent
-    ? `${ordersSummary.urgent.id} · ${ordersSummary.urgent.status}`
+    ? `${ordersSummary.urgent.id} · ${orderStatusLabel(ordersSummary.urgent.status)}`
     : "No orders in progress";
 
   document.getElementById("summary-invoices-primary").textContent =
@@ -364,7 +387,7 @@ function renderTracking() {
 
   document.getElementById("tracking-order-id").textContent = featured.id;
   document.getElementById("tracking-est").textContent =
-    featured.estDelivery || featured.date;
+    featured.estDeliveryDisplay || featured.estDelivery || featured.date;
   document.getElementById("tracking-carrier").textContent = shipment.carrier;
   document.getElementById("tracking-number").textContent =
     shipment.trackingNumber;
@@ -404,7 +427,7 @@ function renderTracking() {
       label.classList.add("tracker__label--current");
     } else {
       indicator.className = "tracker__indicator tracker__indicator--pending";
-      indicator.innerHTML = '<span class="tracker__dot"></span>';
+      indicator.innerHTML = "";
       label.classList.add("tracker__label--pending");
     }
 
@@ -416,28 +439,37 @@ function renderTracking() {
 
 function renderOrdersList() {
   const list = document.getElementById("orders-list");
-  const recent = DATA.orders.filter((o) => o.status !== "Delivered").slice(0, 4);
-  const rows = recent.length ? recent : DATA.orders.slice(0, 4);
+  // Mix statuses to mirror Figma list variety (delivered + in-progress)
+  const featured = [
+    DATA.orders.find((o) => o.status === "Delivered"),
+    DATA.orders.find((o) => o.status === "Out for Delivery"),
+    DATA.orders.find((o) => o.status === "Shipping"),
+    DATA.orders.find((o) => o.status === "Received"),
+  ].filter(Boolean);
+  const rows = featured.slice(0, 4);
 
   list.innerHTML = rows
-    .map(
-      (o) => `
+    .map((o) => {
+      const label = orderStatusLabel(o.status);
+      return `
     <a href="#" class="list-row js-placeholder" aria-label="Order ${o.id}">
-      <div>
+      <div class="list-row__left">
         <p class="list-row__id mono">${o.id}</p>
-        <p class="list-row__meta">${o.estDelivery ? `Est. ${o.estDelivery}` : o.date} · ${o.shipTo}</p>
+        <div class="invoice-row__status-line">
+          ${badgeWithCheck(label, orderBadgeClass(o.status))}
+          <p class="list-row__meta">${orderEstLabel(o)}</p>
+        </div>
       </div>
       <div class="list-row__right">
-        <span class="${orderBadgeClass(o.status)}">${o.status}</span>
+        <p class="list-row__amount mono">${fmtShort(o.total)}</p>
       </div>
-    </a>`,
-    )
+    </a>`;
+    })
     .join("");
 }
 
 function renderInvoicesList() {
   const list = document.getElementById("invoices-list");
-  // Prefer actionable invoices first (past due / open), then others — up to 4
   const sorted = [...DATA.invoices].sort((a, b) => {
     const rank = (s) =>
       s === "Past Due" ? 0 : s === "Open" ? 1 : s === "Paid" ? 3 : 2;
@@ -446,64 +478,63 @@ function renderInvoicesList() {
   const rows = sorted.slice(0, 4);
 
   list.innerHTML = rows
-    .map(
-      (inv) => `
+    .map((inv) => {
+      const label = invoiceBadgeLabel(inv.status);
+      const amount =
+        inv.status === "Paid"
+          ? fmtShort(inv.total)
+          : fmtShort(inv.amountDue || inv.total);
+      return `
     <a href="#" class="list-row js-placeholder" aria-label="Invoice ${inv.invoiceNumber}">
       <div class="invoice-row__left">
         <p class="list-row__id mono">${inv.invoiceNumber}</p>
         <div class="invoice-row__status-line">
-          <span class="${invoiceBadgeClass(inv.status)}">${invoiceBadgeLabel(inv.status)}</span>
-          ${
-            inv.status !== "Paid"
-              ? `<p class="invoice-row__due">Due ${inv.dueDate}</p>`
-              : ""
-          }
+          ${badgeWithCheck(label, invoiceBadgeClass(inv.status))}
+          <p class="invoice-row__due">Due ${inv.dueDate}</p>
         </div>
       </div>
       <div class="list-row__right">
-        <p class="list-row__amount mono">${fmtShort(inv.amountDue || inv.total)}</p>
+        <p class="list-row__amount mono">${amount}</p>
       </div>
-    </a>`,
-    )
+    </a>`;
+    })
     .join("");
 }
 
 function renderResources() {
   const grid = document.getElementById("resource-grid");
+  const ctaArrow =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>';
+
   grid.innerHTML = DATA.resources
     .map((r) => {
       if (r.variant === "solid") {
         return `
         <a href="#" class="resource-card resource-card--solid js-placeholder">
-          <div class="resource-card__icon">${resourceIcon(r.title)}</div>
+          ${r.image ? `<img class="resource-card__bg" src="${r.image}" alt="" />` : ""}
+          <div class="resource-card__overlay resource-card__overlay--red" aria-hidden="true"></div>
           <div class="resource-card__content">
-            <div>
+            <div class="resource-card__icon">${resourceIcon(r.title)}</div>
+            <div class="resource-card__text">
               <h2 class="resource-card__title">${r.title}</h2>
               <p class="resource-card__desc">${r.description}</p>
             </div>
-            <span class="resource-card__cta">${r.cta}
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>
-            </span>
           </div>
+          <span class="resource-card__cta">${r.cta}${ctaArrow}</span>
         </a>`;
       }
-      const pos = r.imagePosition
-        ? ` style="object-position: ${r.imagePosition}"`
-        : "";
       return `
       <a href="#" class="resource-card js-placeholder">
-        <img class="resource-card__bg" src="${r.image}" alt=""${pos} />
+        <img class="resource-card__bg" src="${r.image}" alt="" />
         <div class="resource-card__overlay resource-card__overlay--blue" aria-hidden="true"></div>
-        <div class="resource-card__icon">${resourceIcon(r.title)}</div>
         <div class="resource-card__content">
-          <div>
+          <div class="resource-card__icon">${resourceIcon(r.title)}</div>
+          <div class="resource-card__text">
             <h2 class="resource-card__title">${r.title}</h2>
             <p class="resource-card__desc">${r.description}</p>
           </div>
-          <span class="resource-card__cta">${r.cta}
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>
-          </span>
         </div>
+        <span class="resource-card__cta">${r.cta}${ctaArrow}</span>
       </a>`;
     })
     .join("");
@@ -554,23 +585,17 @@ document.addEventListener("DOMContentLoaded", () => {
   bindPlaceholders();
   startAutoplay();
 
-  document
-    .getElementById("carousel-prev")
-    .addEventListener("click", () => {
-      goToSlide(slideIndex - 1);
-      startAutoplay();
-    });
-  document
-    .getElementById("carousel-next")
-    .addEventListener("click", () => {
-      goToSlide(slideIndex + 1);
-      startAutoplay();
-    });
+  document.getElementById("carousel-prev").addEventListener("click", () => {
+    goToSlide(slideIndex - 1);
+    startAutoplay();
+  });
+  document.getElementById("carousel-next").addEventListener("click", () => {
+    goToSlide(slideIndex + 1);
+    startAutoplay();
+  });
   document
     .getElementById("carousel-play")
     .addEventListener("click", toggleAutoplay);
 
-  // Re-bind placeholders after dynamic list renders already done;
-  // resource cards are included. Dynamic list links need one more pass:
   bindPlaceholders();
 });

@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <!-- Global nav (Figma 150:313) -->
+    <!-- Global nav (Figma 5:2 / 104:163) -->
     <header class="global-nav">
       <div class="global-nav__inner">
         <a href="#" class="js-placeholder" aria-label="Lucas Oil home">
@@ -30,25 +30,7 @@
           <a href="#" class="global-nav__link js-placeholder">Orders</a>
           <a href="#" class="global-nav__link js-placeholder">Invoices</a>
           <a href="#" class="global-nav__link js-placeholder">Knowledge Hub</a>
-        </nav>
-        <a href="#" class="global-nav__link js-placeholder">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            aria-hidden="true"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <circle cx="12" cy="10" r="3" />
-            <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
-          </svg>
-          Account
-        </a>
-        <div class="global-nav__right">
-          <div class="global-nav__search" role="search">
+          <a href="#" class="global-nav__link js-placeholder">
             <svg
               viewBox="0 0 24 24"
               fill="none"
@@ -58,22 +40,23 @@
               stroke-linejoin="round"
               aria-hidden="true"
             >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.3-4.3" />
+              <circle cx="12" cy="12" r="10" />
+              <circle cx="12" cy="10" r="3" />
+              <path d="M7 20.662V19a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v1.662" />
             </svg>
-            <span>Search Orders, Invoices, Resources….</span>
-          </div>
-        </div>
+            Account
+          </a>
+        </nav>
       </div>
     </header>
 
-    <!-- Marketing carousel (Figma 210:1157) -->
+    <!-- Marketing carousel (Figma 293:3717) -->
     <section class="carousel" aria-label="Promotions">
       <div class="carousel__banner">
         <img
           id="carousel-bg"
           class="carousel__bg"
-          src="assets/carousel-bg.jpg"
+          src="assets/carousel-bg.png"
           alt=""
         />
         <div class="carousel__content">
@@ -93,7 +76,7 @@
                 </p>
               </div>
               <a href="#" class="carousel__cta js-placeholder">
-                <span id="carousel-cta-label">Learn More</span>
+                <span id="carousel-cta-label">View Product</span>
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -182,7 +165,38 @@
 
     <main class="page-body">
       <div class="page-inner">
-        <h1 class="welcome-title">Welcome</h1>
+        <!-- Search hero (Figma 129:88) -->
+        <section class="search-hero" aria-label="Search">
+          <div class="search-hero__bg" aria-hidden="true">
+            <img src="assets/search-hero-bg.png" alt="" />
+            <div class="search-hero__gradient"></div>
+          </div>
+          <h1 class="search-hero__title">
+            Search for invoices, orders, product information...
+          </h1>
+          <div class="search-hero__field" role="search">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <path d="m21 21-4.3-4.3" />
+            </svg>
+            <input
+              type="search"
+              class="search-hero__input"
+              placeholder="INV-20015"
+              value="INV-20015"
+              readonly
+              aria-label="Search invoices, orders, product information"
+            />
+          </div>
+        </section>
 
         <!-- Summary cards -->
         <div class="summary-grid">
@@ -357,9 +371,7 @@
                       stroke-linejoin="round"
                       aria-hidden="true"
                     >
-                      <path
-                        d="M8 2v4"
-                      />
+                      <path d="M8 2v4" />
                       <path d="M16 2v4" />
                       <rect width="18" height="18" x="3" y="4" rx="2" />
                       <path d="M3 10h18" />
@@ -449,6 +461,9 @@
           </div>
         </a>
 
+        <!-- Resource tiles -->
+        <div id="resource-grid" class="resource-grid"></div>
+
         <!-- Orders + Invoices lists -->
         <div class="lists-grid">
           <section class="list-card" aria-labelledby="orders-heading">
@@ -493,9 +508,6 @@
             <div id="invoices-list"></div>
           </section>
         </div>
-
-        <!-- Resource tiles -->
-        <div id="resource-grid" class="resource-grid"></div>
       </div>
     </main>
 
