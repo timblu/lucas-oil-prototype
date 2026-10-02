@@ -1,5 +1,5 @@
 /**
- * Client Portal Dashboard prototype (Figma node 5:2 Home)
+ * Client Portal Dashboard prototype (Figma node 447:10214 Home)
  * Mock data mirrored from src/app/data/{account,orders,invoices}.ts
  * and marketing slides / dashboard summary helpers.
  */
@@ -166,22 +166,19 @@ const DATA = {
       title: "Knowledge Hub",
       description: "Product specs, training, and technical resources.",
       cta: "Open Hub",
-      image: "assets/promo-card.jpg",
-      variant: "image",
+      image: "assets/promo-card.png",
     },
     {
       title: "Catalog",
       description: "Browse our catalog and product information.",
       cta: "View Catalog",
-      image: "assets/promo-card.jpg",
-      variant: "image",
+      image: "assets/promo-card.png",
     },
     {
       title: "Resources",
       description: "Download catalogs and marketing material.",
       cta: "View Downloads",
-      image: "assets/search-hero-bg.png",
-      variant: "solid",
+      image: "assets/carousel-bg.png",
     },
   ],
 };
@@ -248,7 +245,7 @@ function orderStatusLabel(status) {
 function orderBadgeClass(status) {
   if (status === "Delivered") return "badge badge--success";
   if (status === "Out for Delivery") return "badge badge--shipping";
-  if (status === "Shipping" || status === "Picked") return "badge badge--due";
+  if (status === "Shipping" || status === "Picked") return "badge badge--neutral";
   return "badge badge--neutral";
 }
 
@@ -507,36 +504,21 @@ function renderResources() {
     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17 17 7"/><path d="M7 7h10v10"/></svg>';
 
   grid.innerHTML = DATA.resources
-    .map((r) => {
-      if (r.variant === "solid") {
-        return `
-        <a href="#" class="resource-card resource-card--solid js-placeholder">
-          ${r.image ? `<img class="resource-card__bg" src="${r.image}" alt="" />` : ""}
-          <div class="resource-card__overlay resource-card__overlay--red" aria-hidden="true"></div>
-          <div class="resource-card__content">
-            <div class="resource-card__icon">${resourceIcon(r.title)}</div>
-            <div class="resource-card__text">
-              <h2 class="resource-card__title">${r.title}</h2>
-              <p class="resource-card__desc">${r.description}</p>
-            </div>
-          </div>
-          <span class="resource-card__cta">${r.cta}${ctaArrow}</span>
-        </a>`;
-      }
-      return `
+    .map(
+      (r) => `
       <a href="#" class="resource-card js-placeholder">
         <img class="resource-card__bg" src="${r.image}" alt="" />
         <div class="resource-card__overlay resource-card__overlay--blue" aria-hidden="true"></div>
         <div class="resource-card__content">
           <div class="resource-card__icon">${resourceIcon(r.title)}</div>
           <div class="resource-card__text">
-            <h2 class="resource-card__title">${r.title}</h2>
+            <h3 class="resource-card__title">${r.title}</h3>
             <p class="resource-card__desc">${r.description}</p>
           </div>
         </div>
         <span class="resource-card__cta">${r.cta}${ctaArrow}</span>
-      </a>`;
-    })
+      </a>`,
+    )
     .join("");
 }
 
@@ -585,6 +567,11 @@ document.addEventListener("DOMContentLoaded", () => {
   bindPlaceholders();
   startAutoplay();
 
+  const searchForm = document.querySelector(".search-hero__field");
+  if (searchForm) {
+    searchForm.addEventListener("submit", (e) => e.preventDefault());
+  }
+
   document.getElementById("carousel-prev").addEventListener("click", () => {
     goToSlide(slideIndex - 1);
     startAutoplay();
@@ -596,6 +583,4 @@ document.addEventListener("DOMContentLoaded", () => {
   document
     .getElementById("carousel-play")
     .addEventListener("click", toggleAutoplay);
-
-  bindPlaceholders();
 });
