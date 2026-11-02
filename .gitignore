@@ -27,3 +27,6 @@ Thumbs.db
 # Large local source assets (extracted images live under src/assets)
 /LOP_*.pdf
 /*.pdf
+
+# Prefer pnpm; Heroku rejects multiple lockfiles
+package-lock.json
