@@ -77,10 +77,10 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     id: "new-synthetic-5w30",
     kind: "new-product",
     badge: "New product",
-    title: "Synthetic 5W-30 now in stock",
+    title: "Synthetic 5W-30 Now In Stock",
     description:
       "API SP / ILSAC GF-6A full synthetic for modern passenger-car and light-truck applications. Check case pricing and availability before you quote your accounts.",
-    ctaLabel: "View product details",
+    ctaLabel: "View Product",
     action: { type: "product", productId: "10203" },
     theme: "dark",
     imageLayout: "hero",

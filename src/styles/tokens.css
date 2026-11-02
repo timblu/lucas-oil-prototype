@@ -1,5 +1,6 @@
-/* Lucas Oil brand palette — single source of truth for design tokens */
+/* Lucas Oil brand palette + Design System tokens — single source of truth */
 :root {
+  /* Brand primary (red) */
   --primary\/50: #fdced2;
   --primary\/100: #fca6b0;
   --primary\/200: #fc6e86;
@@ -10,6 +11,8 @@
   --primary\/700: #ad002e;
   --primary\/800: #790125;
   --primary\/900: #4a021a;
+
+  /* Brand secondary (blue) */
   --secondary\/50: #bbdbfb;
   --secondary\/100: #89befb;
   --secondary\/200: #4b97fb;
@@ -20,6 +23,8 @@
   --secondary\/700: #002e8a;
   --secondary\/800: #011c5f;
   --secondary\/900: #020f3b;
+
+  /* Brand neutrals */
   --neutral\/50: #f8f7f7;
   --neutral\/100: #eeeced;
   --neutral\/200: #dbd6d8;
@@ -31,4 +36,64 @@
   --neutral\/800: #3b3536;
   --neutral\/900: #231f20;
   --white: #fff;
+
+  /* Design System — color neutrals (Figma) */
+  --color-neutral-0: #ffffff;
+  --color-neutral-100: #eeeeee;
+  --color-neutral-200: #dcdcdc;
+
+  /* Design System — text */
+  --text-color-default: #202020;
+  --text-color-muted: #606060;
+  --text-color-label: #6e6e6e;
+
+  /* Design System — borders */
+  --border-color-default: #c4c4c4;
+  --border-color-subtle: #dcdcdc;
+  --border-color-strong: #6e6e6e;
+
+  /* Design System — icons */
+  --icon-color-default: #6e6e6e;
+  --icon-color-strong: #383838;
+  --icon-color-inverse: #ffffff;
+
+  /* Design System — surfaces */
+  --background-color-default: #ffffff;
+
+  /* Design System — nav */
+  --nav-link-default: #606060;
+
+  /* Design System — buttons */
+  --button-primary-background-default: #003da5;
+
+  /* Design System — order tracking */
+  --tracking-complete-icon: #bbdbfb;
+  --tracking-complete-status: #003da5;
+  --tracking-in-progress-icon: #003da5;
+  --tracking-in-progress-status: #003da5;
+  --tracking-pending-status: #c4c4c4;
+
+  /* Design System — type scale (px values as rem-friendly strings for CSS) */
+  --text-2xs: 0.6875rem; /* 11px */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.8125rem; /* 13px */
+  --text-base: 0.875rem; /* 14px */
+  --text-lg: 1rem; /* 16px */
+  --text-xl: 1.125rem; /* 18px */
+  --text-2xl: 1.375rem; /* 22px */
+
+  --text-line-height-2xs: 1rem; /* 16px */
+  --text-line-height-xs: 1rem; /* 16px */
+  --text-line-height-sm: 1rem; /* 16px */
+  --text-line-height-base: 1.25rem; /* 20px */
+  --text-line-height-lg: 1.5rem; /* 24px */
+  --text-line-height-xl: 1.5rem;
+  --text-line-height-2xl: 1.75rem; /* 28px */
+
+  --font-family-sans: Inter, system-ui, sans-serif;
+  --font-family-mono: "JetBrains Mono", monospace;
+  --letter-spacing-normal: 0;
+  --font-weight-regular: 500;
+  --font-weight-medium: 575;
+  --font-weight-semibold: 650;
 }

@@ -68,14 +68,14 @@ export function SupportChat() {
       {/* Floating button */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className="fixed bottom-6 right-6 z-50 w-13 h-13 rounded-full bg-primary hover:bg-[var(--primary-dark)] text-primary-foreground shadow-lg flex items-center justify-center transition-all active:scale-95"
+        className="fixed bottom-6 right-6 z-50 rounded-full bg-primary hover:bg-blue-dark text-primary-foreground shadow-lg flex items-center justify-center transition-all active:scale-95"
         style={{ width: 52, height: 52 }}
         aria-label="Open support chat"
       >
         {open ? <X size={20} /> : <MessageCircle size={22} />}
         {!open && (
-          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-white border-2 border-[#111] flex items-center justify-center">
-            <span className="w-1.5 h-1.5 rounded-full bg-[#555]" />
+          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-card border-2 border-foreground flex items-center justify-center">
+            <span className="w-1.5 h-1.5 rounded-full bg-muted-foreground" />
           </span>
         )}
       </button>

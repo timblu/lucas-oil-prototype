@@ -10,14 +10,12 @@ import {
 import { Card } from "../../components/shared/Card";
 import { PageHeader } from "../../components/shared/PageHeader";
 import { StatusBadge } from "../../components/shared/StatusBadge";
+import { Button } from "../../components/ui/button";
 import { INVOICES } from "../../data/invoices";
 import { CREDIT_MEMOS } from "../../data/account";
 import { fmt } from "../../lib/format";
 import { getPaymentSummary } from "../../lib/invoicePayments";
 import { ROUTES } from "../../routes";
-
-// Linked credit memos use Applied/Open + remaining balance. Cross-link
-// pattern mirrors Order Detail ↔ Invoice Detail; Sage→SF mapping unconfirmed.
 
 export default function InvoiceDetailPage() {
   const navigate = useNavigate();
@@ -36,60 +34,65 @@ export default function InvoiceDetailPage() {
   const paid = isPaidInFull;
 
   return (
-    <div className="max-w-page mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-page mx-auto px-4 sm:px-10 py-8">
       <PageHeader
         title={invoice.invoiceNumber}
-        back="Back to Invoices"
-        onBack={() => navigate(ROUTES.invoices)}
+        breadcrumbs={[
+          { label: "Invoices", to: ROUTES.invoices },
+          { label: invoice.invoiceNumber },
+        ]}
         action={
-          <button
-            type="button"
-            disabled
-            className="flex items-center gap-2 bg-muted text-muted-foreground text-sm font-medium px-3.5 py-2 rounded-lg cursor-not-allowed shrink-0"
-          >
-            <Download size={14} />
-            Download PDF
-          </button>
+          <>
+            <StatusBadge status={invoice.status} />
+            <Button variant="outline" size="sm" disabled>
+              <Download size={14} />
+              Download PDF
+            </Button>
+            {!paid && (
+              <Button size="sm" disabled>
+                Pay Invoice
+              </Button>
+            )}
+          </>
         }
       />
 
       <Card className="mb-5 p-5 sm:p-6">
-        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            <div className="text-2xs font-semibold uppercase tracking-wider text-label">
               Amount due
             </div>
             {paid ? (
               <>
-                <div className="mt-1 text-2xl font-semibold text-foreground tracking-tight">
+                <div className="mt-1 text-2xl font-bold text-foreground">
                   Paid in full
                 </div>
-                <div className="mono text-sm text-muted-foreground mt-1">
+                <div className="mt-1 font-mono text-sm text-muted-foreground">
                   Invoice total {fmt(invoice.total)}
                 </div>
               </>
             ) : (
               <>
-                <div className="mono text-3xl font-semibold text-foreground mt-1 tracking-tight">
+                <div className="mt-1 font-mono text-3xl font-bold text-foreground">
                   {fmt(invoice.amountDue)}
                 </div>
-                <div className="text-sm text-muted-foreground mt-1">
+                <div className="mt-1 text-sm text-muted-foreground">
                   Due {invoice.dueDate}
                 </div>
                 {isPartiallyPaid && (
-                  <div className="mono text-xs text-muted-foreground mt-1">
+                  <div className="mt-1 font-mono text-xs text-muted-foreground">
                     {fmt(totalPaid)} paid of {fmt(invoice.total)}
                   </div>
                 )}
               </>
             )}
           </div>
-          <StatusBadge status={invoice.status} />
         </div>
 
         <div className="mt-6 pt-5 border-t border-border grid grid-cols-2 lg:grid-cols-4 gap-4">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+            <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-1">
               Invoice date
             </div>
             <div className="text-sm font-medium text-foreground">
@@ -97,7 +100,7 @@ export default function InvoiceDetailPage() {
             </div>
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+            <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-1">
               Due date
             </div>
             <div className="text-sm font-medium text-foreground">
@@ -105,23 +108,23 @@ export default function InvoiceDetailPage() {
             </div>
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+            <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-1">
               Related order
             </div>
             <button
               type="button"
               onClick={() => navigate(ROUTES.order(invoice.orderId))}
-              className="flex items-center gap-1 mono text-sm font-medium text-[#111] hover:underline"
+              className="flex items-center gap-1 font-mono text-sm font-medium text-primary hover:underline"
             >
               {invoice.orderId}
               <ChevronRight size={13} />
             </button>
           </div>
           <div>
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-1">
+            <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-1">
               PO
             </div>
-            <div className="mono text-sm font-medium text-foreground">
+            <div className="font-mono text-sm font-medium text-foreground">
               {invoice.poNumber}
             </div>
           </div>
@@ -129,29 +132,27 @@ export default function InvoiceDetailPage() {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2 overflow-hidden">
           <div className="px-5 py-4 border-b border-border">
-            <h2 className="font-semibold text-sm uppercase tracking-wide text-muted-foreground">
-              Items
-            </h2>
+            <h2 className="font-semibold text-sm text-foreground">Line Items</h2>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground px-5 py-3">
+                <tr className="border-b border-border bg-muted/40">
+                  <th className="text-left text-2xs font-semibold uppercase tracking-wider text-label px-5 py-3">
                     Item #
                   </th>
-                  <th className="text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground px-5 py-3">
+                  <th className="text-left text-2xs font-semibold uppercase tracking-wider text-label px-5 py-3">
                     Description
                   </th>
-                  <th className="text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground px-5 py-3">
+                  <th className="text-right text-2xs font-semibold uppercase tracking-wider text-label px-5 py-3">
                     Qty
                   </th>
-                  <th className="text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground px-5 py-3">
+                  <th className="text-right text-2xs font-semibold uppercase tracking-wider text-label px-5 py-3">
                     Unit Price
                   </th>
-                  <th className="text-right text-xs font-semibold uppercase tracking-wider text-muted-foreground px-5 py-3">
+                  <th className="text-right text-2xs font-semibold uppercase tracking-wider text-label px-5 py-3">
                     Line Total
                   </th>
                 </tr>
@@ -159,19 +160,19 @@ export default function InvoiceDetailPage() {
               <tbody className="divide-y divide-border">
                 {invoice.lineItems.map((item) => (
                   <tr key={item.itemNum}>
-                    <td className="px-5 py-3.5 mono text-sm text-muted-foreground whitespace-nowrap">
+                    <td className="px-5 py-3.5 font-mono text-sm text-muted-foreground whitespace-nowrap">
                       {item.itemNum}
                     </td>
                     <td className="px-5 py-3.5 text-sm font-medium text-foreground">
                       {item.description}
                     </td>
-                    <td className="px-5 py-3.5 mono text-sm text-foreground text-right tabular-nums">
+                    <td className="px-5 py-3.5 font-mono text-sm text-foreground text-right tabular-nums">
                       {item.qty}
                     </td>
-                    <td className="px-5 py-3.5 mono text-sm text-foreground text-right tabular-nums">
+                    <td className="px-5 py-3.5 font-mono text-sm text-foreground text-right tabular-nums">
                       {fmt(item.unitPrice)}
                     </td>
-                    <td className="px-5 py-3.5 mono text-sm font-semibold text-foreground text-right tabular-nums">
+                    <td className="px-5 py-3.5 font-mono text-sm font-semibold text-foreground text-right tabular-nums">
                       {fmt(item.qty * item.unitPrice)}
                     </td>
                   </tr>
@@ -183,31 +184,33 @@ export default function InvoiceDetailPage() {
             <div className="w-full max-w-[280px] space-y-1.5 text-sm">
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal</span>
-                <span className="mono tabular-nums">{fmt(invoice.subtotal)}</span>
+                <span className="font-mono tabular-nums">
+                  {fmt(invoice.subtotal)}
+                </span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Tax</span>
-                <span className="mono tabular-nums">{fmt(invoice.tax)}</span>
+                <span className="font-mono tabular-nums">{fmt(invoice.tax)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Shipping</span>
-                <span className="mono tabular-nums">{fmt(invoice.shipping)}</span>
+                <span className="font-mono tabular-nums">
+                  {fmt(invoice.shipping)}
+                </span>
               </div>
               <div className="border-t border-border pt-2 mt-2 flex justify-between font-medium text-foreground">
                 <span>Total</span>
-                <span className="mono tabular-nums text-[#111]">
-                  {fmt(invoice.total)}
-                </span>
+                <span className="font-mono tabular-nums">{fmt(invoice.total)}</span>
               </div>
               {totalPaid > 0 && (
                 <div className="flex justify-between text-muted-foreground">
                   <span>Payments applied</span>
-                  <span className="mono tabular-nums">−{fmt(totalPaid)}</span>
+                  <span className="font-mono tabular-nums">−{fmt(totalPaid)}</span>
                 </div>
               )}
               <div className="flex justify-between font-semibold text-foreground">
                 <span>Amount due</span>
-                <span className="mono tabular-nums text-base text-[#111]">
+                <span className="font-mono tabular-nums text-base">
                   {fmt(invoice.amountDue)}
                 </span>
               </div>
@@ -216,10 +219,10 @@ export default function InvoiceDetailPage() {
         </Card>
 
         <div className="space-y-5">
-          <Card>
+          <Card className="overflow-hidden">
             <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
-              <CreditCard size={15} className="text-muted-foreground" />
-              <h2 className="font-semibold text-sm">Payments</h2>
+              <CreditCard size={15} className="text-icon" />
+              <h2 className="font-semibold text-sm">Payment History</h2>
               {payments.length > 0 && (
                 <span className="ml-auto text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
                   {payments.length}
@@ -243,13 +246,13 @@ export default function InvoiceDetailPage() {
                           {payment.method}
                         </div>
                         {payment.reference && (
-                          <div className="mono text-xs text-muted-foreground mt-0.5 break-all">
+                          <div className="font-mono text-xs text-muted-foreground mt-0.5 break-all">
                             {payment.reference}
                           </div>
                         )}
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="mono text-sm font-semibold text-foreground tabular-nums">
+                        <div className="font-mono text-sm font-semibold text-foreground tabular-nums">
                           {fmt(payment.amount)}
                         </div>
                         <div className="text-xs text-muted-foreground mt-0.5">
@@ -262,11 +265,11 @@ export default function InvoiceDetailPage() {
                 <div className="px-5 py-3.5 border-t border-border space-y-1.5 text-sm">
                   <div className="flex justify-between font-medium text-foreground">
                     <span>Total paid</span>
-                    <span className="mono tabular-nums">{fmt(totalPaid)}</span>
+                    <span className="font-mono tabular-nums">{fmt(totalPaid)}</span>
                   </div>
                   <div className="flex justify-between text-muted-foreground">
                     <span>Remaining</span>
-                    <span className="mono tabular-nums">
+                    <span className="font-mono tabular-nums">
                       {fmt(invoice.amountDue)}
                     </span>
                   </div>
@@ -276,22 +279,21 @@ export default function InvoiceDetailPage() {
           </Card>
 
           <Card className="p-5">
-            <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+            <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-2 flex items-center gap-1.5">
               <MapPin size={12} /> Ship To
             </div>
             <div className="text-sm font-medium text-foreground leading-relaxed">
               {invoice.shipTo}
             </div>
             <div className="mt-5 pt-5 border-t border-border">
-              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2 flex items-center gap-1.5">
+              <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-2 flex items-center gap-1.5">
                 <Truck size={12} /> Carrier & Tracking
               </div>
               <div className="flex flex-col gap-1">
                 <span className="text-sm font-medium text-foreground">
                   {invoice.carrier}
                 </span>
-                {/* Plain text only — never a hyperlink, consistent with Order Detail */}
-                <span className="mono text-sm text-foreground break-all">
+                <span className="font-mono text-sm text-foreground break-all">
                   {invoice.trackingNumber}
                 </span>
               </div>
@@ -299,9 +301,9 @@ export default function InvoiceDetailPage() {
           </Card>
 
           {linkedMemos.length > 0 && (
-            <Card>
+            <Card className="overflow-hidden">
               <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
-                <Receipt size={15} className="text-muted-foreground" />
+                <Receipt size={15} className="text-icon" />
                 <h2 className="font-semibold text-sm">Credit Memos</h2>
                 <span className="ml-auto text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
                   {linkedMemos.length}
@@ -315,7 +317,7 @@ export default function InvoiceDetailPage() {
                   >
                     <div className="min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="mono text-sm font-medium text-foreground">
+                        <span className="font-mono text-sm font-medium text-foreground">
                           {m.memoNumber}
                         </span>
                         <StatusBadge status={m.status} />
@@ -325,11 +327,11 @@ export default function InvoiceDetailPage() {
                       </div>
                     </div>
                     <div className="text-right shrink-0">
-                      <div className="mono text-sm font-semibold text-foreground tabular-nums">
+                      <div className="font-mono text-sm font-semibold text-foreground tabular-nums">
                         {fmt(m.balance)}
                       </div>
                       {m.balance !== m.originalAmount && (
-                        <div className="mono text-[11px] text-muted-foreground mt-0.5 tabular-nums">
+                        <div className="font-mono text-[11px] text-muted-foreground mt-0.5 tabular-nums">
                           of {fmt(m.originalAmount)}
                         </div>
                       )}

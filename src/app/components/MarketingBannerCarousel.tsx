@@ -1,10 +1,19 @@
 import * as React from "react";
 import { useNavigate } from "react-router-dom";
 import Autoplay from "embla-carousel-autoplay";
-
 import {
-  DEFAULT_HERO_BACKGROUND_KEY,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+  Play,
+} from "lucide-react";
+
+import carouselBanner from "../../assets/figma/carousel-banner.png";
+import carouselProduct from "../../assets/figma/carousel-product.png";
+import {
   MARKETING_BANNER_IMAGES,
+  type MarketingBannerImageKey,
 } from "../data/marketingBannerImages";
 import {
   MARKETING_SLIDES,
@@ -17,11 +26,8 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
   type CarouselApi,
 } from "./ui/carousel";
-import { Button } from "./ui/button";
 import { cn } from "./ui/utils";
 
 const MARKETING_NAV_ROUTES: Record<MarketingNavView, string> = {
@@ -34,28 +40,14 @@ const MARKETING_NAV_ROUTES: Record<MarketingNavView, string> = {
   account: ROUTES.account,
 };
 
-const themeClasses: Record<
-  MarketingSlide["theme"],
-  {
-    badge: string;
-    cta: "default" | "secondary" | "outline";
-    bodyOnImage: string;
-  }
+/** Prefer Figma-exported art for the lead slide; fall back to local banners. */
+const FIGMA_SLIDE_OVERRIDES: Record<
+  string,
+  { background?: string; product?: string }
 > = {
-  primary: {
-    badge: "bg-white/15 text-white border border-white/25",
-    cta: "secondary",
-    bodyOnImage: "text-white/90",
-  },
-  dark: {
-    badge: "bg-white/10 text-white/90 border border-white/20",
-    cta: "secondary",
-    bodyOnImage: "text-white/85",
-  },
-  neutral: {
-    badge: "bg-white/15 text-white border border-white/25",
-    cta: "secondary",
-    bodyOnImage: "text-white/90",
+  "new-synthetic-5w30": {
+    background: carouselBanner,
+    product: carouselProduct,
   },
 };
 
@@ -77,149 +69,27 @@ function runSlideAction(
   }
 }
 
-function BackgroundOnlyVisual({
-  slide,
-}: {
-  slide: MarketingSlide;
-}) {
-  const key = slide.backgroundKey ?? DEFAULT_HERO_BACKGROUND_KEY;
-  const src = MARKETING_BANNER_IMAGES[key];
-
-  return (
-    <>
-      <img
-        src={src}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full object-cover object-center"
-        style={
-          slide.backgroundPosition
-            ? { objectPosition: slide.backgroundPosition }
-            : undefined
-        }
-      />
-      <div
-        className="absolute inset-0 bg-[#0a1628]/55 mix-blend-multiply"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent"
-        aria-hidden
-      />
-    </>
-  );
+function resolveBg(slide: MarketingSlide) {
+  const override = FIGMA_SLIDE_OVERRIDES[slide.id]?.background;
+  if (override) return override;
+  const key = (slide.backgroundKey ??
+    "carouselBgGears") as MarketingBannerImageKey;
+  return MARKETING_BANNER_IMAGES[key];
 }
 
-function HeroSlideVisual({ slide }: { slide: MarketingSlide }) {
-  const bgKey = slide.backgroundKey ?? DEFAULT_HERO_BACKGROUND_KEY;
-  const productKey = slide.productKey;
-  const bgSrc = MARKETING_BANNER_IMAGES[bgKey];
-  const productSrc = productKey
-    ? MARKETING_BANNER_IMAGES[productKey]
-    : undefined;
-
-  return (
-    <>
-      <img
-        src={bgSrc}
-        alt=""
-        aria-hidden
-        className="absolute inset-0 h-full w-full object-cover"
-        style={{
-          objectPosition: slide.backgroundPosition ?? "left center",
-        }}
-      />
-      <div
-        className="absolute inset-0 bg-[#0a1628]/55 mix-blend-multiply"
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 bg-gradient-to-r from-black/88 via-black/55 to-black/15 md:to-transparent"
-        aria-hidden
-      />
-
-      {productSrc ? (
-        <img
-          src={productSrc}
-          alt={slide.imageAlt ?? slide.title}
-          className={cn(
-            "absolute z-[1] pointer-events-none object-contain",
-            "hidden md:block",
-            "right-4 sm:right-8 lg:right-12",
-            "bottom-2 md:bottom-0",
-            "max-h-[50%] sm:max-h-[70%] md:max-h-[85%]",
-            "max-w-[42%] sm:max-w-[38%] md:max-w-[34%]",
-          )}
-        />
-      ) : null}
-    </>
-  );
+function resolveProduct(slide: MarketingSlide) {
+  const override = FIGMA_SLIDE_OVERRIDES[slide.id]?.product;
+  if (override) return override;
+  if (!slide.productKey) return undefined;
+  return MARKETING_BANNER_IMAGES[slide.productKey];
 }
 
-function SlideCopy({
-  slide,
-  theme,
-  onNav,
-  onProduct,
-  showMobileProduct,
-}: {
-  slide: MarketingSlide;
-  theme: (typeof themeClasses)[MarketingSlide["theme"]];
-  onNav: (view: MarketingNavView) => void;
-  onProduct: (productId: string) => void;
-  showMobileProduct?: boolean;
-}) {
-  const isHero = (slide.imageLayout ?? "hero") === "hero";
-  const productSrc =
-    slide.productKey && showMobileProduct
-      ? MARKETING_BANNER_IMAGES[slide.productKey]
-      : undefined;
-
-  return (
-    <div
-      className={cn(
-        "relative z-10 flex flex-col justify-center py-8 sm:py-10 px-12 sm:px-14 text-white",
-        "max-w-xl lg:max-w-2xl",
-      )}
-    >
-      <span
-        className={cn(
-          "inline-block w-fit text-[11px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full mb-3",
-          theme.badge,
-        )}
-      >
-        {slide.badge}
-      </span>
-      <h2 className="text-xl sm:text-2xl font-semibold tracking-tight">
-        {slide.title}
-      </h2>
-      <p
-        className={cn(
-          "mt-2 text-sm sm:text-[15px] leading-relaxed",
-          isHero ? theme.bodyOnImage : "text-muted-foreground",
-        )}
-      >
-        {slide.description}
-      </p>
-      <Button
-        type="button"
-        variant={theme.cta}
-        size="lg"
-        className="mt-5 min-h-11 w-fit"
-        onClick={() => runSlideAction(slide.action, onNav, onProduct)}
-      >
-        {slide.ctaLabel}
-      </Button>
-      {productSrc ? (
-        <img
-          src={productSrc}
-          alt={slide.imageAlt ?? slide.title}
-          className="md:hidden mt-6 max-h-32 w-full object-contain object-left"
-        />
-      ) : null}
-    </div>
-  );
-}
+/** Ordered to match Figma Home: Synthetic 5W-30 lead slide first. */
+const ORDERED_SLIDES: MarketingSlide[] = (() => {
+  const lead = MARKETING_SLIDES.find((s) => s.id === "new-synthetic-5w30");
+  const rest = MARKETING_SLIDES.filter((s) => s.id !== "new-synthetic-5w30");
+  return lead ? [lead, ...rest].slice(0, 4) : MARKETING_SLIDES.slice(0, 4);
+})();
 
 export function MarketingBannerCarousel() {
   const navigate = useNavigate();
@@ -227,10 +97,11 @@ export function MarketingBannerCarousel() {
   const onProduct = (productId: string) => navigate(ROUTES.product(productId));
   const [api, setApi] = React.useState<CarouselApi>();
   const [activeIndex, setActiveIndex] = React.useState(0);
+  const [playing, setPlaying] = React.useState(true);
   const [reduceMotion, setReduceMotion] = React.useState(false);
 
   const autoplayRef = React.useRef(
-    Autoplay({ delay: 6000, stopOnInteraction: true }),
+    Autoplay({ delay: 6000, stopOnInteraction: false }),
   );
 
   React.useEffect(() => {
@@ -252,27 +123,23 @@ export function MarketingBannerCarousel() {
   }, [api]);
 
   const plugins = React.useMemo(
-    () => (reduceMotion ? undefined : [autoplayRef.current]),
-    [reduceMotion],
+    () => (reduceMotion || !playing ? undefined : [autoplayRef.current]),
+    [reduceMotion, playing],
   );
 
-  const pauseAutoplay = () => {
-    if (!reduceMotion) autoplayRef.current.stop();
-  };
-
-  const resumeAutoplay = () => {
-    if (!reduceMotion) autoplayRef.current.play();
-  };
+  function togglePlay() {
+    if (reduceMotion) return;
+    if (playing) {
+      autoplayRef.current.stop();
+      setPlaying(false);
+    } else {
+      autoplayRef.current.play();
+      setPlaying(true);
+    }
+  }
 
   return (
-    <section
-      aria-label="Distributor announcements"
-      className="w-full border-b border-border"
-      onMouseEnter={pauseAutoplay}
-      onMouseLeave={resumeAutoplay}
-      onFocusCapture={pauseAutoplay}
-      onBlurCapture={resumeAutoplay}
-    >
+    <section aria-label="Distributor announcements" className="w-full">
       <Carousel
         setApi={setApi}
         plugins={plugins}
@@ -280,33 +147,72 @@ export function MarketingBannerCarousel() {
         className="relative w-full"
       >
         <CarouselContent className="ml-0">
-          {MARKETING_SLIDES.map((slide) => {
-            const theme = themeClasses[slide.theme];
-            const layout = slide.imageLayout ?? "hero";
-            const isHero = layout === "hero";
+          {ORDERED_SLIDES.map((slide) => {
+            const bgSrc = resolveBg(slide);
+            const productSrc = resolveProduct(slide);
 
             return (
               <CarouselItem key={slide.id} className="pl-0 basis-full">
-                <div
-                  className={cn(
-                    "relative min-h-[280px] sm:min-h-[300px] md:min-h-[320px] overflow-hidden pb-10",
-                    !isHero && "bg-muted",
-                  )}
-                >
-                  {isHero ? (
-                    <HeroSlideVisual slide={slide} />
-                  ) : (
-                    <BackgroundOnlyVisual slide={slide} />
-                  )}
-
-                  <div className="relative z-10 w-full max-w-page mx-auto">
-                    <SlideCopy
-                      slide={slide}
-                      theme={theme}
-                      onNav={onNav}
-                      onProduct={onProduct}
-                      showMobileProduct={isHero && !!slide.productKey}
+                <div className="relative w-full overflow-hidden">
+                  {/* Banner body — 400px content + overlays */}
+                  <div className="relative h-[400px] w-full">
+                    <div className="absolute inset-0 bg-foreground" aria-hidden />
+                    <img
+                      src={bgSrc}
+                      alt=""
+                      aria-hidden
+                      className="absolute inset-0 size-full object-cover"
                     />
+                    {/* Blue brand wash matching Figma carousel/card/secondary */}
+                    <div
+                      className="absolute inset-0 bg-[#003da5]/85 mix-blend-multiply"
+                      aria-hidden
+                    />
+                    <div
+                      className="absolute inset-0 bg-[#003da5]/40"
+                      aria-hidden
+                    />
+
+                    <div className="relative z-10 mx-auto flex h-full max-w-page items-center px-4 sm:px-0">
+                      {/* Frosted banner card */}
+                      <div className="flex max-w-[630px] flex-col gap-10 rounded-lg p-8 backdrop-blur-[4px]">
+                        <div className="flex flex-col gap-4">
+                          <span className="inline-flex h-6 items-center rounded-full border border-[#bbdbfb] px-3 text-2xs font-semibold uppercase tracking-normal text-white">
+                            {slide.badge}
+                          </span>
+                          <div className="flex flex-col gap-2">
+                            <h2 className="text-[32px] font-bold leading-10 tracking-[-1px] text-white">
+                              {slide.title}
+                            </h2>
+                            <p className="max-w-[525px] text-base font-medium leading-6 text-white">
+                              {slide.description}
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            runSlideAction(slide.action, onNav, onProduct)
+                          }
+                          className="inline-flex items-center gap-2 text-base font-medium leading-6 text-white hover:opacity-90 transition-opacity w-fit"
+                        >
+                          {slide.ctaLabel}
+                          <ArrowRight size={16} />
+                        </button>
+                      </div>
+
+                      {productSrc ? (
+                        <div className="ml-auto hidden h-full items-center justify-center py-20 md:flex flex-1">
+                          <div className="flex size-[240px] items-center overflow-hidden px-[34px]">
+                            <img
+                              src={productSrc}
+                              alt={slide.imageAlt ?? slide.title}
+                              className="h-full w-auto object-contain"
+                            />
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
                   </div>
                 </div>
               </CarouselItem>
@@ -314,43 +220,69 @@ export function MarketingBannerCarousel() {
           })}
         </CarouselContent>
 
-        <CarouselPrevious
-          className="left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 size-10 sm:size-11 border-white/30 bg-black/20 text-white hover:bg-black/35 hover:text-white disabled:opacity-40"
-          variant="outline"
-        />
-        <CarouselNext
-          className="right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 size-10 sm:size-11 border-white/30 bg-black/20 text-white hover:bg-black/35 hover:text-white disabled:opacity-40"
-          variant="outline"
-        />
+        {/* Bottom control bar — matches Figma pagination */}
+        <div className="flex w-full items-center justify-between bg-[#011c5f] py-1">
+          <button
+            type="button"
+            onClick={togglePlay}
+            aria-label={playing ? "Pause carousel" : "Play carousel"}
+            className="flex h-6 w-auto items-center justify-center pl-3 text-white"
+          >
+            {playing && !reduceMotion ? (
+              <Pause size={20} fill="currentColor" />
+            ) : (
+              <Play size={20} fill="currentColor" />
+            )}
+          </button>
 
-        <div
-          role="tablist"
-          aria-label="Announcement slides"
-          className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-2 rounded-full bg-black/25 backdrop-blur-sm px-2 py-1"
-        >
-          {MARKETING_SLIDES.map((slide, index) => (
+          <div
+            role="tablist"
+            aria-label="Announcement slides"
+            className="flex items-center gap-4"
+          >
+            {ORDERED_SLIDES.map((slide, index) => {
+              const active = activeIndex === index;
+              return (
+                <button
+                  key={slide.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  aria-label={`Go to slide ${index + 1}: ${slide.title}`}
+                  className="flex h-8 w-6 items-center justify-center"
+                  onClick={() => api?.scrollTo(index)}
+                >
+                  <span
+                    className={cn(
+                      "rounded-full transition-all",
+                      active
+                        ? "h-2 w-full bg-[#f8f7f7]"
+                        : "size-2 bg-white/70 hover:bg-white",
+                    )}
+                  />
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="flex items-center gap-2 pr-3 text-white">
             <button
-              key={slide.id}
               type="button"
-              role="tab"
-              aria-selected={activeIndex === index}
-              aria-label={`Go to slide ${index + 1}: ${slide.title}`}
-              className={cn(
-                "rounded-full transition-all min-w-11 min-h-11 flex items-center justify-center",
-                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/60",
-              )}
-              onClick={() => api?.scrollTo(index)}
+              aria-label="Previous slide"
+              className="size-6 flex items-center justify-center"
+              onClick={() => api?.scrollPrev()}
             >
-              <span
-                className={cn(
-                  "block rounded-full transition-all",
-                  activeIndex === index
-                    ? "size-2.5 bg-white"
-                    : "size-2 bg-white/45 hover:bg-white/70",
-                )}
-              />
+              <ChevronLeft size={24} />
             </button>
-          ))}
+            <button
+              type="button"
+              aria-label="Next slide"
+              className="size-6 flex items-center justify-center"
+              onClick={() => api?.scrollNext()}
+            >
+              <ChevronRight size={24} />
+            </button>
+          </div>
         </div>
       </Carousel>
     </section>
