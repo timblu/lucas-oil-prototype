@@ -1,0 +1,4 @@
+# Single-package project; settings live here for pnpm 10+.
+allowBuilds:
+  esbuild: true
+  "@tailwindcss/oxide": true
