@@ -1,22 +1,43 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { MessageCircle, Send, X } from "lucide-react";
+import { useBrand } from "../../brand/BrandContext";
 
-const SUPPORT_MESSAGES = [
-  {
-    id: "s1",
-    sender: "agent" as const,
-    name: "IRIS Support",
-    timestamp: "Just now",
-    body: "Hi J. Miller! You're connected to IRIS Networks Distributor Support. How can I help you today?",
-  },
-];
+type ChatMessage = {
+  id: string;
+  sender: "agent" | "you";
+  name: string;
+  timestamp: string;
+  body: string;
+};
 
 export function SupportChat() {
+  const { brand } = useBrand();
   const [open, setOpen] = useState(false);
-  const [messages, setMessages] = useState(SUPPORT_MESSAGES);
+  const [messages, setMessages] = useState<ChatMessage[]>(() => [
+    {
+      id: "s1",
+      sender: "agent",
+      name: brand.supportAgent,
+      timestamp: "Just now",
+      body: `Hi J. Miller! You're connected to ${brand.name} Distributor Support. How can I help you today?`,
+    },
+  ]);
   const [draft, setDraft] = useState("");
   const [agentTyping, setAgentTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMessages([
+      {
+        id: "s1",
+        sender: "agent",
+        name: brand.supportAgent,
+        timestamp: "Just now",
+        body: `Hi J. Miller! You're connected to ${brand.name} Distributor Support. How can I help you today?`,
+      },
+    ]);
+    setAgentTyping(false);
+  }, [brand.name, brand.supportAgent]);
 
   useEffect(() => {
     if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -48,9 +69,9 @@ export function SupportChat() {
         {
           id: String(Date.now() + 1),
           sender: "agent",
-          name: "IRIS Support",
+          name: brand.supportAgent,
           timestamp: ts,
-          body: "Thanks for reaching out. An agent will follow up shortly. For urgent order issues you can also reach your IRIS Networks rep from the Account page.",
+          body: `Thanks for reaching out. An agent will follow up shortly. For urgent order issues you can also reach your ${brand.name} rep from the Account page.`,
         },
       ]);
     }, 1800);
@@ -87,14 +108,14 @@ export function SupportChat() {
           style={{ maxHeight: "420px" }}
         >
           {/* Header */}
-          <div className="bg-iris-purple-dark px-4 py-3 flex items-center justify-between shrink-0">
+          <div className="bg-brand-dark px-4 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-full bg-white/15 flex items-center justify-center">
                 <MessageCircle size={14} className="text-white" />
               </div>
               <div>
                 <div className="text-white text-xs font-semibold leading-tight">
-                  IRIS Networks Support
+                  {brand.supportTitle}
                 </div>
               </div>
             </div>
@@ -123,7 +144,7 @@ export function SupportChat() {
                   <div
                     className={`rounded-2xl px-3 py-2 text-xs leading-relaxed ${
                       msg.sender === "you"
-                        ? "bg-iris-purple-dark text-white rounded-tr-sm"
+                        ? "bg-brand-dark text-white rounded-tr-sm"
                         : "bg-white border border-border text-foreground rounded-tl-sm shadow-sm"
                     }`}
                   >

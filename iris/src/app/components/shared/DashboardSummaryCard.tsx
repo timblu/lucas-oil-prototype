@@ -45,14 +45,14 @@ export function DashboardSummaryCard({
           <div
             className={cn(
               "truncate font-heading text-2xl font-semibold leading-tight",
-              attention ? "text-brand-coral-strong" : "text-iris-purple-dark",
+              attention ? "text-brand-coral-strong" : "text-heading",
             )}
           >
             {primary}
           </div>
           <p className="text-sm leading-5 text-muted-foreground">{supporting}</p>
         </div>
-        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-iris-purple-50 text-iris-purple [&_svg]:size-5">
+        <div className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-primary [&_svg]:size-5">
           {icon}
         </div>
       </div>

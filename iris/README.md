@@ -1,6 +1,8 @@
 # IRIS Networks Distributor Portal
 
-Standalone copy of the distributor portal, rebranded for IRIS Networks and built on shadcn/ui (Vite + React + Tailwind v4). The original Lucas Oil prototype at the repository root is unchanged.
+Standalone copy of the distributor portal, built on shadcn/ui (Vite + React + Tailwind v4), with a switchable brand theme. The original Lucas Oil prototype at the repository root is unchanged.
+
+The header (and the sign-in screen) has an **IRIS / Lucas** control. It swaps colors, type, logo, and company copy. IRIS is the default. `?brand=lucas` or `?brand=iris` selects a brand on load, and the choice is remembered in the browser.
 
 ## Running the code
 
@@ -13,7 +15,7 @@ pnpm build      # production build to dist/
 pnpm start      # serve dist/ via server.js (run pnpm build first)
 ```
 
-Demo login is pre-filled: `demo@irisnetworksusa.com` / `iris2026`.
+Demo login is pre-filled and follows the active brand: `demo@irisnetworksusa.com` / `iris2026`, or `demo@lucasoil.com` / `lucas2026`.
 
 ## Structure
 

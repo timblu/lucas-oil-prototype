@@ -140,7 +140,7 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     badge: "Spring program",
     title: "Free counter display — order by April 15",
     description:
-      "Order 4+ cases of Hi-Perf motor oil and receive a counter display kit at no charge. One kit per ship-to. Questions? Contact your IRIS Networks rep.",
+      "Order 4+ cases of Hi-Perf motor oil and receive a counter display kit at no charge. One kit per ship-to. Questions? Contact your rep.",
     ctaLabel: "Contact your rep",
     action: { type: "nav", view: "account" },
     theme: "dark",

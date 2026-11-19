@@ -12,7 +12,7 @@ export default function NotFoundPage() {
       </p>
       <Link
         to={ROUTES.dashboard}
-        className="mt-2 text-sm font-medium text-iris-purple-dark hover:underline"
+        className="mt-2 text-sm font-medium text-brand-dark hover:underline"
       >
         Back to Dashboard
       </Link>

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Building2, Mail, MapPin, Phone, User } from "lucide-react";
+import { useBrand } from "../brand/BrandContext";
 import { Card } from "../components/shared/Card";
 import { PageHeader } from "../components/shared/PageHeader";
 import { StatusBadge } from "../components/shared/StatusBadge";
@@ -78,8 +79,8 @@ function AccountInfoTab() {
   return (
     <Card className="p-6">
       <div className="flex items-center gap-3 pb-5 mb-1 border-b border-border">
-        <div className="w-12 h-12 rounded-xl bg-iris-purple-dark/8 flex items-center justify-center shrink-0">
-          <Building2 size={22} className="text-iris-purple-dark" />
+        <div className="w-12 h-12 rounded-xl bg-brand-dark/8 flex items-center justify-center shrink-0">
+          <Building2 size={22} className="text-brand-dark" />
         </div>
         <div className="min-w-0">
           <div className="font-semibold text-foreground leading-snug">
@@ -112,19 +113,21 @@ function AccountInfoTab() {
 }
 
 function ContactsTab() {
+  const { brand } = useBrand();
+
   return (
     <Card className="overflow-hidden">
       <div className="p-6 bg-muted/30">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-11 h-11 rounded-xl bg-iris-purple-dark/8 flex items-center justify-center shrink-0">
-            <User size={20} className="text-iris-purple-dark" />
+          <div className="w-11 h-11 rounded-xl bg-brand-dark/8 flex items-center justify-center shrink-0">
+            <User size={20} className="text-brand-dark" />
           </div>
           <div className="min-w-0">
             <div className="text-sm font-semibold text-foreground leading-snug">
               {DISTRIBUTOR_ACCOUNT.repName}
             </div>
             <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mt-0.5">
-              IRIS Networks Rep
+              {brand.repTitle}
             </div>
           </div>
         </div>
@@ -136,8 +139,8 @@ function ContactsTab() {
           />
           <ContactLinkRow
             icon={<Mail size={14} />}
-            href={`mailto:${DISTRIBUTOR_ACCOUNT.repEmail}`}
-            value={DISTRIBUTOR_ACCOUNT.repEmail}
+            href={`mailto:${brand.repEmail}`}
+            value={brand.repEmail}
           />
         </div>
       </div>

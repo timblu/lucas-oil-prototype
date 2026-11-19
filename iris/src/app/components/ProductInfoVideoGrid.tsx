@@ -87,7 +87,7 @@ export function ProductInfoVideoGrid({
           <button
             type="button"
             onClick={onViewAll}
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-iris-purple-dark hover:underline shrink-0"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-dark hover:underline shrink-0"
           >
             View all videos
             <ChevronRight size={14} />
@@ -97,7 +97,7 @@ export function ProductInfoVideoGrid({
             href={PRODUCT_INFO_PLAYLIST_URL}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-iris-purple-dark hover:underline shrink-0"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-dark hover:underline shrink-0"
           >
             View full playlist
             <ExternalLink size={14} />
@@ -125,7 +125,7 @@ export function ProductInfoVideoGrid({
                 />
                 <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-black/65 flex items-center justify-center text-white group-hover:bg-iris-purple-dark group-hover:scale-105 transition-all">
+                  <div className="w-12 h-12 rounded-full bg-black/65 flex items-center justify-center text-white group-hover:bg-brand-dark group-hover:scale-105 transition-all">
                     <Play size={20} className="ml-0.5" fill="currentColor" />
                   </div>
                 </div>
@@ -141,7 +141,7 @@ export function ProductInfoVideoGrid({
                 href={productInfoVideoWatchUrl(video.id)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-xs text-muted-foreground hover:text-iris-purple-dark transition-colors inline-flex items-center gap-1"
+                className="text-xs text-muted-foreground hover:text-brand-dark transition-colors inline-flex items-center gap-1"
                 onClick={(e) => e.stopPropagation()}
               >
                 Watch on YouTube

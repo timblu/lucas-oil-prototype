@@ -1,7 +1,9 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import { IrisLogo } from "../components/shared/IrisLogo";
+import { useBrand } from "../brand/BrandContext";
+import { BrandLogo } from "../components/shared/BrandLogo";
+import { BrandSwitcher } from "../components/shared/BrandSwitcher";
 import { useAuth } from "../auth/AuthContext";
 import { Button } from "../components/ui/button";
 import {
@@ -16,15 +18,18 @@ import { Input } from "../components/ui/input";
 import { Label } from "../components/ui/label";
 import { ROUTES } from "../routes";
 
-const DEMO_EMAIL = "demo@irisnetworksusa.com";
-const DEMO_PASSWORD = "iris2026";
-
 export default function LoginPage() {
   const { isLoggedIn, login } = useAuth();
+  const { brand } = useBrand();
   const navigate = useNavigate();
-  const [email, setEmail] = useState(DEMO_EMAIL);
-  const [password, setPassword] = useState(DEMO_PASSWORD);
+  const [email, setEmail] = useState(brand.demoEmail);
+  const [password, setPassword] = useState(brand.demoPassword);
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    setEmail(brand.demoEmail);
+    setPassword(brand.demoPassword);
+  }, [brand.demoEmail, brand.demoPassword]);
 
   if (isLoggedIn) return <Navigate to={ROUTES.dashboard} replace />;
 
@@ -39,11 +44,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-iris-purple-dark p-4">
+    <div className="flex min-h-screen items-center justify-center bg-brand-dark p-4">
       <div className="flex w-full max-w-sm flex-col items-center gap-6">
         <div className="flex flex-col items-center gap-3 text-center">
           <div className="rounded-xl bg-white px-5 py-4">
-            <IrisLogo height={40} />
+            <BrandLogo height={40} />
           </div>
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/70">
             Distributor Portal
@@ -52,7 +57,7 @@ export default function LoginPage() {
 
         <Card className="w-full">
           <CardHeader>
-            <CardTitle className="font-heading text-xl font-semibold text-iris-purple-dark">
+            <CardTitle className="font-heading text-xl font-semibold text-heading">
               Partner sign in
             </CardTitle>
             <CardDescription>
@@ -102,9 +107,10 @@ export default function LoginPage() {
             </form>
           </CardContent>
           <CardFooter className="justify-center border-t pt-6 text-xs text-muted-foreground">
-            Need access? Contact your IRIS Networks rep.
+            Need access? Contact your {brand.name} rep.
           </CardFooter>
         </Card>
+        <BrandSwitcher />
       </div>
     </div>
   );

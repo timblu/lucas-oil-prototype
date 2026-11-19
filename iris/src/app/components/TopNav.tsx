@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { CircleUserRound, LogOut, Menu, Search } from "lucide-react";
-import { IrisLogo } from "./shared/IrisLogo";
+import { useBrand } from "../brand/BrandContext";
+import { BrandLogo } from "./shared/BrandLogo";
+import { BrandSwitcher } from "./shared/BrandSwitcher";
 import { GlobalSearch } from "./shared/GlobalSearch";
 import { useAuth } from "../auth/AuthContext";
 import { ROUTES } from "../routes";
@@ -29,12 +31,13 @@ const navItemClass = ({ isActive }: { isActive: boolean }) =>
   cn(
     "rounded-md px-3 py-2 text-sm font-medium text-nav-link transition-colors hover:bg-accent hover:text-accent-foreground",
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
-    isActive && "bg-iris-purple-50 text-iris-purple",
+    isActive && "bg-brand-soft text-primary",
   );
 
 export function TopNav() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const { brand } = useBrand();
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -61,9 +64,9 @@ export function TopNav() {
         <Link
           to={ROUTES.dashboard}
           className="flex shrink-0 items-center"
-          aria-label="IRIS Networks home"
+          aria-label={`${brand.name} home`}
         >
-          <IrisLogo height={30} />
+          <BrandLogo height={30} />
         </Link>
 
         <nav aria-label="Primary" className="hidden items-center gap-1 md:flex">
@@ -75,6 +78,7 @@ export function TopNav() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <BrandSwitcher className="hidden sm:inline-flex" />
           <Button
             type="button"
             variant="outline"
@@ -133,12 +137,15 @@ export function TopNav() {
             <SheetContent side="right" className="w-72 gap-0 p-0">
               <SheetHeader className="border-b p-5">
                 <SheetTitle>
-                  <IrisLogo height={26} />
+                  <BrandLogo height={26} />
                 </SheetTitle>
                 <SheetDescription className="sr-only">
                   Site navigation
                 </SheetDescription>
               </SheetHeader>
+              <div className="border-b px-3 py-3 sm:hidden">
+                <BrandSwitcher />
+              </div>
               <nav aria-label="Mobile" className="flex flex-col gap-1 p-3">
                 {LINKS.map((link) => (
                   <SheetClose asChild key={link.to}>

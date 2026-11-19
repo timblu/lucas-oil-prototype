@@ -165,11 +165,11 @@ export function MarketingBannerCarousel() {
                     />
                     {/* Blue brand wash matching Figma carousel/card/secondary */}
                     <div
-                      className="absolute inset-0 bg-iris-purple/85 mix-blend-multiply"
+                      className="absolute inset-0 bg-primary/85 mix-blend-multiply"
                       aria-hidden
                     />
                     <div
-                      className="absolute inset-0 bg-iris-purple/40"
+                      className="absolute inset-0 bg-primary/40"
                       aria-hidden
                     />
 
@@ -221,7 +221,7 @@ export function MarketingBannerCarousel() {
         </CarouselContent>
 
         {/* Bottom control bar — matches Figma pagination */}
-        <div className="flex w-full items-center justify-between bg-iris-purple-dark py-1">
+        <div className="flex w-full items-center justify-between bg-brand-dark py-1">
           <button
             type="button"
             onClick={togglePlay}

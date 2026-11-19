@@ -33,7 +33,7 @@ export function PromoCard({
       className={cn(
         "group relative flex min-h-[240px] w-full flex-col items-start justify-between overflow-hidden rounded-xl p-6 text-left text-white shadow-xs",
         "transition-shadow hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/50",
-        isBrand ? "bg-iris-purple" : "bg-iris-purple-dark",
+        isBrand ? "bg-primary" : "bg-brand-dark",
         className,
       )}
     >
@@ -49,8 +49,8 @@ export function PromoCard({
         className={cn(
           "absolute inset-0",
           isBrand
-            ? "bg-gradient-to-br from-iris-purple to-iris-magenta"
-            : "bg-gradient-to-t from-iris-purple-dark via-iris-purple-dark/70 to-iris-purple-dark/20",
+            ? "bg-gradient-to-br from-primary to-brand-accent"
+            : "bg-gradient-to-t from-brand-dark via-brand-dark/70 to-brand-dark/20",
         )}
         aria-hidden
       />

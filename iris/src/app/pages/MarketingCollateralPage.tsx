@@ -1,5 +1,6 @@
 import { useEffect, useState, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useBrand } from "../brand/BrandContext";
 import {
   BookOpen,
   Download,
@@ -46,7 +47,7 @@ const COLLATERAL = [
   },
   {
     id: "3",
-    title: "IRIS Networks Brand Standards",
+    title: "Brand Standards",
     type: "PDF",
     size: "8.7 MB",
     pages: 32,
@@ -100,10 +101,12 @@ const COLLATERAL = [
 
 function CollateralPreviewModal({
   item,
+  title,
   onClose,
   onRequestPrinted,
 }: {
   item: (typeof COLLATERAL)[number];
+  title: string;
   onClose: () => void;
   onRequestPrinted?: (itemTitle: string) => void;
 }) {
@@ -187,7 +190,7 @@ function CollateralPreviewModal({
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="text-base font-medium text-foreground">
-                {item.title}
+                {title}
               </h2>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
@@ -230,7 +233,7 @@ function CollateralPreviewModal({
             {onRequestPrinted && (
               <button
                 type="button"
-                onClick={() => onRequestPrinted(item.title)}
+                onClick={() => onRequestPrinted(title)}
                 className="flex items-center gap-2 border border-border hover:border-[#555]/25 hover:bg-muted text-foreground text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
               >
                 <Send size={14} />
@@ -252,6 +255,11 @@ function CollateralPreviewModal({
 
 export default function MarketingCollateralPage() {
   const navigate = useNavigate();
+  const { brand } = useBrand();
+
+  function titleFor(item: { id: string; title: string }) {
+    return item.id === "3" ? `${brand.name} Brand Standards` : item.title;
+  }
   const [previewItem, setPreviewItem] = useState<
     (typeof COLLATERAL)[number] | null
   >(null);
@@ -263,7 +271,7 @@ export default function MarketingCollateralPage() {
     const body = itemTitle
       ? `I'd like to order printed copies of:\n\n- ${itemTitle}\n\nQuantity:\nShip-to address:\n`
       : "Please list the materials you need, quantities, and ship-to address.";
-    window.location.href = `mailto:marketing@irisnetworksusa.com?subject=${encodeURIComponent(
+    window.location.href = `mailto:${brand.marketingEmail}?subject=${encodeURIComponent(
       subject,
     )}&body=${encodeURIComponent(body)}`;
   }
@@ -281,8 +289,8 @@ export default function MarketingCollateralPage() {
 
       <div className="bg-card border border-border rounded-xl p-5 mb-8 flex flex-col lg:flex-row lg:items-center gap-5">
         <div className="flex items-start gap-4 flex-1 min-w-0">
-          <div className="w-11 h-11 rounded-xl bg-iris-purple-dark/8 flex items-center justify-center shrink-0">
-            <Package size={20} className="text-iris-purple-dark" />
+          <div className="w-11 h-11 rounded-xl bg-brand-dark/8 flex items-center justify-center shrink-0">
+            <Package size={20} className="text-brand-dark" />
           </div>
           <div className="min-w-0">
             <h2 className="font-semibold text-foreground">
@@ -296,11 +304,11 @@ export default function MarketingCollateralPage() {
             </p>
             <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-3 text-sm">
               <a
-                href="mailto:marketing@irisnetworksusa.com?subject=Marketing%20collateral%20order"
-                className="flex items-center gap-1.5 text-iris-purple-dark font-medium hover:underline"
+                href={`mailto:${brand.marketingEmail}?subject=Marketing%20collateral%20order`}
+                className="flex items-center gap-1.5 text-brand-dark font-medium hover:underline"
               >
                 <Mail size={14} />
-                marketing@irisnetworksusa.com
+                {brand.marketingEmail}
               </a>
               <span className="text-muted-foreground/40 hidden sm:inline">
                 ·
@@ -330,18 +338,18 @@ export default function MarketingCollateralPage() {
             onClick={() => setPreviewItem(item)}
             className="bg-card border border-border rounded-lg p-4 flex flex-col items-start gap-3 hover:border-[#555]/25 hover:shadow-sm transition-all group text-left"
           >
-            <div className="w-9 h-9 rounded-md bg-iris-purple-dark/8 flex items-center justify-center text-iris-purple-dark group-hover:bg-iris-purple-dark/15 transition-colors shrink-0">
+            <div className="w-9 h-9 rounded-md bg-brand-dark/8 flex items-center justify-center text-brand-dark group-hover:bg-brand-dark/15 transition-colors shrink-0">
               {item.icon}
             </div>
             <div>
               <div className="text-xs font-semibold text-foreground leading-tight">
-                {item.title}
+                {titleFor(item)}
               </div>
               <div className="text-xs text-muted-foreground mt-1">
                 {item.type} · {item.size}
               </div>
             </div>
-            <div className="mt-auto flex items-center gap-1 text-iris-purple-dark text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+            <div className="mt-auto flex items-center gap-1 text-brand-dark text-xs font-medium opacity-0 group-hover:opacity-100 transition-opacity">
               <Download size={11} /> Preview
             </div>
           </button>
@@ -350,6 +358,7 @@ export default function MarketingCollateralPage() {
       {previewItem && (
         <CollateralPreviewModal
           item={previewItem}
+          title={titleFor(previewItem)}
           onClose={() => setPreviewItem(null)}
           onRequestPrinted={(title) => {
             setPreviewItem(null);

@@ -90,7 +90,7 @@ export default function OrdersListPage() {
                   onClick={() => navigate(ROUTES.order(o.id))}
                   className="hover:bg-muted/30 cursor-pointer transition-colors group"
                 >
-                  <td className="px-5 py-4 mono text-sm font-medium text-iris-purple-dark group-hover:text-[#333]">
+                  <td className="px-5 py-4 mono text-sm font-medium text-brand-dark group-hover:text-[#333]">
                     {o.id}
                   </td>
                   <td className="px-5 py-4 mono text-sm text-foreground">

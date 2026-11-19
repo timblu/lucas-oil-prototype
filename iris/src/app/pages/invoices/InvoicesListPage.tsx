@@ -46,8 +46,8 @@ function SummaryCard({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`bg-card border rounded-xl px-5 py-4 text-left hover:shadow-md transition-all group flex items-center gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-iris-purple-dark/30 ${
-        active ? "border-iris-purple-dark shadow-sm" : "border-border"
+      className={`bg-card border rounded-xl px-5 py-4 text-left hover:shadow-md transition-all group flex items-center gap-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 ${
+        active ? "border-primary shadow-sm" : "border-border"
       }`}
     >
       <div className="w-11 h-11 rounded-xl bg-muted flex items-center justify-center shrink-0 group-hover:bg-secondary transition-colors">
@@ -183,7 +183,7 @@ export default function InvoicesListPage() {
                   onClick={() => navigate(ROUTES.invoice(inv.id))}
                   className="hover:bg-muted/30 cursor-pointer transition-colors group"
                 >
-                  <td className="px-5 py-4 mono text-sm font-medium text-iris-purple-dark group-hover:text-[#333]">
+                  <td className="px-5 py-4 mono text-sm font-medium text-brand-dark group-hover:text-[#333]">
                     {inv.invoiceNumber}
                   </td>
                   <td className="px-5 py-4 mono text-sm text-foreground">
@@ -196,7 +196,7 @@ export default function InvoicesListPage() {
                         e.stopPropagation();
                         navigate(ROUTES.order(inv.orderId));
                       }}
-                      className="mono text-iris-purple-dark hover:underline"
+                      className="mono text-brand-dark hover:underline"
                     >
                       {inv.orderId}
                     </button>

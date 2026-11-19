@@ -85,7 +85,7 @@ export default function KnowledgeHubPage() {
           className="absolute inset-0 size-full object-cover object-center scale-105 blur-[2px]"
         />
         <div
-          className="absolute inset-0 bg-iris-purple-dark/70 mix-blend-multiply"
+          className="absolute inset-0 bg-brand-dark/70 mix-blend-multiply"
           aria-hidden
         />
         <div
