@@ -1,9 +1,8 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import { Loader2 } from "lucide-react";
-import { useBrand } from "../brand/BrandContext";
+import { brand } from "../brand/brand";
 import { BrandLogo } from "../components/shared/BrandLogo";
-import { BrandSwitcher } from "../components/shared/BrandSwitcher";
 import { useAuth } from "../auth/AuthContext";
 import { Button } from "../components/ui/button";
 import {
@@ -20,16 +19,10 @@ import { ROUTES } from "../routes";
 
 export default function LoginPage() {
   const { isLoggedIn, login } = useAuth();
-  const { brand } = useBrand();
   const navigate = useNavigate();
   const [email, setEmail] = useState(brand.demoEmail);
   const [password, setPassword] = useState(brand.demoPassword);
   const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    setEmail(brand.demoEmail);
-    setPassword(brand.demoPassword);
-  }, [brand.demoEmail, brand.demoPassword]);
 
   if (isLoggedIn) return <Navigate to={ROUTES.dashboard} replace />;
 
@@ -110,7 +103,6 @@ export default function LoginPage() {
             Need access? Contact your {brand.name} rep.
           </CardFooter>
         </Card>
-        <BrandSwitcher />
       </div>
     </div>
   );

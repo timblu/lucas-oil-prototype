@@ -11,7 +11,7 @@ import {
   Receipt,
 } from "lucide-react";
 import featuredGears from "../../assets/figma/featured-gears.png";
-import { useBrand } from "../brand/BrandContext";
+import { brand } from "../brand/brand";
 import { Card } from "../components/shared/Card";
 import { DashboardSummaryCard } from "../components/shared/DashboardSummaryCard";
 import { PromoCard } from "../components/shared/PromoCard";
@@ -57,7 +57,6 @@ function SectionHeading({
 
 export default function DashboardPage() {
   const navigate = useNavigate();
-  const { brand } = useBrand();
   const recentOrders = ORDERS.slice(0, 4);
   const recentInvoices = INVOICES.slice(0, 4);
 

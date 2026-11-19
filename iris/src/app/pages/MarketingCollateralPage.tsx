@@ -1,6 +1,6 @@
 import { useEffect, useState, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
-import { useBrand } from "../brand/BrandContext";
+import { brand } from "../brand/brand";
 import {
   BookOpen,
   Download,
@@ -47,7 +47,7 @@ const COLLATERAL = [
   },
   {
     id: "3",
-    title: "Brand Standards",
+    title: "IRIS Networks Brand Standards",
     type: "PDF",
     size: "8.7 MB",
     pages: 32,
@@ -101,12 +101,10 @@ const COLLATERAL = [
 
 function CollateralPreviewModal({
   item,
-  title,
   onClose,
   onRequestPrinted,
 }: {
   item: (typeof COLLATERAL)[number];
-  title: string;
   onClose: () => void;
   onRequestPrinted?: (itemTitle: string) => void;
 }) {
@@ -190,7 +188,7 @@ function CollateralPreviewModal({
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="text-base font-medium text-foreground">
-                {title}
+                {item.title}
               </h2>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">
@@ -233,7 +231,7 @@ function CollateralPreviewModal({
             {onRequestPrinted && (
               <button
                 type="button"
-                onClick={() => onRequestPrinted(title)}
+                onClick={() => onRequestPrinted(item.title)}
                 className="flex items-center gap-2 border border-border hover:border-[#555]/25 hover:bg-muted text-foreground text-sm font-medium px-5 py-2.5 rounded-lg transition-colors"
               >
                 <Send size={14} />
@@ -255,11 +253,6 @@ function CollateralPreviewModal({
 
 export default function MarketingCollateralPage() {
   const navigate = useNavigate();
-  const { brand } = useBrand();
-
-  function titleFor(item: { id: string; title: string }) {
-    return item.id === "3" ? `${brand.name} Brand Standards` : item.title;
-  }
   const [previewItem, setPreviewItem] = useState<
     (typeof COLLATERAL)[number] | null
   >(null);
@@ -343,7 +336,7 @@ export default function MarketingCollateralPage() {
             </div>
             <div>
               <div className="text-xs font-semibold text-foreground leading-tight">
-                {titleFor(item)}
+                {item.title}
               </div>
               <div className="text-xs text-muted-foreground mt-1">
                 {item.type} · {item.size}
@@ -358,7 +351,6 @@ export default function MarketingCollateralPage() {
       {previewItem && (
         <CollateralPreviewModal
           item={previewItem}
-          title={titleFor(previewItem)}
           onClose={() => setPreviewItem(null)}
           onRequestPrinted={(title) => {
             setPreviewItem(null);

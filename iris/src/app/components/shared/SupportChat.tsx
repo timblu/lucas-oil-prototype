@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { MessageCircle, Send, X } from "lucide-react";
-import { useBrand } from "../../brand/BrandContext";
+import { brand } from "../../brand/brand";
 
 type ChatMessage = {
   id: string;
@@ -11,7 +11,6 @@ type ChatMessage = {
 };
 
 export function SupportChat() {
-  const { brand } = useBrand();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>(() => [
     {
@@ -25,19 +24,6 @@ export function SupportChat() {
   const [draft, setDraft] = useState("");
   const [agentTyping, setAgentTyping] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMessages([
-      {
-        id: "s1",
-        sender: "agent",
-        name: brand.supportAgent,
-        timestamp: "Just now",
-        body: `Hi J. Miller! You're connected to ${brand.name} Distributor Support. How can I help you today?`,
-      },
-    ]);
-    setAgentTyping(false);
-  }, [brand.name, brand.supportAgent]);
 
   useEffect(() => {
     if (open) bottomRef.current?.scrollIntoView({ behavior: "smooth" });

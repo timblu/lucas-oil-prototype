@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { CircleUserRound, LogOut, Menu, Search } from "lucide-react";
-import { useBrand } from "../brand/BrandContext";
+import { brand } from "../brand/brand";
 import { BrandLogo } from "./shared/BrandLogo";
-import { BrandSwitcher } from "./shared/BrandSwitcher";
 import { GlobalSearch } from "./shared/GlobalSearch";
 import { useAuth } from "../auth/AuthContext";
 import { ROUTES } from "../routes";
@@ -37,7 +36,6 @@ const navItemClass = ({ isActive }: { isActive: boolean }) =>
 export function TopNav() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const { brand } = useBrand();
   const { logout } = useAuth();
   const navigate = useNavigate();
 
@@ -78,7 +76,6 @@ export function TopNav() {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
-          <BrandSwitcher className="hidden sm:inline-flex" />
           <Button
             type="button"
             variant="outline"
@@ -143,9 +140,6 @@ export function TopNav() {
                   Site navigation
                 </SheetDescription>
               </SheetHeader>
-              <div className="border-b px-3 py-3 sm:hidden">
-                <BrandSwitcher />
-              </div>
               <nav aria-label="Mobile" className="flex flex-col gap-1 p-3">
                 {LINKS.map((link) => (
                   <SheetClose asChild key={link.to}>

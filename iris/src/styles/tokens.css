@@ -1,5 +1,4 @@
-/* Raw brand scales. Semantic roles (primary, brand-dark, fonts) live in theme.css
-   and switch with [data-brand="iris"|"lucas"]. */
+/* Raw brand scales. Semantic roles (primary, brand-dark, fonts) live in theme.css. */
 :root {
   /* IRIS Networks — purple (logo fill #592d82), cyan, magenta, coral */
   --iris-purple-50: #f6f2fb;
@@ -27,21 +26,7 @@
   --iris-coral-500: #f0493e;
   --iris-coral-700: #b93229;
 
-  /* Lucas Oil — red mark, blue UI, orange warning */
-  --lucas-red-500: #eb0037;
-  --lucas-red-600: #d50032;
-  --lucas-red-700: #ad002e;
-  --lucas-blue-50: #e7f1fb;
-  --lucas-blue-100: #bbdbfb;
-  --lucas-blue-500: #0045bd;
-  --lucas-blue-600: #003da5;
-  --lucas-blue-700: #002e8a;
-  --lucas-blue-800: #011c5f;
-  --lucas-blue-900: #020f3b;
-  --lucas-orange-500: #e67d22;
-  --lucas-orange-700: #b45f06;
-
-  /* Neutrals shared by both brands */
+  /* Neutrals */
   --neutral-0: #ffffff;
   --neutral-50: #f8f7fa;
   --neutral-100: #f0eef4;

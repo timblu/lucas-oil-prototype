@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { Building2, Mail, MapPin, Phone, User } from "lucide-react";
-import { useBrand } from "../brand/BrandContext";
+import { brand } from "../brand/brand";
 import { Card } from "../components/shared/Card";
 import { PageHeader } from "../components/shared/PageHeader";
 import { StatusBadge } from "../components/shared/StatusBadge";
@@ -113,7 +113,6 @@ function AccountInfoTab() {
 }
 
 function ContactsTab() {
-  const { brand } = useBrand();
 
   return (
     <Card className="overflow-hidden">

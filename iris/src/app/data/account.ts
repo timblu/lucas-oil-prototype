@@ -5,7 +5,6 @@ export const DISTRIBUTOR_ACCOUNT = {
   territory: "Western US",
   repName: "Marcus Chen",
   repPhone: "800-342-2512 x204",
-  repEmail: "m.chen@irisnetworksusa.com",
   primaryContact: "J. Miller",
   contactEmail: "j.miller@renowo.com",
   shipToAddress: "1200 Distribution Dr, Reno NV 89502",
