@@ -7,13 +7,14 @@
 
 ## Brands
 
-- Two brands share these screens: IRIS Networks (default) and Lucas Oil. Switch with the IRIS / Lucas control in the header, or open `?brand=iris` or `?brand=lucas`. The choice is stored in `localStorage` under `portal-brand`.
-- Copy, logo, demo login, and support details come from `src/app/brand/brands.ts` via `useBrand()`.
-- Color and type come from semantic tokens. `[data-brand="lucas"]` in `src/styles/theme.css` overrides the IRIS defaults on `:root`. Use `bg-primary`, `bg-brand-dark`, `bg-brand-soft`, `text-heading`, and `to-brand-accent` so both brands restyle the same markup.
+- This is a single-brand fork (IRIS Networks). There is no runtime brand switch and no per-brand state in the app.
+- Company copy, contacts, and demo sign-in come from `src/app/brand/brand.ts`. Import `brand` directly; do not add context providers for it.
+- Logo comes from `src/app/components/shared/BrandLogo.tsx`. Color comes from semantic tokens in `src/styles/theme.css`. Use `bg-primary`, `bg-brand-dark`, `bg-brand-soft`, `text-heading`, and `to-brand-accent` so the markup restyles when the tokens change.
+- To fork for another company, follow the table in `README.md`.
 
 ## Design system
 
-- Raw scales live in `src/styles/tokens.css`: IRIS purple (`#592d82`), cyan, magenta, and coral, plus the Lucas Oil red and blue scales.
+- Raw scales live in `src/styles/tokens.css`: IRIS purple (`#592d82`), cyan, magenta, and coral, plus shared neutrals.
 - Semantic theme mappings (background, foreground, primary, etc.) live in `src/styles/theme.css`.
 - Use Tailwind utility classes backed by theme tokens (`bg-primary`, `text-muted-foreground`, `text-iris-purple`, `border-border`, etc.) instead of hardcoded hex.
 - Prefer semantic tokens for UI chrome: `text-foreground`, `text-muted-foreground`, `text-label`, `text-nav-link`, `border-border`, `border-border-default`, `bg-tracking-complete-bg`, `text-tracking-progress`.
@@ -26,6 +27,6 @@
 
 ## Typography
 
-- IRIS headings are Poppins and body text is Open Sans. Lucas Oil uses Inter for both. Both are applied through `--font-family-heading` and `--font-family-sans`.
+- Headings are Poppins and body text is Open Sans. Both are set through `--font-family-heading` and `--font-family-sans` in `tokens.css`, and loaded from the Google Fonts import in `src/styles/index.css`.
 - Monospace identifiers (order and invoice numbers): JetBrains Mono via the `.mono` utility or `font-mono`.
 - Type scale: `--text-2xs` (11) through `--text-3xl` (28) from `tokens.css`.

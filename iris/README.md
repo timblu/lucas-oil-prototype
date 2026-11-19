@@ -1,8 +1,8 @@
 # IRIS Networks Distributor Portal
 
-Standalone copy of the distributor portal, built on shadcn/ui (Vite + React + Tailwind v4), with a switchable brand theme. The original Lucas Oil prototype at the repository root is unchanged.
+A single-brand copy of the distributor portal, built on shadcn/ui (Vite + React + Tailwind v4). The original Lucas Oil prototype at the repository root is unchanged.
 
-The header (and the sign-in screen) has an **IRIS / Lucas** control. It swaps colors, type, logo, and company copy. IRIS is the default. `?brand=lucas` or `?brand=iris` selects a brand on load, and the choice is remembered in the browser.
+This copy is branded for IRIS Networks. To make a new brand, fork this folder and change the brand files listed below. There is no runtime theme switcher.
 
 ## Running the code
 
@@ -15,7 +15,25 @@ pnpm build      # production build to dist/
 pnpm start      # serve dist/ via server.js (run pnpm build first)
 ```
 
-Demo login is pre-filled and follows the active brand: `demo@irisnetworksusa.com` / `iris2026`, or `demo@lucasoil.com` / `lucas2026`.
+Demo login is pre-filled from `src/app/brand/brand.ts`: `demo@irisnetworksusa.com` / `iris2026`.
+
+## Forking for another brand
+
+Each file below holds one kind of brand value. Change them in this order.
+
+| What | Where |
+| --- | --- |
+| Company name, support copy, rep and marketing contacts, demo sign-in | `src/app/brand/brand.ts` |
+| Logo (header, sign-in) | `src/assets/logo/` SVGs, imported in `src/app/components/shared/BrandLogo.tsx` |
+| Favicon | `public/favicon.svg` |
+| Browser title and description | `index.html` |
+| Raw color scales | `src/styles/tokens.css` |
+| Semantic roles (primary, brand-dark, brand-soft, heading, accent, chart, sidebar) | `:root` in `src/styles/theme.css` |
+| Font families and Google Fonts import | `--font-family-*` in `src/styles/tokens.css`, `@import` in `src/styles/index.css` |
+| Account and rep details shown in the portal | `src/app/data/account.ts` |
+| Product catalog, product photos, video and marketing copy | `src/app/data/` and `public/` / `src/assets/` image folders |
+
+Components read colors and fonts only from semantic tokens, so they need no changes when the tokens change.
 
 ## Structure
 
