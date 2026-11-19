@@ -1,0 +1,67 @@
+/* Raw brand scales. Semantic roles (primary, brand-dark, fonts) live in theme.css. */
+:root {
+  /* IRIS Networks — purple (logo fill #592d82), cyan, magenta, coral */
+  --iris-purple-50: #f6f2fb;
+  --iris-purple-100: #ebe2f5;
+  --iris-purple-200: #d4c2e9;
+  --iris-purple-300: #ad8fd4;
+  --iris-purple-400: #8259b0;
+  --iris-purple-500: #592d82;
+  --iris-purple-600: #4b2570;
+  --iris-purple-700: #3c1d5c;
+  --iris-purple-800: #2e1a46;
+  --iris-purple-900: #1d1030;
+
+  /* Brand accent — Iris cyan */
+  --iris-cyan-50: #e9f7fc;
+  --iris-cyan-100: #c6e9f6;
+  --iris-cyan-300: #5cc0e4;
+  --iris-cyan-500: #0093c9;
+  --iris-cyan-700: #006f97;
+  --iris-cyan-900: #004b66;
+
+  /* Supporting brand colors */
+  --iris-magenta-500: #9b278f;
+  --iris-coral-50: #fdf1f0;
+  --iris-coral-500: #f0493e;
+  --iris-coral-700: #b93229;
+
+  /* Neutrals */
+  --neutral-0: #ffffff;
+  --neutral-50: #f8f7fa;
+  --neutral-100: #f0eef4;
+  --neutral-200: #e3e0ea;
+  --neutral-300: #cbc7d4;
+  --neutral-500: #7d7689;
+  --neutral-600: #6b6478;
+  --neutral-800: #2a2433;
+  --neutral-900: #1b1624;
+
+  /* Typography */
+  --font-family-sans: "Open Sans", Arial, Helvetica, sans-serif;
+  --font-family-heading: "Poppins", "Open Sans", Arial, sans-serif;
+  --font-family-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --text-2xs: 0.6875rem; /* 11px */
+  --text-xs: 0.75rem; /* 12px */
+  --text-sm: 0.8125rem; /* 13px */
+  --text-base: 0.875rem; /* 14px */
+  --text-lg: 1rem; /* 16px */
+  --text-xl: 1.125rem; /* 18px */
+  --text-2xl: 1.375rem; /* 22px */
+  --text-3xl: 1.75rem; /* 28px */
+
+  --text-line-height-2xs: 1rem;
+  --text-line-height-xs: 1rem;
+  --text-line-height-sm: 1rem;
+  --text-line-height-base: 1.25rem;
+  --text-line-height-lg: 1.5rem;
+  --text-line-height-xl: 1.5rem;
+  --text-line-height-2xl: 1.75rem;
+
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --letter-spacing-normal: 0;
+}
