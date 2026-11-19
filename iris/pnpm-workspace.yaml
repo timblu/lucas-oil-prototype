@@ -1,0 +1,6 @@
+# Standalone Iris app; keeps this package out of the Lucas Oil root workspace.
+packages:
+  - "."
+allowBuilds:
+  esbuild: true
+  "@tailwindcss/oxide": true
