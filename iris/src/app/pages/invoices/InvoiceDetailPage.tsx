@@ -1,351 +1,383 @@
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import {
+  Calendar,
   ChevronRight,
   CreditCard,
   Download,
   MapPin,
-  Receipt,
+  Package,
   Truck,
 } from "lucide-react";
 import { Card } from "../../components/shared/Card";
 import { PageHeader } from "../../components/shared/PageHeader";
 import { StatusBadge } from "../../components/shared/StatusBadge";
 import { Button } from "../../components/ui/button";
+import { Progress } from "../../components/ui/progress";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "../../components/ui/table";
+import { DISTRIBUTOR_ACCOUNT } from "../../data/account";
 import { INVOICES } from "../../data/invoices";
-import { CREDIT_MEMOS } from "../../data/account";
 import { fmt } from "../../lib/format";
 import { getPaymentSummary } from "../../lib/invoicePayments";
 import { ROUTES } from "../../routes";
+import type { PaymentMethod } from "../../types";
+
+function paymentLabel(method: PaymentMethod) {
+  if (method === "ACH") return "ACH Payment";
+  if (method === "Credit Card") return "Card Payment";
+  if (method === "Wire") return "Wire Transfer";
+  return method;
+}
+
+function shipLines(shipTo: string) {
+  if (shipTo === DISTRIBUTOR_ACCOUNT.shortName) {
+    return DISTRIBUTOR_ACCOUNT.shipToAddress.split(", ");
+  }
+  return [shipTo];
+}
 
 export default function InvoiceDetailPage() {
   const navigate = useNavigate();
   const { invoiceId } = useParams<{ invoiceId: string }>();
-  const invoice = INVOICES.find((i) => i.id === invoiceId);
+  const invoice = INVOICES.find((item) => item.id === invoiceId);
 
   if (!invoice) return <Navigate to={ROUTES.invoices} replace />;
 
-  const linkedMemos = CREDIT_MEMOS.filter(
-    (m) =>
-      invoice.creditMemoIds?.includes(m.memoNumber) ||
-      m.relatedInvoiceNumber === invoice.invoiceNumber,
-  );
-  const { payments, totalPaid, isPaidInFull, isPartiallyPaid } =
-    getPaymentSummary(invoice);
-  const paid = isPaidInFull;
+  const { payments, totalPaid } = getPaymentSummary(invoice);
+  const paidPercent =
+    invoice.total > 0 ? Math.round((totalPaid / invoice.total) * 100) : 0;
+  const address = shipLines(invoice.shipTo);
 
   return (
-    <div className="max-w-page mx-auto px-4 sm:px-10 py-8">
+    <div className="mx-auto max-w-page px-4 py-8 sm:px-10">
       <PageHeader
         title={invoice.invoiceNumber}
+        description={`Issued ${invoice.invoiceDate}`}
         breadcrumbs={[
           { label: "Invoices", to: ROUTES.invoices },
           { label: invoice.invoiceNumber },
         ]}
         action={
-          <>
-            <StatusBadge status={invoice.status} />
-            <Button variant="outline" size="sm" disabled>
-              <Download size={14} />
-              Download PDF
-            </Button>
-            {!paid && (
-              <Button size="sm" disabled>
-                Pay Invoice
-              </Button>
-            )}
-          </>
+          <Button variant="outline" size="sm" disabled>
+            Download PDF
+            <Download />
+          </Button>
         }
       />
 
-      <Card className="mb-5 p-5 sm:p-6">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <div className="text-2xs font-semibold uppercase tracking-wider text-label">
-              Amount due
-            </div>
-            {paid ? (
-              <>
-                <div className="mt-1 text-2xl font-bold text-foreground">
-                  Paid in full
+      <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-3">
+        <div className="space-y-5 lg:col-span-2">
+          <Card className="p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+              <div>
+                <div className="text-xs font-medium text-muted-foreground">
+                  Amount Due
                 </div>
-                <div className="mt-1 font-mono text-sm text-muted-foreground">
-                  Invoice total {fmt(invoice.total)}
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="mt-1 font-mono text-3xl font-bold text-foreground">
+                <div className="mt-1 font-mono text-3xl font-semibold tracking-tight text-foreground">
                   {fmt(invoice.amountDue)}
                 </div>
-                <div className="mt-1 text-sm text-muted-foreground">
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="inline-flex items-center gap-1.5 rounded-md border border-border px-2.5 py-1 text-xs text-muted-foreground">
+                  <Calendar size={14} />
                   Due {invoice.dueDate}
-                </div>
-                {isPartiallyPaid && (
-                  <div className="mt-1 font-mono text-xs text-muted-foreground">
-                    {fmt(totalPaid)} paid of {fmt(invoice.total)}
-                  </div>
-                )}
-              </>
-            )}
-          </div>
-        </div>
+                </span>
+                <StatusBadge status={invoice.status} />
+              </div>
+            </div>
+            <div className="mt-5">
+              <div className="mb-2 flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                <span>
+                  {fmt(totalPaid)} paid of {fmt(invoice.total)}
+                </span>
+                <span>{paidPercent}% Paid</span>
+              </div>
+              <Progress value={paidPercent} aria-label="Amount paid" />
+            </div>
+          </Card>
 
-        <div className="mt-6 pt-5 border-t border-border grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div>
-            <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-1">
-              Invoice date
-            </div>
-            <div className="text-sm font-medium text-foreground">
-              {invoice.invoiceDate}
-            </div>
-          </div>
-          <div>
-            <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-1">
-              Due date
-            </div>
-            <div className="text-sm font-medium text-foreground">
-              {invoice.dueDate}
-            </div>
-          </div>
-          <div>
-            <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-1">
-              Related order
-            </div>
-            <button
-              type="button"
-              onClick={() => navigate(ROUTES.order(invoice.orderId))}
-              className="flex items-center gap-1 font-mono text-sm font-medium text-primary hover:underline"
-            >
-              {invoice.orderId}
-              <ChevronRight size={13} />
-            </button>
-          </div>
-          <div>
-            <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-1">
-              PO
-            </div>
-            <div className="font-mono text-sm font-medium text-foreground">
-              {invoice.poNumber}
-            </div>
-          </div>
-        </div>
-      </Card>
+          <Card className="p-6">
+            <h2 className="text-base font-semibold text-foreground">
+              Invoice Information
+            </h2>
+            <dl className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+              <div>
+                <dt className="text-2xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Invoice Date
+                </dt>
+                <dd className="mt-1 font-mono text-sm font-medium text-foreground">
+                  {invoice.invoiceDate}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-2xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Due Date
+                </dt>
+                <dd className="mt-1 font-mono text-sm font-medium text-foreground">
+                  {invoice.dueDate}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-2xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Related Order
+                </dt>
+                <dd className="mt-1">
+                  <button
+                    type="button"
+                    onClick={() => navigate(ROUTES.order(invoice.orderId))}
+                    className="inline-flex items-center gap-1 font-mono text-sm font-medium text-primary hover:underline"
+                  >
+                    {invoice.orderId}
+                    <ChevronRight size={14} />
+                  </button>
+                </dd>
+              </div>
+              <div>
+                <dt className="text-2xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  Purchase Order (PO)
+                </dt>
+                <dd className="mt-1 font-mono text-sm font-medium text-foreground">
+                  {invoice.poNumber}
+                </dd>
+              </div>
+            </dl>
+          </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
-        <Card className="lg:col-span-2 overflow-hidden">
-          <div className="px-5 py-4 border-b border-border">
-            <h2 className="font-semibold text-sm text-foreground">Line Items</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-border bg-muted/40">
-                  <th className="text-left text-2xs font-semibold uppercase tracking-wider text-label px-5 py-3">
-                    Item #
-                  </th>
-                  <th className="text-left text-2xs font-semibold uppercase tracking-wider text-label px-5 py-3">
-                    Description
-                  </th>
-                  <th className="text-right text-2xs font-semibold uppercase tracking-wider text-label px-5 py-3">
-                    Qty
-                  </th>
-                  <th className="text-right text-2xs font-semibold uppercase tracking-wider text-label px-5 py-3">
-                    Unit Price
-                  </th>
-                  <th className="text-right text-2xs font-semibold uppercase tracking-wider text-label px-5 py-3">
-                    Line Total
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {invoice.lineItems.map((item) => (
-                  <tr key={item.itemNum}>
-                    <td className="px-5 py-3.5 font-mono text-sm text-muted-foreground whitespace-nowrap">
-                      {item.itemNum}
-                    </td>
-                    <td className="px-5 py-3.5 text-sm font-medium text-foreground">
-                      {item.description}
-                    </td>
-                    <td className="px-5 py-3.5 font-mono text-sm text-foreground text-right tabular-nums">
-                      {item.qty}
-                    </td>
-                    <td className="px-5 py-3.5 font-mono text-sm text-foreground text-right tabular-nums">
-                      {fmt(item.unitPrice)}
-                    </td>
-                    <td className="px-5 py-3.5 font-mono text-sm font-semibold text-foreground text-right tabular-nums">
+          <Card className="overflow-hidden">
+            <div className="border-b border-border px-5 py-4">
+              <h2 className="text-sm font-semibold text-foreground">Line Items</h2>
+            </div>
+            <ul className="divide-y divide-border sm:hidden">
+              {invoice.lineItems.map((item) => (
+                <li key={item.itemNum} className="px-5 py-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="text-sm font-medium text-foreground">
+                        {item.description}
+                      </div>
+                      <div className="mt-0.5 font-mono text-xs text-muted-foreground">
+                        {item.itemNum} · {item.qty} × {fmt(item.unitPrice)}
+                      </div>
+                    </div>
+                    <div className="font-mono text-sm font-semibold tabular-nums">
                       {fmt(item.qty * item.unitPrice)}
-                    </td>
-                  </tr>
+                    </div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+            <div className="hidden sm:block">
+            <Table>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="px-5 text-2xs tracking-wider uppercase">
+                    Item #
+                  </TableHead>
+                  <TableHead className="px-5 text-2xs tracking-wider uppercase">
+                    Description
+                  </TableHead>
+                  <TableHead className="px-5 text-right text-2xs tracking-wider uppercase">
+                    Qty
+                  </TableHead>
+                  <TableHead className="px-5 text-right text-2xs tracking-wider uppercase">
+                    Unit Price
+                  </TableHead>
+                  <TableHead className="px-5 text-right text-2xs tracking-wider uppercase">
+                    Total
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {invoice.lineItems.map((item) => (
+                  <TableRow key={item.itemNum} className="hover:bg-transparent">
+                    <TableCell className="px-5 font-mono text-muted-foreground">
+                      {item.itemNum}
+                    </TableCell>
+                    <TableCell className="px-5 font-medium text-foreground">
+                      {item.description}
+                    </TableCell>
+                    <TableCell className="px-5 text-right font-mono tabular-nums">
+                      {item.qty}
+                    </TableCell>
+                    <TableCell className="px-5 text-right font-mono tabular-nums">
+                      {fmt(item.unitPrice)}
+                    </TableCell>
+                    <TableCell className="px-5 text-right font-mono font-semibold tabular-nums">
+                      {fmt(item.qty * item.unitPrice)}
+                    </TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="px-5 py-4 border-t border-border flex justify-end">
-            <div className="w-full max-w-[280px] space-y-1.5 text-sm">
-              <div className="flex justify-between text-muted-foreground">
-                <span>Subtotal</span>
-                <span className="font-mono tabular-nums">
-                  {fmt(invoice.subtotal)}
-                </span>
+              </TableBody>
+            </Table>
+            </div>
+            <div className="space-y-2 border-t border-border px-5 py-4 text-sm">
+              <TotalRow label="Subtotal" value={fmt(invoice.subtotal)} />
+              <TotalRow label="Tax" value={fmt(invoice.tax)} />
+              <TotalRow label="Shipping" value={fmt(invoice.shipping)} />
+              <div className="border-t border-border pt-2">
+                <TotalRow
+                  label="Total Invoice Amount"
+                  value={fmt(invoice.total)}
+                  strong
+                />
               </div>
-              <div className="flex justify-between text-muted-foreground">
-                <span>Tax</span>
-                <span className="font-mono tabular-nums">{fmt(invoice.tax)}</span>
-              </div>
-              <div className="flex justify-between text-muted-foreground">
-                <span>Shipping</span>
-                <span className="font-mono tabular-nums">
-                  {fmt(invoice.shipping)}
-                </span>
-              </div>
-              <div className="border-t border-border pt-2 mt-2 flex justify-between font-medium text-foreground">
-                <span>Total</span>
-                <span className="font-mono tabular-nums">{fmt(invoice.total)}</span>
-              </div>
-              {totalPaid > 0 && (
-                <div className="flex justify-between text-muted-foreground">
-                  <span>Payments applied</span>
-                  <span className="font-mono tabular-nums">−{fmt(totalPaid)}</span>
-                </div>
-              )}
-              <div className="flex justify-between font-semibold text-foreground">
-                <span>Amount due</span>
-                <span className="font-mono tabular-nums text-base">
-                  {fmt(invoice.amountDue)}
-                </span>
+              <TotalRow
+                label="Payments Applied"
+                value={`-${fmt(totalPaid)}`}
+                tone="paid"
+              />
+              <div className="border-t border-border pt-2">
+                <TotalRow
+                  label="Balance Due"
+                  value={fmt(invoice.amountDue)}
+                  tone="due"
+                />
               </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+        </div>
 
         <div className="space-y-5">
-          <Card className="overflow-hidden">
-            <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
-              <CreditCard size={15} className="text-icon" />
-              <h2 className="font-semibold text-sm">Payment History</h2>
-              {payments.length > 0 && (
-                <span className="ml-auto text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                  {payments.length}
-                </span>
-              )}
+          <Card className="p-4">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+              <CreditCard size={15} className="text-muted-foreground" />
+              Payment Details
             </div>
             {payments.length === 0 ? (
-              <div className="px-5 py-4 text-sm text-muted-foreground">
-                No payments applied yet.
-              </div>
+              <p className="text-sm text-muted-foreground">No payments applied yet.</p>
             ) : (
-              <>
-                <div className="divide-y divide-border">
-                  {payments.map((payment) => (
-                    <div
-                      key={payment.id}
-                      className="flex items-start justify-between gap-3 px-5 py-3.5"
-                    >
-                      <div className="min-w-0">
-                        <div className="text-sm font-medium text-foreground">
-                          {payment.method}
-                        </div>
-                        {payment.reference && (
-                          <div className="font-mono text-xs text-muted-foreground mt-0.5 break-all">
-                            {payment.reference}
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-right shrink-0">
-                        <div className="font-mono text-sm font-semibold text-foreground tabular-nums">
-                          {fmt(payment.amount)}
-                        </div>
-                        <div className="text-xs text-muted-foreground mt-0.5">
-                          {payment.date}
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="px-5 py-3.5 border-t border-border space-y-1.5 text-sm">
-                  <div className="flex justify-between font-medium text-foreground">
-                    <span>Total paid</span>
-                    <span className="font-mono tabular-nums">{fmt(totalPaid)}</span>
-                  </div>
-                  <div className="flex justify-between text-muted-foreground">
-                    <span>Remaining</span>
-                    <span className="font-mono tabular-nums">
-                      {fmt(invoice.amountDue)}
-                    </span>
-                  </div>
-                </div>
-              </>
-            )}
-          </Card>
-
-          <Card className="p-5">
-            <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-2 flex items-center gap-1.5">
-              <MapPin size={12} /> Ship To
-            </div>
-            <div className="text-sm font-medium text-foreground leading-relaxed">
-              {invoice.shipTo}
-            </div>
-            <div className="mt-5 pt-5 border-t border-border">
-              <div className="text-2xs font-semibold uppercase tracking-wider text-label mb-2 flex items-center gap-1.5">
-                <Truck size={12} /> Carrier & Tracking
-              </div>
-              <div className="flex flex-col gap-1">
-                <span className="text-sm font-medium text-foreground">
-                  {invoice.carrier}
-                </span>
-                <span className="font-mono text-sm text-foreground break-all">
-                  {invoice.trackingNumber}
-                </span>
-              </div>
-            </div>
-          </Card>
-
-          {linkedMemos.length > 0 && (
-            <Card className="overflow-hidden">
-              <div className="flex items-center gap-2 px-5 py-4 border-b border-border">
-                <Receipt size={15} className="text-icon" />
-                <h2 className="font-semibold text-sm">Credit Memos</h2>
-                <span className="ml-auto text-xs font-medium bg-muted text-muted-foreground px-2 py-0.5 rounded-full">
-                  {linkedMemos.length}
-                </span>
-              </div>
-              <div className="divide-y divide-border">
-                {linkedMemos.map((m) => (
-                  <div
-                    key={m.memoNumber}
-                    className="flex items-start justify-between gap-3 px-5 py-3.5"
+              <ul className="divide-y divide-border">
+                {payments.map((payment) => (
+                  <li
+                    key={payment.id}
+                    className="flex items-start justify-between gap-3 py-3 first:pt-0"
                   >
                     <div className="min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-mono text-sm font-medium text-foreground">
-                          {m.memoNumber}
-                        </span>
-                        <StatusBadge status={m.status} />
+                      <div className="text-sm font-medium text-foreground">
+                        {paymentLabel(payment.method)}
                       </div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {m.reason}
-                      </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <div className="font-mono text-sm font-semibold text-foreground tabular-nums">
-                        {fmt(m.balance)}
-                      </div>
-                      {m.balance !== m.originalAmount && (
-                        <div className="font-mono text-[11px] text-muted-foreground mt-0.5 tabular-nums">
-                          of {fmt(m.originalAmount)}
+                      {payment.reference ? (
+                        <div className="mt-0.5 font-mono text-xs text-muted-foreground">
+                          {payment.reference}
                         </div>
-                      )}
-                      <div className="text-xs text-muted-foreground mt-0.5">
-                        {m.date}
+                      ) : null}
+                    </div>
+                    <div className="text-right">
+                      <div className="font-mono text-sm font-semibold tabular-nums">
+                        {fmt(payment.amount)}
+                      </div>
+                      <div className="mt-0.5 text-xs text-muted-foreground">
+                        {payment.date}
                       </div>
                     </div>
-                  </div>
+                  </li>
                 ))}
+              </ul>
+            )}
+            <div className="mt-2 space-y-2 border-t border-border pt-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Total Paid</span>
+                <span className="font-mono font-semibold tabular-nums">
+                  {fmt(totalPaid)}
+                </span>
               </div>
-            </Card>
-          )}
+              <div className="flex justify-between">
+                <span className="font-medium text-primary">Remaining Balance</span>
+                <span className="font-mono font-semibold text-primary tabular-nums">
+                  {fmt(invoice.amountDue)}
+                </span>
+              </div>
+            </div>
+          </Card>
+
+          <Card className="p-4">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+              <MapPin size={15} className="text-muted-foreground" />
+              Shipping Details
+            </div>
+            <div className="text-2xs font-semibold tracking-wider text-muted-foreground uppercase">
+              Shipping Address
+            </div>
+            <div className="mt-1 text-sm leading-relaxed text-foreground">
+              {address.map((line) => (
+                <div key={line}>{line}</div>
+              ))}
+            </div>
+            <div className="mt-4 border-t border-border pt-4">
+              <div className="flex items-center gap-1.5 text-2xs font-semibold tracking-wider text-muted-foreground uppercase">
+                <Truck size={12} /> Carrier
+              </div>
+              <div className="mt-1 text-sm font-medium">{invoice.carrier}</div>
+              <div className="mt-3 text-2xs font-semibold tracking-wider text-muted-foreground uppercase">
+                Tracking Number
+              </div>
+              <div className="mt-1 font-mono text-sm break-all text-primary">
+                {invoice.trackingNumber}
+              </div>
+            </div>
+            <Button
+              className="mt-4 h-12 w-full justify-between px-4"
+              onClick={() => navigate(ROUTES.order(invoice.orderId))}
+            >
+              <span className="inline-flex items-center gap-2 font-mono">
+                <Package />
+                {invoice.orderId}
+              </span>
+              <span className="inline-flex items-center gap-1 text-xs font-medium">
+                View Order
+                <ChevronRight />
+              </span>
+            </Button>
+          </Card>
         </div>
       </div>
+    </div>
+  );
+}
+
+function TotalRow({
+  label,
+  value,
+  strong,
+  tone,
+}: {
+  label: string;
+  value: string;
+  strong?: boolean;
+  tone?: "paid" | "due";
+}) {
+  return (
+    <div className="flex items-center justify-between gap-4">
+      <span
+        className={
+          tone === "due"
+            ? "font-semibold text-primary"
+            : strong
+              ? "font-semibold text-foreground"
+              : "text-muted-foreground"
+        }
+      >
+        {label}
+      </span>
+      <span
+        className={
+          tone === "paid"
+            ? "font-mono font-medium text-tracking-complete tabular-nums"
+            : tone === "due"
+              ? "font-mono font-semibold text-primary tabular-nums"
+              : strong
+                ? "font-mono font-semibold text-foreground tabular-nums"
+                : "font-mono text-foreground tabular-nums"
+        }
+      >
+        {value}
+      </span>
     </div>
   );
 }
