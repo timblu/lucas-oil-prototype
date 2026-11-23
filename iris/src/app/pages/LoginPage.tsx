@@ -20,8 +20,8 @@ import { ROUTES } from "../routes";
 export default function LoginPage() {
   const { isLoggedIn, login } = useAuth();
   const navigate = useNavigate();
-  const [email, setEmail] = useState(brand.demoEmail);
-  const [password, setPassword] = useState(brand.demoPassword);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   if (isLoggedIn) return <Navigate to={ROUTES.dashboard} replace />;

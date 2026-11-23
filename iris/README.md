@@ -15,7 +15,7 @@ pnpm build      # production build to dist/
 pnpm start      # serve dist/ via server.js (run pnpm build first)
 ```
 
-Demo login is pre-filled from `src/app/brand/brand.ts`: `demo@irisnetworksusa.com` / `iris2026`.
+The portal opens directly to the dashboard. Auth is mocked: `AuthProvider` in `src/app/auth/AuthContext.tsx` starts signed in, and the sign-in form accepts any non-empty input. Signing out returns to the sign-in form.
 
 ## Forking for another brand
 
@@ -23,7 +23,7 @@ Each file below holds one kind of brand value. Change them in this order.
 
 | What | Where |
 | --- | --- |
-| Company name, support copy, rep and marketing contacts, demo sign-in | `src/app/brand/brand.ts` |
+| Company name, support copy, rep and marketing contacts | `src/app/brand/brand.ts` |
 | Logo (header, sign-in) | `src/assets/logo/` SVGs, imported in `src/app/components/shared/BrandLogo.tsx` |
 | Favicon | `public/favicon.svg` |
 | Browser title and description | `index.html` |
