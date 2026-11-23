@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Navigate, useNavigate, useParams } from "react-router-dom";
-import { Package, Plus } from "lucide-react";
+import { Network, Plus } from "lucide-react";
 import { Card } from "../../components/shared/Card";
 import { PageHeader } from "../../components/shared/PageHeader";
 import { InvBadge } from "../../components/shared/InvBadge";
@@ -10,7 +10,7 @@ import { fmt } from "../../lib/format";
 import { ROUTES } from "../../routes";
 import { cn } from "../../components/ui/utils";
 
-const TABS = ["Description", "Specs", "SDS"] as const;
+const TABS = ["Description", "Specs", "Service Brief"] as const;
 
 export default function ProductDetailPage() {
   const navigate = useNavigate();
@@ -38,7 +38,7 @@ export default function ProductDetailPage() {
             p.colorClass,
           )}
         >
-          <Package size={96} className="text-white/60" />
+          <Network size={96} className="text-white/60" />
         </div>
 
         <div className="flex flex-col">
@@ -54,7 +54,7 @@ export default function ProductDetailPage() {
             <span className="font-mono text-3xl font-bold text-foreground">
               {fmt(p.price)}
             </span>
-            <span className="text-sm text-muted-foreground">/ case</span>
+            <span className="text-sm text-muted-foreground">/ unit</span>
           </div>
           <div className="mb-6">
             <InvBadge inv={p.inventory} count={p.inventoryCount} />
@@ -63,10 +63,10 @@ export default function ProductDetailPage() {
           <div className="grid grid-cols-2 gap-3 mb-8">
             <div className="bg-muted/50 rounded-lg px-4 py-3">
               <div className="text-2xs font-semibold uppercase text-label mb-1">
-                Case Qty
+                Billing unit
               </div>
               <div className="text-sm font-semibold text-foreground">
-                {p.caseQty}
+                {p.billingUnit}
               </div>
             </div>
             <div className="bg-muted/50 rounded-lg px-4 py-3">
@@ -138,9 +138,9 @@ export default function ProductDetailPage() {
             </div>
             <div>
               <dt className="text-2xs font-semibold uppercase text-label mb-1">
-                Case quantity
+                Billing unit
               </dt>
-              <dd className="font-medium">{p.caseQty}</dd>
+              <dd className="font-medium">{p.billingUnit}</dd>
             </div>
             <div>
               <dt className="text-2xs font-semibold uppercase text-label mb-1">
@@ -156,13 +156,13 @@ export default function ProductDetailPage() {
             </div>
           </dl>
         )}
-        {tab === "SDS" && (
+        {tab === "Service Brief" && (
           <div className="text-sm text-muted-foreground">
             <p className="mb-3">
-              Safety Data Sheet available for Item #{p.id}.
+              Service brief available for Item #{p.id}.
             </p>
             <Button variant="outline" size="sm" disabled>
-              Download SDS (PDF)
+              Download service brief (PDF)
             </Button>
           </div>
         )}

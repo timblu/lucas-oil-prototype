@@ -9,7 +9,6 @@ import {
   Shield,
 } from "lucide-react";
 import { ProductInfoVideoGrid } from "../../components/ProductInfoVideoGrid";
-import featuredGears from "../../../assets/figma/featured-gears.png";
 import { ROUTES } from "../../routes";
 import { cn } from "../../components/ui/utils";
 
@@ -25,15 +24,16 @@ const KNOWLEDGE_HUB_ITEMS: {
     id: "videos",
     title: "Product Videos",
     description:
-      "Product demos, how-tos, and training from the Lucas Oil YouTube channel.",
+      "Service overviews, how-tos, and training for the IRIS partner team.",
     cta: "View Videos",
     icon: <Play size={28} />,
     to: ROUTES.productVideos,
   },
   {
     id: "bulletins",
-    title: "Technical Bulletins",
-    description: "Application notes, OEM approvals, and formulation updates.",
+    title: "Network Bulletins",
+    description:
+      "Route and capacity updates, maintenance notices, and service advisories.",
     cta: "View Bulletins",
     icon: <FileText size={28} />,
     to: null,
@@ -42,16 +42,16 @@ const KNOWLEDGE_HUB_ITEMS: {
     id: "training",
     title: "Distributor Training",
     description:
-      "Counter sales guides, product positioning, and onboarding modules.",
+      "Sales guides, service positioning, and onboarding modules for IRIS partners.",
     cta: "Start Training",
     icon: <BookOpen size={28} />,
     to: null,
   },
   {
-    id: "sds",
-    title: "SDS / Safety Data",
-    description: "Searchable safety data sheets by product and SKU.",
-    cta: "Browse SDS",
+    id: "briefs",
+    title: "Service Briefs",
+    description: "Searchable service descriptions and spec sheets by product.",
+    cta: "Browse briefs",
     icon: <Shield size={28} />,
     to: null,
   },
@@ -78,18 +78,16 @@ export default function KnowledgeHubPage() {
         aria-label="Knowledge Hub"
         className="relative w-full min-h-[320px] overflow-hidden md:min-h-[380px]"
       >
-        <img
-          src={featuredGears}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 size-full object-cover object-center scale-105 blur-[2px]"
-        />
         <div
-          className="absolute inset-0 bg-brand-dark/70 mix-blend-multiply"
+          className="absolute inset-0 bg-gradient-to-br from-brand-dark via-primary to-brand-accent"
           aria-hidden
         />
         <div
-          className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/30"
+          className="absolute -right-24 -top-32 size-[28rem] rounded-full bg-blue/40 blur-3xl"
+          aria-hidden
+        />
+        <div
+          className="absolute -bottom-40 left-1/4 size-[26rem] rounded-full bg-brand-coral/25 blur-3xl"
           aria-hidden
         />
 
@@ -98,7 +96,7 @@ export default function KnowledgeHubPage() {
             Knowledge Hub
           </h1>
           <p className="mt-2 max-w-xl text-base leading-relaxed text-white/90">
-            Product specs, training, and technical resources for your team.
+            Service specs, training, and network resources for your team.
           </p>
 
           <div className="relative mt-8 w-full max-w-xl">

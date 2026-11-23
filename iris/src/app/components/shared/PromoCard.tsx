@@ -7,9 +7,8 @@ type PromoCardProps = {
   description: string;
   cta: string;
   icon: ReactNode;
-  image?: string;
-  /** Solid brand fill instead of a photo overlay. */
-  tone?: "photo" | "brand";
+  /** Brand gradient fill: deep purple to cyan, or purple to magenta. */
+  tone?: "dark" | "brand";
   onClick?: () => void;
   className?: string;
 };
@@ -19,12 +18,11 @@ export function PromoCard({
   description,
   cta,
   icon,
-  image,
-  tone = "photo",
+  tone = "dark",
   onClick,
   className,
 }: PromoCardProps) {
-  const isBrand = tone === "brand" || !image;
+  const isBrand = tone === "brand";
 
   return (
     <button
@@ -37,21 +35,17 @@ export function PromoCard({
         className,
       )}
     >
-      {!isBrand && image ? (
-        <img
-          src={image}
-          alt=""
-          aria-hidden
-          className="absolute inset-0 size-full object-cover opacity-70 transition-transform duration-500 group-hover:scale-105"
-        />
-      ) : null}
       <div
         className={cn(
-          "absolute inset-0",
+          "absolute inset-0 transition-transform duration-500 group-hover:scale-105",
           isBrand
             ? "bg-gradient-to-br from-primary to-brand-accent"
-            : "bg-gradient-to-t from-brand-dark via-brand-dark/70 to-brand-dark/20",
+            : "bg-gradient-to-br from-brand-dark via-primary to-blue",
         )}
+        aria-hidden
+      />
+      <div
+        className="absolute -right-10 -top-10 size-40 rounded-full bg-brand-coral/40 blur-2xl"
         aria-hidden
       />
 

@@ -3,21 +3,24 @@ import { useNavigate } from "react-router-dom";
 import Autoplay from "embla-carousel-autoplay";
 import {
   ArrowRight,
+  BookOpen,
   ChevronLeft,
   ChevronRight,
+  ClipboardCheck,
+  FileText,
+  Network,
+  PackageCheck,
   Pause,
   Play,
+  PlayCircle,
+  Route,
+  type LucideIcon,
 } from "lucide-react";
 
-import carouselBanner from "../../assets/figma/carousel-banner.png";
-import carouselProduct from "../../assets/figma/carousel-product.png";
-import {
-  MARKETING_BANNER_IMAGES,
-  type MarketingBannerImageKey,
-} from "../data/marketingBannerImages";
 import {
   MARKETING_SLIDES,
   type MarketingNavView,
+  type MarketingSlideIcon,
   type MarketingSlide,
   type MarketingSlideAction,
 } from "../data/marketingSlides";
@@ -40,15 +43,20 @@ const MARKETING_NAV_ROUTES: Record<MarketingNavView, string> = {
   account: ROUTES.account,
 };
 
-/** Prefer Figma-exported art for the lead slide; fall back to local banners. */
-const FIGMA_SLIDE_OVERRIDES: Record<
-  string,
-  { background?: string; product?: string }
-> = {
-  "new-synthetic-5w30": {
-    background: carouselBanner,
-    product: carouselProduct,
-  },
+const SLIDE_ICONS: Record<MarketingSlideIcon, LucideIcon> = {
+  network: Network,
+  orders: PackageCheck,
+  route: Route,
+  training: PlayCircle,
+  collateral: FileText,
+  knowledge: BookOpen,
+  assessment: ClipboardCheck,
+};
+
+const SLIDE_GRADIENTS: Record<MarketingSlide["theme"], string> = {
+  primary: "bg-gradient-to-br from-brand-dark via-primary to-brand-accent",
+  dark: "bg-gradient-to-br from-brand-dark via-primary to-blue",
+  neutral: "bg-gradient-to-br from-brand-dark via-primary to-brand-coral",
 };
 
 function runSlideAction(
@@ -69,25 +77,10 @@ function runSlideAction(
   }
 }
 
-function resolveBg(slide: MarketingSlide) {
-  const override = FIGMA_SLIDE_OVERRIDES[slide.id]?.background;
-  if (override) return override;
-  const key = (slide.backgroundKey ??
-    "carouselBgGears") as MarketingBannerImageKey;
-  return MARKETING_BANNER_IMAGES[key];
-}
-
-function resolveProduct(slide: MarketingSlide) {
-  const override = FIGMA_SLIDE_OVERRIDES[slide.id]?.product;
-  if (override) return override;
-  if (!slide.productKey) return undefined;
-  return MARKETING_BANNER_IMAGES[slide.productKey];
-}
-
-/** Ordered to match Figma Home: Synthetic 5W-30 lead slide first. */
+/** The Nashville to Atlanta route announcement leads the carousel. */
 const ORDERED_SLIDES: MarketingSlide[] = (() => {
-  const lead = MARKETING_SLIDES.find((s) => s.id === "new-synthetic-5w30");
-  const rest = MARKETING_SLIDES.filter((s) => s.id !== "new-synthetic-5w30");
+  const lead = MARKETING_SLIDES.find((s) => s.id === "nashville-atlanta-waves");
+  const rest = MARKETING_SLIDES.filter((s) => s.id !== "nashville-atlanta-waves");
   return lead ? [lead, ...rest].slice(0, 4) : MARKETING_SLIDES.slice(0, 4);
 })();
 
@@ -148,28 +141,26 @@ export function MarketingBannerCarousel() {
       >
         <CarouselContent className="ml-0">
           {ORDERED_SLIDES.map((slide) => {
-            const bgSrc = resolveBg(slide);
-            const productSrc = resolveProduct(slide);
+            const SlideIcon = SLIDE_ICONS[slide.icon];
 
             return (
               <CarouselItem key={slide.id} className="pl-0 basis-full">
                 <div className="relative w-full overflow-hidden">
                   {/* Banner body — 400px content + overlays */}
                   <div className="relative h-[400px] w-full">
-                    <div className="absolute inset-0 bg-foreground" aria-hidden />
-                    <img
-                      src={bgSrc}
-                      alt=""
-                      aria-hidden
-                      className="absolute inset-0 size-full object-cover"
-                    />
-                    {/* Blue brand wash matching Figma carousel/card/secondary */}
                     <div
-                      className="absolute inset-0 bg-primary/85 mix-blend-multiply"
+                      className={cn(
+                        "absolute inset-0",
+                        SLIDE_GRADIENTS[slide.theme],
+                      )}
                       aria-hidden
                     />
                     <div
-                      className="absolute inset-0 bg-primary/40"
+                      className="absolute -right-24 -top-24 size-96 rounded-full bg-blue/40 blur-3xl"
+                      aria-hidden
+                    />
+                    <div
+                      className="absolute -bottom-32 left-1/3 size-96 rounded-full bg-brand-coral/25 blur-3xl"
                       aria-hidden
                     />
 
@@ -201,17 +192,17 @@ export function MarketingBannerCarousel() {
                         </button>
                       </div>
 
-                      {productSrc ? (
-                        <div className="ml-auto hidden h-full items-center justify-center py-20 md:flex flex-1">
-                          <div className="flex size-[240px] items-center overflow-hidden px-[34px]">
-                            <img
-                              src={productSrc}
-                              alt={slide.imageAlt ?? slide.title}
-                              className="h-full w-auto object-contain"
-                            />
-                          </div>
+                      <div
+                        className="ml-auto hidden h-full flex-1 items-center justify-center py-20 md:flex"
+                        aria-hidden
+                      >
+                        <div className="flex size-[240px] items-center justify-center rounded-3xl border border-white/25 bg-white/10 shadow-xl backdrop-blur-[4px]">
+                          <SlideIcon
+                            className="size-24 text-white/90"
+                            strokeWidth={1.25}
+                          />
                         </div>
-                      ) : null}
+                      </div>
                     </div>
                   </div>
                 </div>

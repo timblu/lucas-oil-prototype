@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import {
   BookOpen,
   CircleUserRound,
-  Droplets,
+  Network,
   LayoutDashboard,
   Package,
   Receipt,
@@ -26,7 +26,7 @@ const PAGES = [
   { label: "Dashboard", to: ROUTES.dashboard, icon: LayoutDashboard },
   { label: "Orders", to: ROUTES.orders, icon: Package },
   { label: "Invoices", to: ROUTES.invoices, icon: Receipt },
-  { label: "Catalog", to: ROUTES.catalog, icon: Droplets },
+  { label: "Catalog", to: ROUTES.catalog, icon: Network },
   { label: "Knowledge Hub", to: ROUTES.knowledgeHub, icon: BookOpen },
   { label: "Resources", to: ROUTES.marketingCollateral, icon: ReceiptText },
   { label: "Account", to: ROUTES.account, icon: CircleUserRound },
@@ -107,7 +107,7 @@ export function GlobalSearch({
               value={`product ${product.id} ${product.name} ${product.category}`}
               onSelect={() => go(ROUTES.product(product.id))}
             >
-              <Droplets />
+              <Network />
               <span className="truncate">{product.name}</span>
             </CommandItem>
           ))}

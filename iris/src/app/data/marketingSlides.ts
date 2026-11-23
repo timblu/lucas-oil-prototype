@@ -1,5 +1,3 @@
-import type { MarketingBannerImageKey } from "./marketingBannerImages";
-
 export type MarketingSlideKind =
   | "new-product"
   | "promotion"
@@ -23,7 +21,14 @@ export type MarketingSlideAction =
   | { type: "product"; productId: string }
   | { type: "external"; url: string };
 
-export type MarketingSlideImageLayout = "hero" | "background";
+export type MarketingSlideIcon =
+  | "network"
+  | "orders"
+  | "route"
+  | "training"
+  | "collateral"
+  | "knowledge"
+  | "assessment";
 
 export type MarketingSlide = {
   id: string;
@@ -34,32 +39,25 @@ export type MarketingSlide = {
   ctaLabel: string;
   action: MarketingSlideAction;
   theme: "primary" | "dark" | "neutral";
-  imageLayout?: MarketingSlideImageLayout;
-  backgroundKey?: MarketingBannerImageKey;
-  productKey?: MarketingBannerImageKey;
-  /** Alt text for the product layer (hero layout). */
-  imageAlt?: string;
-  backgroundPosition?: string;
+  /** Decorative icon shown on the brand-gradient visual panel. */
+  icon: MarketingSlideIcon;
 };
 
 export const MARKETING_SLIDES: MarketingSlide[] = [
   {
-    id: "catalog-2026",
+    id: "service-catalog",
     kind: "catalog",
     badge: "Resource Center",
-    title: "2026 Full Line — pricing & inventory",
+    title: "IRIS service catalog — pricing & availability",
     description:
-      "Look up item numbers, case quantities, distributor pricing, and real-time stock levels across motor oils, gear lubes, additives, and specialty fluids.",
-    ctaLabel: "Browse resources",
+      "Look up item numbers, billing units, partner pricing, and availability across business internet, carrier Ethernet, dedicated internet access, transport, and DDoS protection.",
+    ctaLabel: "Browse catalog",
     action: { type: "nav", view: "catalog" },
     theme: "primary",
-    imageLayout: "hero",
-    backgroundKey: "carouselBgGears",
-    productKey: "productCatalog",
-    imageAlt: "Lucas Oil full line product catalog cover",
+    icon: "network",
   },
   {
-    id: "shipment-tracking",
+    id: "order-tracking",
     kind: "orders",
     badge: "Order status",
     title: "Track open orders & deliveries",
@@ -68,85 +66,66 @@ export const MARKETING_SLIDES: MarketingSlide[] = [
     ctaLabel: "View your orders",
     action: { type: "nav", view: "orders" },
     theme: "dark",
-    imageLayout: "hero",
-    backgroundKey: "carouselBgMachinery",
-    productKey: "productOilStabilizer",
-    imageAlt: "Lucas Oil Heavy Duty Oil Stabilizer product group",
+    icon: "orders",
   },
   {
-    id: "new-synthetic-5w30",
+    id: "nashville-atlanta-waves",
     kind: "new-product",
-    badge: "New product",
-    title: "Synthetic 5W-30 Now In Stock",
+    badge: "New route",
+    title: "Nashville to Atlanta waves now available",
     description:
-      "API SP / ILSAC GF-6A full synthetic for modern passenger-car and light-truck applications. Check case pricing and availability before you quote your accounts.",
-    ctaLabel: "View Product",
+      "10G and 100G circuits, with up to 400G possible, on the new IRIS route powered by the Ciena 6500 optical platform. A direct path to Atlanta data centers and cloud on-ramps. Circuits are limited, so check availability before you quote.",
+    ctaLabel: "View service",
     action: { type: "product", productId: "10203" },
     theme: "dark",
-    imageLayout: "hero",
-    backgroundKey: "carouselBgOilPour",
-    productKey: "productSynthetic5w30",
-    imageAlt:
-      "Lucas Oil synthetic API SP motor oil lineup from the 2026 catalog",
+    icon: "route",
   },
   {
-    id: "additive-training",
+    id: "partner-training",
     kind: "training",
-    badge: "Product training",
-    title: "Counter staff training videos",
+    badge: "Partner training",
+    title: "IRIS service training videos",
     description:
-      "15-minute modules on fuel treatments, oil supplements, and transmission conditioners — OEM callouts and typical retail use cases your team can share at the counter.",
+      "Short modules on dedicated internet, carrier Ethernet, wavelengths, dark fiber, and DDoS protection, so your team can position the right IRIS service for each customer.",
     ctaLabel: "Watch product videos",
     action: { type: "nav", view: "product-videos" },
     theme: "dark",
-    imageLayout: "hero",
-    backgroundKey: "carouselBgFuelPump",
-    productKey: "productFuelTreatment",
-    imageAlt: "Lucas Oil fuel treatment bottle",
+    icon: "training",
   },
   {
     id: "marketing-collateral",
     kind: "promotion",
     badge: "Marketing",
-    title: "Sell sheets, catalogs & booth graphics",
+    title: "Service guides, capability statements & booth graphics",
     description:
-      "Download the 2026 catalog PDF, Hi-Perf line sheet, brand standards, and trade-show artwork. Request printed copies shipped to your distributor account.",
+      "Download the 2026 service catalog, network capability statement, brand standards, and trade-show artwork. Request printed copies shipped to your distributor account.",
     ctaLabel: "View marketing collateral",
     action: { type: "nav", view: "marketing-collateral" },
     theme: "primary",
-    imageLayout: "hero",
-    backgroundKey: "carouselBgOilPour",
-    productKey: "productHiPerf",
-    imageAlt: "European synthetic motor oil spread from the Lucas Oil catalog",
+    icon: "collateral",
   },
   {
     id: "knowledge-hub",
     kind: "resources",
     badge: "Technical resources",
-    title: "Specs, bulletins & SDS lookup",
+    title: "Specs, bulletins & service briefs",
     description:
-      "Application notes, OEM approvals, formulation updates, and safety data sheets — everything your inside sales and warehouse teams need in one place.",
+      "Route and capacity updates, service briefs, and network FAQs — everything your sales and support teams need to talk about the IRIS network in one place.",
     ctaLabel: "Open knowledge hub",
     action: { type: "nav", view: "knowledge-hub" },
     theme: "neutral",
-    imageLayout: "hero",
-    backgroundKey: "carouselBgGears",
-    productKey: "productOilStabilizer",
-    imageAlt: "Lucas Oil Heavy Duty Oil Stabilizer product group",
+    icon: "knowledge",
   },
   {
-    id: "spring-counter-display",
+    id: "network-assessment",
     kind: "promotion",
-    badge: "Spring program",
-    title: "Free counter display — order by April 15",
+    badge: "Partner program",
+    title: "Network assessments for your customers",
     description:
-      "Order 4+ cases of Hi-Perf motor oil and receive a counter display kit at no charge. One kit per ship-to. Questions? Contact your rep.",
+      "IRIS designs custom solutions for enterprise, healthcare, education, government, and financial services accounts, starting with a network assessment. Questions? Contact your rep.",
     ctaLabel: "Contact your rep",
     action: { type: "nav", view: "account" },
     theme: "dark",
-    imageLayout: "hero",
-    backgroundKey: "carouselBgMachinery",
-    productKey: "productOilStabilizer",
-    imageAlt: "Lucas Oil Hi-Perf motor oil counter display",
+    icon: "assessment",
   },
 ];

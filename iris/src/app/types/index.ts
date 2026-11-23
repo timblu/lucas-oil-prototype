@@ -31,7 +31,7 @@ export type Carrier = "UPS" | "FedEx" | "USPS";
 export interface Product {
   id: string;
   name: string;
-  caseQty: string;
+  billingUnit: string;
   price: number;
   inventory: "in-stock" | "low" | "out";
   inventoryCount?: number;

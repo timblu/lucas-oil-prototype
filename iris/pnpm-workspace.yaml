@@ -1,4 +1,4 @@
-# Standalone Iris app; keeps this package out of the Lucas Oil root workspace.
+# Standalone IRIS app; keeps this package out of the repository root workspace.
 packages:
   - "."
 allowBuilds:

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Package, Search } from "lucide-react";
+import { Network, Search } from "lucide-react";
 import { PageHeader } from "../../components/shared/PageHeader";
 import { PRODUCTS } from "../../data/products";
 import { fmt } from "../../lib/format";
@@ -39,7 +39,7 @@ export default function CatalogPage() {
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search products…"
+            placeholder="Search services…"
             className="w-full pl-9 pr-3 py-2 bg-card border border-border-default rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-ring/20 focus:border-ring/40"
           />
         </div>
@@ -77,7 +77,7 @@ export default function CatalogPage() {
                 p.colorClass,
               )}
             >
-              <Package size={40} className="text-white/50" />
+              <Network size={40} className="text-white/50" />
             </div>
             <div className="p-3 space-y-1">
               <p className="font-mono text-2xs text-muted-foreground">
@@ -90,7 +90,7 @@ export default function CatalogPage() {
                 <span className="font-mono">{fmt(p.price)}</span>
                 <span className="text-xs text-muted-foreground font-normal">
                   {" "}
-                  / Case
+                  / unit
                 </span>
               </p>
             </div>

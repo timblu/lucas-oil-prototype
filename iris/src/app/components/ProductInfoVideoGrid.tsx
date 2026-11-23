@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { ExternalLink, Play, X, ChevronRight } from "lucide-react";
+import { Play, X, ChevronRight } from "lucide-react";
 import {
-  PRODUCT_INFO_PLAYLIST_URL,
   PRODUCT_INFO_VIDEOS,
   type ProductInfoVideo,
-  productInfoVideoEmbedUrl,
-  productInfoVideoThumbnailUrl,
-  productInfoVideoWatchUrl,
+  productInfoVideoGradient,
 } from "../data/productInfoVideos";
+import { cn } from "./ui/utils";
 
 function VideoModal({
   video,
@@ -44,16 +42,22 @@ function VideoModal({
         >
           <X size={24} />
         </button>
-        <div className="aspect-video w-full overflow-hidden rounded-xl bg-black shadow-2xl">
-          <iframe
-            src={productInfoVideoEmbedUrl(video.id)}
-            title={video.title}
-            className="h-full w-full"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
+        <div
+          className={cn(
+            "relative flex aspect-video w-full flex-col items-center justify-center gap-4 overflow-hidden rounded-xl bg-gradient-to-br p-8 text-center text-white shadow-2xl",
+            productInfoVideoGradient(video.topic),
+          )}
+        >
+          <div className="flex size-16 items-center justify-center rounded-full bg-white/20">
+            <Play size={28} className="ml-1" fill="currentColor" />
+          </div>
+          <p className="max-w-md text-sm text-white/85">
+            Recordings for this module are published by your IRIS rep. Contact
+            them for the latest version.
+          </p>
         </div>
-        <p className="mt-3 text-sm text-white/90 line-clamp-2">{video.title}</p>
+        <p className="mt-3 text-sm font-medium text-white/90">{video.title}</p>
+        <p className="mt-1 text-sm text-white/70">{video.description}</p>
       </div>
     </div>
   );
@@ -80,7 +84,7 @@ export function ProductInfoVideoGrid({
             Product Information Videos
           </h2>
           <p className="text-sm text-muted-foreground mt-1">
-            Training and demos from the Lucas Oil YouTube channel
+            Service overviews and training for the IRIS partner team
           </p>
         </div>
         {onViewAll ? (
@@ -92,17 +96,7 @@ export function ProductInfoVideoGrid({
             View all videos
             <ChevronRight size={14} />
           </button>
-        ) : (
-          <a
-            href={PRODUCT_INFO_PLAYLIST_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-dark hover:underline shrink-0"
-          >
-            View full playlist
-            <ExternalLink size={14} />
-          </a>
-        )}
+        ) : null}
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -116,16 +110,21 @@ export function ProductInfoVideoGrid({
               onClick={() => setActiveVideo(video)}
               className="w-full text-left"
             >
-              <div className="relative aspect-video bg-muted overflow-hidden">
-                <img
-                  src={productInfoVideoThumbnailUrl(video.id)}
-                  alt=""
-                  loading="lazy"
-                  className="h-full w-full object-cover group-hover:scale-[1.02] transition-transform duration-300"
+              <div
+                className={cn(
+                  "relative flex aspect-video items-end overflow-hidden bg-gradient-to-br p-4",
+                  productInfoVideoGradient(video.topic),
+                )}
+              >
+                <div
+                  className="absolute -right-8 -top-8 size-28 rounded-full bg-brand-coral/30 blur-2xl"
+                  aria-hidden
                 />
-                <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors" />
+                <span className="relative inline-flex h-6 items-center rounded-full border border-white/60 px-3 text-2xs font-semibold uppercase text-white">
+                  {video.topic}
+                </span>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-full bg-black/65 flex items-center justify-center text-white group-hover:bg-brand-dark group-hover:scale-105 transition-all">
+                  <div className="w-12 h-12 rounded-full bg-black/40 flex items-center justify-center text-white group-hover:bg-white/30 group-hover:scale-105 transition-all">
                     <Play size={20} className="ml-0.5" fill="currentColor" />
                   </div>
                 </div>
@@ -136,18 +135,6 @@ export function ProductInfoVideoGrid({
                 </h3>
               </div>
             </button>
-            <div className="px-4 pb-4 -mt-1">
-              <a
-                href={productInfoVideoWatchUrl(video.id)}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-muted-foreground hover:text-brand-dark transition-colors inline-flex items-center gap-1"
-                onClick={(e) => e.stopPropagation()}
-              >
-                Watch on YouTube
-                <ExternalLink size={12} />
-              </a>
-            </div>
           </article>
         ))}
       </div>

@@ -5,12 +5,11 @@ import {
   CalendarFold,
   ChevronRight,
   Download,
-  Droplets,
+  Network,
   Package,
   Phone,
   Receipt,
 } from "lucide-react";
-import featuredGears from "../../assets/figma/featured-gears.png";
 import { brand } from "../brand/brand";
 import { Card } from "../components/shared/Card";
 import { DashboardSummaryCard } from "../components/shared/DashboardSummaryCard";
@@ -232,26 +231,24 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <PromoCard
             title="Knowledge Hub"
-            description="Product specs, training, and technical resources."
+            description="Service specs, partner training, and network resources."
             cta="Open hub"
             icon={<BookOpen />}
-            image={featuredGears}
             onClick={() => navigate(ROUTES.knowledgeHub)}
           />
           <PromoCard
             title="Catalog"
-            description="Browse parts, equipment, and product information."
+            description="Browse IRIS internet, Ethernet, transport, and security services."
             cta="View catalog"
-            icon={<Droplets />}
-            image={featuredGears}
+            icon={<Network />}
+            tone="brand"
             onClick={() => navigate(ROUTES.catalog)}
           />
           <PromoCard
             title="Resources"
-            description="Download catalogs and marketing material."
+            description="Download service guides and marketing material."
             cta="View downloads"
             icon={<Download />}
-            tone="brand"
             onClick={() => navigate(ROUTES.marketingCollateral)}
           />
         </div>

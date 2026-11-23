@@ -21,29 +21,29 @@ import { ROUTES } from "../routes";
 const COLLATERAL = [
   {
     id: "1",
-    title: "2026 Product Catalog",
+    title: "2026 Service Catalog",
     type: "PDF",
     size: "4.2 MB",
     pages: 48,
     icon: <BookOpen size={20} />,
     updated: "01/15/26",
     description:
-      "Full distributor product catalog covering the complete 2026 lineup — motor oils, gear lubes, additives, and specialty fluids. Includes item numbers, case quantities, and suggested retail pricing.",
+      "Full partner service catalog for 2026 — business internet, carrier Ethernet, dedicated internet access, transport, dark fiber, and DDoS protection. Includes item numbers, billing units, and partner pricing.",
     previewColor: "bg-primary",
-    previewLabel: "PRODUCT CATALOG 2026",
+    previewLabel: "SERVICE CATALOG 2026",
   },
   {
     id: "2",
-    title: "Hi-Perf Motor Oil Line Sheet",
+    title: "Carrier Solutions Sell Sheet",
     type: "PDF",
     size: "1.1 MB",
     pages: 2,
     icon: <FileDown size={20} />,
     updated: "02/03/26",
     description:
-      "Two-page sell sheet for the high-performance motor oil range. Designed for counter sales and trade events. Covers viscosity grades, approvals (API, ILSAC), and key differentiators.",
+      "Two-page sell sheet for IRIS carrier-grade services: Ethernet, dedicated internet access, transport, and dark fiber. Designed for sales calls and trade events. Covers speeds from 10 Mbps to 400 Gbps, route diversity, and key differentiators.",
     previewColor: "bg-foreground",
-    previewLabel: "HI-PERF MOTOR OIL",
+    previewLabel: "CARRIER SOLUTIONS",
   },
   {
     id: "3",
@@ -54,22 +54,22 @@ const COLLATERAL = [
     icon: <Star size={20} />,
     updated: "12/10/25",
     description:
-      "Official brand guidelines for all distributor co-marketing use. Includes logo usage rules, color palette, typography, photography direction, and approved tagline variations.",
+      "Official brand guidelines for all distributor co-marketing use. Includes logo usage rules, color palette, typography, imagery direction, and approved tagline variations.",
     previewColor: "bg-primary",
     previewLabel: "BRAND STANDARDS",
   },
   {
     id: "4",
-    title: "Additive Product Sell Sheet",
+    title: "Network Capability Statement",
     type: "PDF",
     size: "980 KB",
     pages: 2,
     icon: <Tag size={20} />,
     updated: "03/01/26",
     description:
-      "Counter-ready two-page overview of the additive lineup including fuel treatments, engine oil supplements, and transmission conditioners. Features OEM-approved callouts and typical use cases.",
+      "Two-page overview of the IRIS fiber network: over 5,000 route miles, 250+ communities, 24/7 monitoring, and local support. Written for government, education, healthcare, and enterprise buyers.",
     previewColor: "bg-foreground",
-    previewLabel: "ADDITIVE LINE",
+    previewLabel: "CAPABILITY STATEMENT",
   },
   {
     id: "5",
@@ -80,22 +80,22 @@ const COLLATERAL = [
     icon: <Image size={20} />,
     updated: "02/20/26",
     description:
-      "Print-ready booth graphics package for trade shows and distributor events. Includes 10×10 and 10×20 backwall artwork, banner stands, table throws, and product spotlight panels at 300 dpi.",
+      "Print-ready booth graphics package for trade shows and distributor events. Includes 10×10 and 10×20 backwall artwork, banner stands, table throws, and service spotlight panels at 300 dpi.",
     previewColor: "bg-muted",
     previewLabel: "BOOTH GRAPHICS",
   },
   {
     id: "6",
-    title: "MSDS / SDS Sheet Bundle",
+    title: "Service Brief Bundle",
     type: "ZIP",
     size: "6.3 MB",
     pages: null,
     icon: <Layers size={20} />,
     updated: "03/10/26",
     description:
-      "Compliance bundle containing Safety Data Sheets for the full product range. Required for retail shelf placement and commercial accounts. Updated to GHS/HazCom 2012 format.",
+      "Service briefs for the full IRIS service range, including specifications, availability notes, and service-level information for customer proposals and bids.",
     previewColor: "bg-muted",
-    previewLabel: "SDS BUNDLE",
+    previewLabel: "SERVICE BRIEFS",
   },
 ];
 
@@ -308,7 +308,7 @@ export default function MarketingCollateralPage() {
               </span>
               <span className="flex items-center gap-1.5 text-muted-foreground">
                 <Phone size={14} />
-                800-342-2512 x310
+                615-425-2300 x310
               </span>
             </div>
           </div>

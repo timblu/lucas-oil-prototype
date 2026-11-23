@@ -76,19 +76,19 @@ export const ORDERS: Order[] = [
 export const ORDER_ITEMS: OrderItem[] = [
   {
     itemNum: "10087",
-    description: "Hi-Perf 10W-30 (case)",
+    description: "Business Broadband Internet 1 Gbps",
     qty: 10,
     unitPrice: 78.5,
   },
   {
     itemNum: "10091",
-    description: "Marine Gear Lube 80W-90",
+    description: "Carrier Ethernet circuit",
     qty: 6,
     unitPrice: 92.0,
   },
   {
     itemNum: "10112",
-    description: "Fuel Treatment 32oz (24)",
+    description: "Dedicated Internet Access (DIA)",
     qty: 4,
     unitPrice: 134.5,
   },

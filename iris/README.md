@@ -1,6 +1,6 @@
 # IRIS Networks Distributor Portal
 
-A single-brand copy of the distributor portal, built on shadcn/ui (Vite + React + Tailwind v4). The original Lucas Oil prototype at the repository root is unchanged.
+A single-brand copy of the distributor portal, built on shadcn/ui (Vite + React + Tailwind v4). The original prototype at the repository root is unchanged.
 
 This copy is branded for IRIS Networks. To make a new brand, fork this folder and change the brand files listed below. There is no runtime theme switcher.
 
@@ -31,7 +31,7 @@ Each file below holds one kind of brand value. Change them in this order.
 | Semantic roles (primary, brand-dark, brand-soft, heading, accent, chart, sidebar) | `:root` in `src/styles/theme.css` |
 | Font families and Google Fonts import | `--font-family-*` in `src/styles/tokens.css`, `@import` in `src/styles/index.css` |
 | Account and rep details shown in the portal | `src/app/data/account.ts` |
-| Product catalog, product photos, video and marketing copy | `src/app/data/` and `public/` / `src/assets/` image folders |
+| Service catalog, marketing slides, and video copy (brand gradients, no photos) | `src/app/data/` |
 
 Components read colors and fonts only from semantic tokens, so they need no changes when the tokens change.
 
