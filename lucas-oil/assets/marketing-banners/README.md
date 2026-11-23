@@ -12,7 +12,7 @@ Replace this file to change the scene for all slides, or set a per-slide `backgr
 
 ## Product layers (per slide)
 
-Transparent **PNG** preferred (~800–1200px tall, padding around product). Register new files in `src/app/data/marketingBannerImages.ts`.
+Transparent **PNG** preferred (~800–1200px tall, padding around product). Register new files in `lucas-oil/app/data/marketingBannerImages.ts`.
 
 | Slide (id) | Current file | Suggested drop-in name |
 |------------|--------------|-------------------------|
