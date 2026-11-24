@@ -17,6 +17,19 @@ pnpm start      # serve dist/ via server.js (run pnpm build first)
 
 The portal opens directly to the dashboard. Auth is mocked: `AuthProvider` in `src/app/auth/AuthContext.tsx` starts signed in, and the sign-in form accepts any non-empty input. Signing out returns to the sign-in form.
 
+## Deploy to Heroku
+
+This folder deploys on its own. `Procfile` runs `server.js`, which serves `dist/` and falls back to `index.html` for client-side routes. Heroku's Node buildpack installs with pnpm (from `pnpm-lock.yaml`), runs `build`, then starts the `web` process. No config vars are needed.
+
+To give IRIS its own repository and Heroku app, split this folder out of the Lucas Oil repo with its history:
+
+```bash
+git subtree split --prefix=iris -b iris-standalone
+git push <new-repo-url> iris-standalone:main
+```
+
+Then connect the new repo to its Heroku app and deploy `main`, or run `git push heroku iris-standalone:main` from the Lucas Oil clone to deploy this folder directly to an app that has no other code.
+
 ## Forking for another brand
 
 Each file below holds one kind of brand value. Change them in this order.
