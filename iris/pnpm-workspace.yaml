@@ -1,0 +1,6 @@
+# Standalone IRIS app; keeps this package out of the repository root workspace.
+packages:
+  - "."
+allowBuilds:
+  esbuild: true
+  "@tailwindcss/oxide": true

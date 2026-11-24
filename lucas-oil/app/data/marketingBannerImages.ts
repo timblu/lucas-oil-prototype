@@ -1,8 +1,8 @@
 /**
  * Banner art for hero carousel (background + product layers).
  *
- * Replace files under src/assets/marketing-banners/ and update imports here.
- * See src/assets/marketing-banners/README.md for dimensions and naming.
+ * Replace files under lucas-oil/assets/marketing-banners/ and update imports here.
+ * See lucas-oil/assets/marketing-banners/README.md for dimensions and naming.
  */
 import catalogCover from "../../assets/marketing-banners/catalog-cover.jpg";
 import carouselBgFuelPump from "../../assets/marketing-banners/carousel-bg-fuel-pump.jpg";

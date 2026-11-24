@@ -13,8 +13,8 @@
     "jsx": "react-jsx",
     "strict": false,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./lucas-oil/*"]
     }
   },
-  "include": ["src"]
+  "include": ["lucas-oil"]
 }
