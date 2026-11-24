@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Building2, Mail, MapPin, Phone, User } from "lucide-react";
 import { brand } from "../brand/brand";
 import { Card } from "../components/shared/Card";
@@ -13,7 +13,7 @@ import {
   DISTRIBUTOR_ACCOUNT,
 } from "../data/account";
 import { fmt } from "../lib/format";
-import { ROUTES } from "../routes";
+import { ACCOUNT_SECTIONS, ROUTES, type AccountSection } from "../routes";
 
 // OPEN QUESTION: Financial fields (Credit Line, Available Credit, Current
 // Balance, Credit Memos) may live in Sage 100 and not yet be mapped through
@@ -304,11 +304,24 @@ function FinancialTab() {
 }
 
 export default function AccountPage() {
+  const { section } = useParams();
+  const navigate = useNavigate();
+
+  if (!ACCOUNT_SECTIONS.includes(section as AccountSection)) {
+    return <Navigate to={ROUTES.accountSection("info")} replace />;
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
       <PageHeader title="Account" />
 
-      <Tabs defaultValue="info" className="gap-6">
+      <Tabs
+        value={section}
+        onValueChange={(next) =>
+          navigate(ROUTES.accountSection(next as AccountSection))
+        }
+        className="gap-6"
+      >
         <TabsList className="w-full sm:w-fit h-auto p-1">
           <TabsTrigger value="info" className="flex-1 sm:flex-none px-4 py-2">
             Account Info

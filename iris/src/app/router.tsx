@@ -54,7 +54,13 @@ export const router = createBrowserRouter(
                   path: "/invoices/:invoiceId",
                   element: <InvoiceDetailPage />,
                 },
-                { path: ROUTES.account, element: <AccountPage /> },
+                {
+                  path: ROUTES.account,
+                  element: (
+                    <Navigate to={ROUTES.accountSection("info")} replace />
+                  ),
+                },
+                { path: "/account/:section", element: <AccountPage /> },
                 { path: ROUTES.knowledgeHub, element: <KnowledgeHubPage /> },
                 { path: ROUTES.productVideos, element: <ProductVideosPage /> },
                 {
